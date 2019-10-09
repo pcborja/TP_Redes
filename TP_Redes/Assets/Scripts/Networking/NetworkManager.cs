@@ -2,6 +2,7 @@
 using Photon.Realtime;
 using System.Linq;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
 public class NetworkManager : MonoBehaviourPunCallbacks
@@ -34,7 +35,7 @@ public class NetworkManager : MonoBehaviourPunCallbacks
 
     public override void OnJoinedLobby()
     {
-        PhotonNetwork.JoinOrCreateRoom("MainRoom", new RoomOptions() { MaxPlayers = 4 }, TypedLobby.Default);
+        PhotonNetwork.JoinOrCreateRoom("MainRoom", new RoomOptions { MaxPlayers = 4 }, TypedLobby.Default);
     }
 
     public override void OnJoinedRoom()
@@ -48,8 +49,14 @@ public class NetworkManager : MonoBehaviourPunCallbacks
         startButtonObject.SetActive(true);
     }
 
+    public override void OnDisconnected(DisconnectCause cause)
+    {
+    }
+
     public void StartGame()
     {
+        startButtonObject.SetActive(false);
+        ActivePlayerMenuObject(PhotonNetwork.LocalPlayer.ActorNumber - 1, false);
         PhotonNetwork.LoadLevel("GameLevel");
     }
 
@@ -71,5 +78,23 @@ public class NetworkManager : MonoBehaviourPunCallbacks
 
         if (active)
             _playersObjects[position].GetComponentInChildren<Text>().text = PhotonNetwork.LocalPlayer.NickName;
+    }
+
+    public void StartPlayer(Character[] players)
+    {
+        var currPlayer = players[PhotonNetwork.LocalPlayer.ActorNumber - 1];
+        currPlayer.gameObject.SetActive(true);
+        if (Camera.main != null) 
+            Camera.main.transform.SetParent(currPlayer.cameraPos.transform);
+    }
+
+    public void BackButton()
+    {
+        startButtonObject.SetActive(false);
+        ActivePlayerMenuObject(PhotonNetwork.LocalPlayer.ActorNumber - 1, false);
+        PhotonNetwork.LeaveRoom();
+        PhotonNetwork.Disconnect();
+        SceneManager.LoadScene("IntroMenu");
+        playerNameInputfield.text = PhotonNetwork.LocalPlayer.NickName;
     }
 }

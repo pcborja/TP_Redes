@@ -350,7 +350,20 @@
           </e>
         </e>
         <e p="Scripts" t="Include">
-          <e p="NetworkManager.cs" t="Include" />
+          <e p="Level" t="Include">
+            <e p="LevelManager.cs" t="Include" />
+            <e p="LocalSceneManger.cs" t="Include" />
+          </e>
+          <e p="Networking" t="Include">
+            <e p="NetworkManager.cs" t="Include" />
+            <e p="PlayerMenuData.cs" t="Include" />
+          </e>
+          <e p="Player" t="Include">
+            <e p="Character.cs" t="Include" />
+          </e>
+          <e p="Utils" t="Include">
+            <e p="Constants.cs" t="Include" />
+          </e>
         </e>
       </e>
       <e p="Library" t="ExcludeRecursive" />
