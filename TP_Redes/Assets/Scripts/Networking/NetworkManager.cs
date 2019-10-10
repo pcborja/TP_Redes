@@ -12,9 +12,17 @@ public class NetworkManager : MonoBehaviourPunCallbacks
     public GameObject startButtonObject;
     public GameObject[] _playersObjects;
 
-    void Awake()
+    private void Awake()
     {
         DontDestroyOnLoad(gameObject);
+    }
+
+    private void Update()
+    {
+        if (SceneManager.GetActiveScene().name == Constants.INTRO_SCENE && Input.GetKeyDown(KeyCode.Return))
+        {
+            ConnectToServerButton();
+        }
     }
 
     public void ConnectToServerButton()
@@ -30,34 +38,35 @@ public class NetworkManager : MonoBehaviourPunCallbacks
 
     public override void OnConnectedToMaster()
     {
-        PhotonNetwork.JoinLobby();
-    }
-
-    public override void OnJoinedLobby()
-    {
         PhotonNetwork.JoinOrCreateRoom("MainRoom", new RoomOptions { MaxPlayers = 4 }, TypedLobby.Default);
-    }
-
-    public override void OnJoinedRoom()
-    {
-        PhotonNetwork.LoadLevel("Lobby");
-        ActivePlayerMenuObject(PhotonNetwork.LocalPlayer.ActorNumber - 1, true);
     }
 
     public override void OnCreatedRoom()
     {
         startButtonObject.SetActive(true);
     }
+    
+    public override void OnJoinedRoom()
+    {
+        PhotonNetwork.LoadLevel("Lobby");
+        ActivePlayerMenuObject(PhotonNetwork.LocalPlayer.ActorNumber - 1, true);
+    }
 
     public override void OnDisconnected(DisconnectCause cause)
     {
+    }
+    
+    public override void OnJoinRandomFailed(short returnCode, string message)
+    {
+        PhotonNetwork.Disconnect();
     }
 
     public void StartGame()
     {
         startButtonObject.SetActive(false);
         ActivePlayerMenuObject(PhotonNetwork.LocalPlayer.ActorNumber - 1, false);
-        PhotonNetwork.LoadLevel("GameLevel");
+        
+        PhotonNetwork.LoadLevel("GameLevel"); //TODO - Call all players
     }
 
     public void ExitGame()
@@ -80,21 +89,20 @@ public class NetworkManager : MonoBehaviourPunCallbacks
             _playersObjects[position].GetComponentInChildren<Text>().text = PhotonNetwork.LocalPlayer.NickName;
     }
 
-    public void StartPlayer(Character[] players)
-    {
-        var currPlayer = players[PhotonNetwork.LocalPlayer.ActorNumber - 1];
-        currPlayer.gameObject.SetActive(true);
-        if (Camera.main != null) 
-            Camera.main.transform.SetParent(currPlayer.cameraPos.transform);
-    }
-
     public void BackButton()
     {
         startButtonObject.SetActive(false);
         ActivePlayerMenuObject(PhotonNetwork.LocalPlayer.ActorNumber - 1, false);
         PhotonNetwork.LeaveRoom();
         PhotonNetwork.Disconnect();
-        SceneManager.LoadScene("IntroMenu");
+        SceneManager.LoadScene(Constants.INTRO_SCENE);
         playerNameInputfield.text = PhotonNetwork.LocalPlayer.NickName;
+    }
+
+    public void DisconnectPlayer(string sceneToLoad)
+    {
+        PhotonNetwork.LeaveRoom();
+        PhotonNetwork.Disconnect();
+        SceneManager.LoadScene(sceneToLoad);
     }
 }

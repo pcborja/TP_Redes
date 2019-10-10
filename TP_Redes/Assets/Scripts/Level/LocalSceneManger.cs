@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using System;
+using UnityEngine;
 
 public class LocalSceneManger : MonoBehaviour
 {
@@ -7,6 +8,14 @@ public class LocalSceneManger : MonoBehaviour
     private void Awake()
     {
         _networkManager = FindObjectOfType<NetworkManager>();
+    }
+
+    private void Update()
+    {
+        if (Input.GetKeyDown(KeyCode.Escape))
+        {
+            BackButton();
+        }
     }
 
     public void ExitGame()
