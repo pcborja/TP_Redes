@@ -65,8 +65,13 @@ public class NetworkManager : MonoBehaviourPunCallbacks
     {
         startButtonObject.SetActive(false);
         ActivePlayerMenuObject(PhotonNetwork.LocalPlayer.ActorNumber - 1, false);
-        
-        PhotonNetwork.LoadLevel("GameLevel"); //TODO - Call all players
+        photonView.RPC("StartScene", RpcTarget.All);
+    }   
+
+    [PunRPC]
+    private void StartScene()
+    {
+        PhotonNetwork.LoadLevel("GameLevel");        
     }
 
     public void ExitGame()

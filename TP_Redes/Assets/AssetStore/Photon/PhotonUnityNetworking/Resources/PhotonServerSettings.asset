@@ -39,5 +39,11 @@ MonoBehaviour:
   - ProcedureMoveRequest
   - SetIsMoving
   - SetReference
+  - ProcedureShootRequest
+  - SetIsShooting
+  - DrawRaycast
+  - Move
+  - CreateController
+  - StartScene
   DisableAutoOpenWizard: 1
   ShowSettings: 1

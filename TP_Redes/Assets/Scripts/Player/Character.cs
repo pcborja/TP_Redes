@@ -12,10 +12,12 @@ public class Character : MonoBehaviourPun
     private PhotonView _view;
     public Rigidbody rb;
     public bool canMove;
-    public float timeToShoot;
+    public float timeToShoot = 1;
     public Transform shootObject;
     public GameObject bulletPrefab;
     private int _packagePerSecond = 20;
+
+    bool _canMove;
 
     private void Awake()
     {
@@ -26,29 +28,6 @@ public class Character : MonoBehaviourPun
     private void Start()
     {
         isHost = PhotonNetwork.LocalPlayer.IsMasterClient;
-        
-        if (_view.IsMine)
-            StartCoroutine(SendPackageMovement());
-    }
-
-    private IEnumerator SendPackageMovement()
-    {
-        while(true)
-        {
-            yield return new WaitForSeconds( 1 / _packagePerSecond);
-            if (Input.GetMouseButtonDown(0) && Physics.Raycast(Camera.main.ScreenPointToRay(Input.mousePosition), out var hit, 100))
-            {
-                if (hit.transform.gameObject.GetComponent<Enemy>())
-                {
-                    LevelManager.Instance.RequestShoot(hit.point, PhotonNetwork.LocalPlayer);
-                }
-                else
-                {
-                    LevelManager.Instance.RequestMovement(hit.point, PhotonNetwork.LocalPlayer);        
-                }
-            }
-            
-        }
     }
 
     private void Update()
@@ -57,6 +36,14 @@ public class Character : MonoBehaviourPun
         
         if (hp <= 0)
             LevelManager.Instance.Disconnect("LoseScene");
+    }
+
+    private void FixedUpdate()
+    {
+        if (!_view.IsMine)
+            return;
+
+        LevelManager.Instance.RequestMove(PhotonNetwork.LocalPlayer);
     }
 
     public void Move(Vector3 position)
@@ -88,5 +75,12 @@ public class Character : MonoBehaviourPun
         //Animations and stuff
         /*if (_anim)
             _anim.SetBool("IsMoving", v);*/
+    }
+
+    public void SetCanMove(bool v)
+    {
+        if (!_view.IsMine)
+            return;
+        _canMove = v;
     }
 }
