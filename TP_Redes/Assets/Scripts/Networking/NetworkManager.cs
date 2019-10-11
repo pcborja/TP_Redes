@@ -93,9 +93,7 @@ public class NetworkManager : MonoBehaviourPunCallbacks
     {
         startButtonObject.SetActive(false);
         ActivePlayerMenuObject(PhotonNetwork.LocalPlayer.ActorNumber - 1, false);
-        PhotonNetwork.LeaveRoom();
-        PhotonNetwork.Disconnect();
-        SceneManager.LoadScene(Constants.INTRO_SCENE);
+        DisconnectPlayer(Constants.INTRO_SCENE);
         playerNameInputfield.text = PhotonNetwork.LocalPlayer.NickName;
     }
 

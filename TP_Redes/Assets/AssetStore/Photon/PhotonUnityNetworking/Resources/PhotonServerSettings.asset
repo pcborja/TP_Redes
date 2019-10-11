@@ -35,5 +35,9 @@ MonoBehaviour:
   - Fire
   - RespawnSpaceship
   - DestroyPlayer
+  - AddPlayer
+  - ProcedureMoveRequest
+  - SetIsMoving
+  - SetReference
   DisableAutoOpenWizard: 1
   ShowSettings: 1

@@ -195,8 +195,8 @@ MonoBehaviour:
   isHost: 0
   hp: 100
   speed: 5
-  view: {fileID: 0}
   rb: {fileID: 0}
+  canMove: 0
 --- !u!136 &221469399
 CapsuleCollider:
   m_ObjectHideFlags: 0
@@ -735,6 +735,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1077313428}
   - component: {fileID: 1077313427}
+  - component: {fileID: 1077313429}
   m_Layer: 0
   m_Name: LevelManager
   m_TagString: Untagged
@@ -771,6 +772,28 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 4
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1077313429
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1077313426}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: aa584fbee541324448dd18d8409c7a41, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  ObservedComponentsFoldoutOpen: 1
+  Group: 0
+  prefixField: -1
+  Synchronization: 0
+  OwnershipTransfer: 0
+  ObservedComponents:
+  - {fileID: 0}
+  viewIdField: 3
+  InstantiationId: 0
+  isRuntimeInstantiated: 0
 --- !u!1 &1079038032
 GameObject:
   m_ObjectHideFlags: 0
@@ -1006,8 +1029,8 @@ MonoBehaviour:
   isHost: 0
   hp: 100
   speed: 5
-  view: {fileID: 0}
   rb: {fileID: 0}
+  canMove: 0
 --- !u!136 &1318397653
 CapsuleCollider:
   m_ObjectHideFlags: 0

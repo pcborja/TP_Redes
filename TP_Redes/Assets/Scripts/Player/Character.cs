@@ -9,61 +9,84 @@ public class Character : MonoBehaviourPun
     public bool isHost;
     public float hp;
     public float speed;
-    public PhotonView view;
+    private PhotonView _view;
     public Rigidbody rb;
-    private LevelManager _levelManager;
-    private bool canMove;
-    private Vector3 positionToMove;
+    public bool canMove;
+    public float timeToShoot;
+    public Transform shootObject;
+    public GameObject bulletPrefab;
+    private int _packagePerSecond = 20;
 
     private void Awake()
     {
-        view = GetComponent<PhotonView>();
+        _view = GetComponent<PhotonView>();
         rb = GetComponent<Rigidbody>();
-        _levelManager = FindObjectOfType<LevelManager>();
     }
     
     private void Start()
     {
         isHost = PhotonNetwork.LocalPlayer.IsMasterClient;
+        
+        if (_view.IsMine)
+            StartCoroutine(SendPackageMovement());
+    }
+
+    private IEnumerator SendPackageMovement()
+    {
+        while(true)
+        {
+            yield return new WaitForSeconds( 1 / _packagePerSecond);
+            if (Input.GetMouseButtonDown(0) && Physics.Raycast(Camera.main.ScreenPointToRay(Input.mousePosition), out var hit, 100))
+            {
+                if (hit.transform.gameObject.GetComponent<Enemy>())
+                {
+                    LevelManager.Instance.RequestShoot(hit.point, PhotonNetwork.LocalPlayer);
+                }
+                else
+                {
+                    LevelManager.Instance.RequestMovement(hit.point, PhotonNetwork.LocalPlayer);        
+                }
+            }
+            
+        }
     }
 
     private void Update()
     {    
-        Inputs();
-        Movement();
-    }
-    
-    private void FixedUpdate()
-    {
+        if (!_view.IsMine) return;
         
+        if (hp <= 0)
+            LevelManager.Instance.Disconnect("LoseScene");
     }
 
-    private void Inputs()
+    public void Move(Vector3 position)
     {
-        if (Input.GetMouseButtonDown(0)) 
-        {
-            if (Physics.Raycast(Camera.main.ScreenPointToRay(Input.mousePosition), out var hit, 100))
-            {
-                canMove = true;
-                positionToMove = hit.point;
-            }
-        }
+        rb.AddForce((position - transform.position) * speed);
     }
 
-    private void Movement()
+    public void Shoot(Vector3 position)
     {
-        if (canMove)
-        {
-            rb.AddForce((positionToMove - transform.position) * speed);
-        }
-        if (Vector3.Distance(transform.position, positionToMove) < 0.01f)
-        {
-            canMove = false;
-        }
+        transform.LookAt(position);
+        var spawnPos = new Vector3(shootObject.position.x, shootObject.position.y + 1, shootObject.position.z);
+        Instantiate(bulletPrefab, spawnPos, Quaternion.identity);
     }
     
-    public void DestroyPlayer()
+    public void SetPackagesPerSecond(int pps)
     {
-        _levelManager.Disconnect("LoseScene");
+        _packagePerSecond = pps;
+    }
+    
+    public void SetIsMoving(bool v)
+    {
+        //Animations and stuff
+            /*if (_anim)
+                _anim.SetBool("IsMoving", v);*/
+    }
+    
+    public void SetIsShooting(bool v)
+    {
+        //Animations and stuff
+        /*if (_anim)
+            _anim.SetBool("IsMoving", v);*/
     }
 }
