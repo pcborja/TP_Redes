@@ -45,5 +45,7 @@ MonoBehaviour:
   - Move
   - CreateController
   - StartScene
+  - HoldPosKey
+  - Win
   DisableAutoOpenWizard: 1
   ShowSettings: 1

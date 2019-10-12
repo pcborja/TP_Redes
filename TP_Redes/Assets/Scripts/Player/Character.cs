@@ -6,7 +6,6 @@ using UnityEngine;
 public class Character : MonoBehaviourPun
 {
     public GameObject cameraPos;
-    public bool isHost;
     public float hp;
     public float speed;
     private PhotonView _view;
@@ -15,27 +14,30 @@ public class Character : MonoBehaviourPun
     public float timeToShoot = 1;
     public Transform shootObject;
     public GameObject bulletPrefab;
-    private int _packagePerSecond = 20;
-
-    bool _canMove;
-
+    public bool isHoldingPosition;
+    private Animator _anim;
+    [HideInInspector] public Camera myCam;
+    public float damage;
+    
     private void Awake()
     {
         _view = GetComponent<PhotonView>();
+        _anim = GetComponent<Animator>();
         rb = GetComponent<Rigidbody>();
-    }
-    
-    private void Start()
-    {
-        isHost = PhotonNetwork.LocalPlayer.IsMasterClient;
     }
 
     private void Update()
     {    
         if (!_view.IsMine) return;
+
+        CameraFollow();
         
         if (hp <= 0)
-            LevelManager.Instance.Disconnect("LoseScene");
+        {
+            if (_anim)
+                _anim.SetBool("IsDead", true);
+            StartCoroutine(Dead());
+        }
     }
 
     private void FixedUpdate()
@@ -48,39 +50,78 @@ public class Character : MonoBehaviourPun
 
     public void Move(Vector3 position)
     {
+        LookToPosition(position);
         rb.AddForce((position - transform.position) * speed);
     }
 
     public void Shoot(Vector3 position)
     {
-        transform.LookAt(position);
-        var spawnPos = new Vector3(shootObject.position.x, shootObject.position.y + 1, shootObject.position.z);
-        Instantiate(bulletPrefab, spawnPos, Quaternion.identity);
-    }
-    
-    public void SetPackagesPerSecond(int pps)
-    {
-        _packagePerSecond = pps;
+        SetIsShooting(true);
+        LookToPosition(position);
+        StartCoroutine(Shooting());
     }
     
     public void SetIsMoving(bool v)
     {
-        //Animations and stuff
-            /*if (_anim)
-                _anim.SetBool("IsMoving", v);*/
+        if (_anim)
+            _anim.SetBool("IsMoving", v);
     }
     
     public void SetIsShooting(bool v)
     {
-        //Animations and stuff
-        /*if (_anim)
-            _anim.SetBool("IsMoving", v);*/
+        if (_anim)
+            _anim.SetBool("IsShooting", v);
     }
 
     public void SetCanMove(bool v)
     {
         if (!_view.IsMine)
             return;
-        _canMove = v;
+        canMove = v;
+    }
+
+    public void SetHoldingPos(bool holdingPos)
+    {
+        if (!_view.IsMine) return;
+        isHoldingPosition = holdingPos;
+    }
+    
+    private IEnumerator Shooting()
+    {
+        yield return new WaitForSeconds(1);
+        var spawnPos = new Vector3(shootObject.position.x, shootObject.position.y + 1, shootObject.position.z);
+        var bullet = Instantiate(bulletPrefab, spawnPos, transform.rotation);
+        bullet.GetComponent<Bullet>().shootBy = Bullet.ShootBy.Player;
+        bullet.GetComponent<Bullet>().damage = damage;
+        SetIsShooting(false);
+    }
+
+    private IEnumerator Dead()
+    {
+        yield return new WaitForSeconds(1);
+        LevelManager.Instance.Disconnect("LoseScene");
+    }
+    
+    private void CameraFollow()
+    {
+        var charPosX = transform.position.x;
+        var charPosZ = transform.position.z + 3;
+        var charPosY = transform.position.y + 10;
+ 
+        myCam.transform.position = new Vector3(charPosX, charPosY, charPosZ);
+    }
+
+    public void TakeDamage(float dmg)
+    {
+        hp -= dmg;
+    }
+    
+    private void LookToPosition(Vector3 position)
+    {
+        var localTarget = transform.InverseTransformPoint(position);
+        var angle = Mathf.Atan2(localTarget.x, localTarget.z) * Mathf.Rad2Deg;
+        var eulerAngleVelocity = new Vector3 (0, angle, 0);
+        var deltaRotation = Quaternion.Euler(eulerAngleVelocity * Time.deltaTime * 10 );
+        rb.MoveRotation(rb.rotation * deltaRotation);
     }
 }

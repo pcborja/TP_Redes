@@ -35,6 +35,16 @@ public class Controller : MonoBehaviourPun
             {
                 LevelManager.Instance.OnClicked(Input.mousePosition, PhotonNetwork.LocalPlayer);
             }
+
+            if (Input.GetKeyDown(KeyCode.LeftShift))
+            {
+                LevelManager.Instance.OnStartHoldingPosition(PhotonNetwork.LocalPlayer);
+            }
+
+            if (Input.GetKeyUp(KeyCode.LeftShift))
+            {
+                LevelManager.Instance.OnEndHoldingPosition(PhotonNetwork.LocalPlayer);
+            }
         }
     }
 }

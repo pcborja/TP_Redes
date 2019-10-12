@@ -27,4 +27,9 @@ public class LocalSceneManger : MonoBehaviour
     {
         _networkManager.BackButton();
     }
+
+    public void MainMenu()
+    {
+        _networkManager.MainMenu();
+    }
 }

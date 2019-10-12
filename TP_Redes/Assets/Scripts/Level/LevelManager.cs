@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using Photon.Pun;
 using Photon.Realtime;
 using UnityEngine;
@@ -61,14 +62,14 @@ public class LevelManager : MonoBehaviourPun
     private void AddPlayer(Player p)
     {
         var currPlayerObj = characterObjects[PhotonNetwork.LocalPlayer.ActorNumber - 1];
-        var instantiatedChar = Instantiate(Resources.Load<Character>("Character"));
+        var instantiatedChar = Instantiate(Resources.Load<Character>("Character"), currPlayerObj.transform.position, Quaternion.identity);
         instantiatedChar.transform.SetParent(currPlayerObj.transform);
+        instantiatedChar.transform.rotation = Quaternion.identity;
         if (Camera.main != null)
         {
-            Camera.main.transform.SetParent(instantiatedChar.cameraPos.transform);
-            Camera.main.transform.position = Vector3.zero;
+            Camera.main.transform.SetParent(currPlayerObj.transform);
         }
-            
+        instantiatedChar.myCam = Camera.main;
         players.Add(p, instantiatedChar);
     }
 
@@ -98,23 +99,23 @@ public class LevelManager : MonoBehaviourPun
     [PunRPC]
     private void DrawRaycast(Vector3 mousePos, Player p)
     {
-        if (Physics.Raycast(Camera.main.ScreenPointToRay(mousePos), out var hit, 100))
+        if (players.ContainsKey(p))
         {
-            if (hit.transform.gameObject.GetComponent<Enemy>())
+            if (Physics.Raycast(Camera.main.ScreenPointToRay(mousePos), out var hit, 100))
             {
-                if (players.ContainsKey(p))
+                if (hit.transform.gameObject.GetComponent<Enemy>() || players[p].isHoldingPosition)
                 {
                     if (_shootTimer > players[p].timeToShoot)
                     {
                         _shootTimer = 0;
-                        players[p].Shoot(mousePos);
-                    }                        
+                        players[p].Shoot(hit.point);
+                    }  
                 }
-            }
-            else
-            {
-                players[p].SetCanMove(true);
-                _positionToMove = hit.point;
+                else if (!hit.transform.gameObject.GetComponent<Character>())
+                {
+                    players[p].SetCanMove(true);
+                    _positionToMove = hit.point;
+                }
             }
         }
     }
@@ -133,10 +134,44 @@ public class LevelManager : MonoBehaviourPun
             if (players[p].canMove)
                 players[p].Move(_positionToMove);
 
-            if (Vector3.Distance(players[p].transform.position, _positionToMove) < 0.01f)
+            if (Vector3.Distance(players[p].transform.position, _positionToMove) < 0.1f)
+            {
+                _positionToMove = Vector3.zero;
                 players[p].SetCanMove(false);
+            }
 
             players[p].SetIsMoving(_positionToMove != Vector3.zero);
         }
+    }
+
+    public void OnStartHoldingPosition(Player p)
+    {
+        _view.RPC("HoldPosKey", RpcTarget.MasterClient, true, p);
+    }
+    
+    public void OnEndHoldingPosition(Player p)
+    {
+        _view.RPC("HoldPosKey", RpcTarget.MasterClient, false, p);
+    }
+    
+    [PunRPC]
+    private void HoldPosKey(bool hold, Player p)
+    {
+        if (players.ContainsKey(p))
+        {
+            players[p].SetHoldingPos(hold);
+        }
+    }
+
+    public void NotifyWinner(Character character)
+    {
+        var player = players.FirstOrDefault(x => x.Value == character).Key;
+        _view.RPC("Win", RpcTarget.MasterClient, player);
+    }
+
+    [PunRPC]
+    public void Win(Player player)
+    {
+        Disconnect(Equals(PhotonNetwork.LocalPlayer, player) ? "WinScene" : "LoseScene");
     }
 }
