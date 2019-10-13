@@ -363,7 +363,6 @@
           </e>
           <e p="Player" t="Include">
             <e p="Character.cs" t="Include" />
-            <e p="CharCamera.cs" t="Include" />
             <e p="Controller.cs" t="Include" />
           </e>
           <e p="Utils" t="Include">

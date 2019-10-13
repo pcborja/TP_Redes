@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using Photon.Pun;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class Character : MonoBehaviourPun
 {
@@ -16,13 +17,15 @@ public class Character : MonoBehaviourPun
     public GameObject bulletPrefab;
     public bool isHoldingPosition;
     private Animator _anim;
-    [HideInInspector] public Camera myCam;
+    public Camera myCam;
     public float damage;
+    private Text _hpText; 
     
     private void Awake()
     {
         _view = GetComponent<PhotonView>();
         _anim = GetComponent<Animator>();
+        _hpText = GameObject.Find("HPText").GetComponent<Text>();
         rb = GetComponent<Rigidbody>();
     }
 
@@ -113,7 +116,7 @@ public class Character : MonoBehaviourPun
 
     public void TakeDamage(float dmg)
     {
-        hp -= dmg;
+        LevelManager.Instance.TakeDamage(dmg, PhotonNetwork.LocalPlayer);
     }
     
     private void LookToPosition(Vector3 position)
@@ -123,5 +126,10 @@ public class Character : MonoBehaviourPun
         var eulerAngleVelocity = new Vector3 (0, angle, 0);
         var deltaRotation = Quaternion.Euler(eulerAngleVelocity * Time.deltaTime * 10 );
         rb.MoveRotation(rb.rotation * deltaRotation);
+    }
+
+    public void UpdateHUD(float hpToUse)
+    {
+        _hpText.text = "HP: " + hpToUse;
     }
 }

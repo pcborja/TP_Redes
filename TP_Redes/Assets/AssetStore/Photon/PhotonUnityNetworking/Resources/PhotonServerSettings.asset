@@ -47,5 +47,6 @@ MonoBehaviour:
   - StartScene
   - HoldPosKey
   - Win
+  - TakeDmg
   DisableAutoOpenWizard: 1
   ShowSettings: 1

@@ -65,11 +65,8 @@ public class LevelManager : MonoBehaviourPun
         var instantiatedChar = Instantiate(Resources.Load<Character>("Character"), currPlayerObj.transform.position, Quaternion.identity);
         instantiatedChar.transform.SetParent(currPlayerObj.transform);
         instantiatedChar.transform.rotation = Quaternion.identity;
-        if (Camera.main != null)
-        {
-            Camera.main.transform.SetParent(currPlayerObj.transform);
-        }
-        instantiatedChar.myCam = Camera.main;
+        instantiatedChar.myCam.transform.SetParent(currPlayerObj.transform);
+        instantiatedChar.UpdateHUD(instantiatedChar.hp);
         players.Add(p, instantiatedChar);
     }
 
@@ -101,7 +98,7 @@ public class LevelManager : MonoBehaviourPun
     {
         if (players.ContainsKey(p))
         {
-            if (Physics.Raycast(Camera.main.ScreenPointToRay(mousePos), out var hit, 100))
+            if (Physics.Raycast(players[p].myCam.ScreenPointToRay(mousePos), out var hit, 100))
             {
                 if (hit.transform.gameObject.GetComponent<Enemy>() || players[p].isHoldingPosition)
                 {
@@ -173,5 +170,20 @@ public class LevelManager : MonoBehaviourPun
     public void Win(Player player)
     {
         Disconnect(Equals(PhotonNetwork.LocalPlayer, player) ? "WinScene" : "LoseScene");
+    }
+
+    public void TakeDamage(float damage, Player p)
+    {
+        _view.RPC("TakeDmg", RpcTarget.MasterClient, damage, p);
+    }
+    
+    [PunRPC]
+    public void TakeDmg(float damage, Player p)
+    {
+        if (players.ContainsKey(p))
+        {
+            players[p].hp -= damage;
+            players[p].UpdateHUD(players[p].hp);
+        }
     }
 }
