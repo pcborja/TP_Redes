@@ -22,11 +22,8 @@ public class LevelManager : MonoBehaviourPun
         _view = GetComponent<PhotonView>();
         if (!Instance)
         {
-            if (_view.IsMine)
-            {
-                _view.RPC("SetReference", RpcTarget.AllBuffered);
-                CreateController();
-            }
+            CreateController();
+            SetReference();
         }
         else
             PhotonNetwork.Destroy(gameObject);
@@ -50,30 +47,32 @@ public class LevelManager : MonoBehaviourPun
         _shootTimer += Time.deltaTime;
     }
 
-    [PunRPC]
     private void SetReference()
     {
         Instance = this;
-        _view.RPC("AddPlayer", RpcTarget.MasterClient, PhotonNetwork.LocalPlayer);
-        //_view.RPC("CreateController", RpcTarget.All);
+        var character = CreatePlayer(PhotonNetwork.LocalPlayer);
+        _view.RPC("AddPlayer", RpcTarget.MasterClient, PhotonNetwork.LocalPlayer, character);
     }
 
     [PunRPC]
-    private void AddPlayer(Player p)
+    private void AddPlayer(Player p, GameObject character)
     {
-        var currPlayerObj = characterObjects[PhotonNetwork.LocalPlayer.ActorNumber - 1];
-        var instantiatedChar = Instantiate(Resources.Load<Character>("Character"), currPlayerObj.transform.position, Quaternion.identity);
-        instantiatedChar.transform.SetParent(currPlayerObj.transform);
-        instantiatedChar.transform.rotation = Quaternion.identity;
-        instantiatedChar.myCam.transform.SetParent(currPlayerObj.transform);
-        instantiatedChar.UpdateHUD(instantiatedChar.hp);
-        players.Add(p, instantiatedChar);
+        players.Add(p, character.GetComponent<Character>());
     }
 
-    //[PunRPC]
-    void CreateController()
+    private GameObject CreatePlayer(Player p)
     {
-        if (!_view.IsMine) return;
+        var characterObject = characterObjects[p.ActorNumber - 1];
+        var instantiatedChar = Instantiate(Resources.Load<Character>("Character"), characterObject.transform.position, Quaternion.identity);
+        instantiatedChar.transform.SetParent(characterObject.transform);
+        instantiatedChar.transform.rotation = Quaternion.identity;
+        instantiatedChar.myCam.transform.SetParent(characterObject.transform);
+        instantiatedChar.UpdateHUD(instantiatedChar.hp);
+        return instantiatedChar.gameObject;
+    }
+
+    private void CreateController()
+    {
         Instantiate(Resources.Load<GameObject>("Controller"));
     }
     

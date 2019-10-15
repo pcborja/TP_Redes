@@ -30,13 +30,15 @@ public class Enemy : MonoBehaviourPun
 
     void Start()
     {
-        players = FindObjectsOfType<Character>();
+        StartCoroutine(FindPlayers());
     }
 
     void Update()
     {
         Timers();
         CheckVitals();
+        
+        if (players.Length == 0) return; 
         CheckForPlayers();
         Attack();
     }
@@ -154,5 +156,11 @@ public class Enemy : MonoBehaviourPun
         var step = speed * Time.deltaTime;
         var newDir = Vector3.RotateTowards(transform.forward, targetDir, step, 0.0f);
         transform.rotation = Quaternion.LookRotation(newDir);
+    }
+
+    private IEnumerator FindPlayers()
+    {
+        yield return new WaitForSeconds(2);
+        players = FindObjectsOfType<Character>();
     }
 }

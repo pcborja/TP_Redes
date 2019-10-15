@@ -8,9 +8,7 @@ public class Controller : MonoBehaviourPun
 {
     private PhotonView _view;
     private int _packagePerSecond;
-
-
-    bool canClick;
+    
     private void Awake()
     {
         _view = GetComponent<PhotonView>();
@@ -31,6 +29,7 @@ public class Controller : MonoBehaviourPun
         while (true)
         {
             yield return new WaitForSeconds(1 / 20);
+            
             if (Input.GetMouseButtonDown(0))
             {
                 LevelManager.Instance.OnClicked(Input.mousePosition, PhotonNetwork.LocalPlayer);

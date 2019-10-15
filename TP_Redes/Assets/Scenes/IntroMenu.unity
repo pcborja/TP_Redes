@@ -483,7 +483,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: 0.5, y: 1.5999985}
+  m_AnchoredPosition: {x: 0.5, y: 1.5999756}
   m_SizeDelta: {x: 55.799988, y: 31.600006}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &269072112
@@ -1844,7 +1844,7 @@ MonoBehaviour:
   playerNameInputfield: {fileID: 437562917}
   messageObject: {fileID: 691925103}
   startButtonObject: {fileID: 106776922}
-  _playersObjects:
+  playersObjects:
   - {fileID: 1445150540}
   - {fileID: 1638382922}
   - {fileID: 1738191926}
@@ -1868,7 +1868,7 @@ MonoBehaviour:
   OwnershipTransfer: 0
   ObservedComponents:
   - {fileID: 0}
-  viewIdField: 97
+  viewIdField: 202
   InstantiationId: 0
   isRuntimeInstantiated: 0
 --- !u!1 &1413583800
