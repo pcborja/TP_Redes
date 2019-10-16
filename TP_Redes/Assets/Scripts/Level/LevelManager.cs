@@ -163,11 +163,11 @@ public class LevelManager : MonoBehaviourPun
     public void NotifyWinner(Character character)
     {
         var player = players.FirstOrDefault(x => x.Value == character).Key;
-        _view.RPC("Win", RpcTarget.MasterClient, player);
+        _view.RPC("FinishGame", RpcTarget.AllBuffered, player);
     }
 
     [PunRPC]
-    public void Win(Player player)
+    public void FinishGame(Player player)
     {
         Disconnect(Equals(PhotonNetwork.LocalPlayer, player) ? "WinScene" : "LoseScene");
     }
