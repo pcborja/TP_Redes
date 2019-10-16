@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ContentModelStore">
-    <e p="C:\Users\pablo\.Rider2018.3\system\extResources" t="IncludeRecursive" />
-    <e p="C:\Users\pablo\.Rider2018.3\system\resharper-host\local\Transient\ReSharperHost\v183\SolutionCaches\_TP_Redes.-1688192058.00" t="ExcludeRecursive" />
-    <e p="E:\DV\Cursadas\5to cuatrimestre\Redes\TP_Redes\TP_Redes" t="IncludeRecursive">
+    <e p="$USER_HOME$/Library/Caches/Rider2018.3/extResources" t="IncludeRecursive" />
+    <e p="$USER_HOME$/Library/Caches/Rider2018.3/resharper-host/local/Transient/ReSharperHost/v183/SolutionCaches/_TP_Redes.-1959197821.00" t="ExcludeRecursive" />
+    <e p="$PROJECT_DIR$" t="IncludeRecursive">
       <e p="Assembly-CSharp.csproj" t="IncludeRecursive" />
       <e p="Assets" t="Include">
         <e p="AssetStore" t="Include">
@@ -371,6 +371,75 @@
           <e p="WorldObjects" t="Include">
             <e p="Bullet.cs" t="Include" />
             <e p="WinTrigger.cs" t="Include" />
+          </e>
+        </e>
+        <e p="Submodules" t="Include">
+          <e p="Assets" t="Include">
+            <e p="Scripts" t="Include">
+              <e p="DecisionTree" t="Include">
+                <e p="ChanceNode.cs" t="Include" />
+                <e p="ConditionNode.cs" t="Include" />
+                <e p="DefaultActionNode.cs" t="Include" />
+                <e p="DefaultConditionNode.cs" t="Include" />
+                <e p="INode.cs" t="Include" />
+              </e>
+              <e p="Design Patterns" t="Include">
+                <e p="EventManager.cs" t="Include" />
+                <e p="IObservable.cs" t="Include" />
+                <e p="IObserver.cs" t="Include" />
+                <e p="LookUpTable.cs" t="Include" />
+              </e>
+              <e p="FSM" t="Include">
+                <e p="FSM.cs" t="Include" />
+                <e p="State.cs" t="Include" />
+              </e>
+              <e p="IABehaviours" t="Include">
+                <e p="BasicBehaviours.cs" t="Include" />
+                <e p="Behaviours.cs" t="Include" />
+              </e>
+              <e p="PathFinding" t="Include">
+                <e p="AStar.cs" t="Include" />
+                <e p="BFS.cs" t="Include" />
+                <e p="DFS.cs" t="Include" />
+                <e p="Dijkstra.cs" t="Include" />
+                <e p="Node.cs" t="Include" />
+                <e p="NodeUtils.cs" t="Include" />
+                <e p="ThetaStar.cs" t="Include" />
+                <e p="Waypoint.cs" t="Include" />
+              </e>
+              <e p="SteeringBehaviours" t="Include">
+                <e p="Arrive.cs" t="Include" />
+                <e p="AssignableHide.cs" t="Include" />
+                <e p="Flee.cs" t="Include" />
+                <e p="Flocking" t="Include">
+                  <e p="CreateSeveral.cs" t="Include" />
+                  <e p="FlockControl.cs" t="Include" />
+                </e>
+                <e p="FollowPath.cs" t="Include" />
+                <e p="Hide.cs" t="Include" />
+                <e p="Interpose.cs" t="Include" />
+                <e p="Pursuit.cs" t="Include" />
+                <e p="Seek.cs" t="Include" />
+                <e p="WallAvoidance.cs" t="Include" />
+                <e p="Wander.cs" t="Include" />
+              </e>
+              <e p="Structures" t="Include">
+                <e p="PriorityQueue.cs" t="Include" />
+              </e>
+              <e p="Templates" t="Include">
+                <e p="UnitTemplate.cs" t="Include" />
+              </e>
+              <e p="Utils" t="Include">
+                <e p="EditorTools.cs" t="Include" />
+                <e p="Extensions.cs" t="Include" />
+                <e p="MathUtils.cs" t="Include" />
+                <e p="RandomSelection.cs" t="Include" />
+                <e p="ReflectionHelpers.cs" t="Include" />
+              </e>
+            </e>
+          </e>
+          <e p="ProjectSettings" t="Include">
+            <e p="ProjectVersion.txt" t="Include" />
           </e>
         </e>
       </e>

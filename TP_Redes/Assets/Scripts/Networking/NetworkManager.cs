@@ -51,6 +51,7 @@ public class NetworkManager : MonoBehaviourPunCallbacks
     public override void OnJoinedRoom()
     {
         PhotonNetwork.LoadLevel("Lobby");
+        Debug.Log(PhotonNetwork.CurrentRoom);
         _view.RPC("NotifyConnection", RpcTarget.MasterClient, PhotonNetwork.LocalPlayer);
     }
 
@@ -66,13 +67,13 @@ public class NetworkManager : MonoBehaviourPunCallbacks
     public void StartGame()
     {
         startButtonObject.SetActive(false);
-        photonView.RPC("StartScene", RpcTarget.All);
+        _view.RPC("StartScene", RpcTarget.All);
     }   
 
     [PunRPC]
     private void StartScene()
     {
-        photonView.RPC("ActivePlayerMenuObject", RpcTarget.All, PhotonNetwork.LocalPlayer, false);
+        _view.RPC("ActivePlayerMenuObject", RpcTarget.All, PhotonNetwork.LocalPlayer, false);
         PhotonNetwork.LoadLevel("GameLevel");        
     }
 

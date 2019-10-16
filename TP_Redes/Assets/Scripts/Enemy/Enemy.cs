@@ -8,7 +8,7 @@ public class Enemy : MonoBehaviourPun
 {
     public float damage;
     public float hp;
-    public float timeToShoot = 1;
+    public float timeToAttack = 1;
     public Transform shootObject;
     [HideInInspector] public Transform currentTarget;
     public GameObject bulletPrefab;
@@ -18,9 +18,10 @@ public class Enemy : MonoBehaviourPun
     public bool meleeEnemy;
     public float speed;
     private Animator _anim;
-    private float _shootTimer;
+    private float _attackTimer;
     private bool _targetSpoted;
     private Rigidbody _rb;
+    private bool _isAttacking;
 
     private void Awake()
     {
@@ -40,35 +41,43 @@ public class Enemy : MonoBehaviourPun
         
         if (players.Length == 0) return; 
         CheckForPlayers();
-        Attack();
-    }
-
-    private void OnCollisionEnter(Collision other)
-    {
-        if (other.gameObject.GetComponent<Character>() && meleeEnemy)
-        {
-            other.gameObject.GetComponent<Character>().TakeDamage(damage);
-            _anim.SetBool("IsAttacking", true);
-        }
+        TryToAttack();
     }
 
     private void Timers()
     {
-        _shootTimer += Time.deltaTime;
+        _attackTimer += Time.deltaTime;
     }
 
-    private void Attack()
+    private void TryToAttack()
     {
-        if (shootEnemy && _targetSpoted && _shootTimer > timeToShoot)
+        if (shootEnemy && _targetSpoted && _attackTimer > timeToAttack)
         {
             Shoot(currentTarget);
         }
 
-        if (meleeEnemy && _targetSpoted)
+        if (meleeEnemy && _targetSpoted && !_isAttacking)
         {
-            GoToTarget(currentTarget.position);
-            SetIsMoving(currentTarget.position != Vector3.zero);
+            Arrive.D_Arrive(gameObject, currentTarget.position, _rb, speed, 1);
+            SetIsMoving(Math.Abs(_rb.velocity.magnitude) > 0.01f);
+
+            if (Vector3.Distance(transform.position, currentTarget.position) <= 2)
+                Attack();
         }
+    }
+
+    private void Attack()
+    {
+        _isAttacking = true;
+        currentTarget.gameObject.GetComponent<Character>().TakeDamage(damage);
+        _anim.SetBool("IsAttacking", true);
+        StartCoroutine(ResetAttacking());
+    }
+
+    private IEnumerator ResetAttacking()
+    {
+        yield return new WaitForSeconds(timeToAttack);
+        _isAttacking = false;
     }
 
     private void CheckForPlayers()

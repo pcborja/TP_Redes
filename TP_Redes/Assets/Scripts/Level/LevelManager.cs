@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using Photon.Pun;
 using Photon.Realtime;
@@ -136,7 +137,7 @@ public class LevelManager : MonoBehaviourPun
                 players[p].SetCanMove(false);
             }
 
-            players[p].SetIsMoving(_positionToMove != Vector3.zero);
+            players[p].SetIsMoving(Math.Abs(players[p].rb.velocity.magnitude) > 0.01f);
         }
     }
 

@@ -19,6 +19,7 @@ public class Character : MonoBehaviourPun
     private Animator _anim;
     public Camera myCam;
     public float damage;
+    public bool isShooting;
     private Text _hpText; 
     
     private void Awake()
@@ -47,20 +48,20 @@ public class Character : MonoBehaviourPun
     {
         if (!_view.IsMine)
             return;
-
+        
         LevelManager.Instance.RequestMove(PhotonNetwork.LocalPlayer);
     }
 
     public void Move(Vector3 position)
     {
-        LookToPosition(position);
-        rb.AddForce((position - transform.position) * speed);
+        if (isShooting) return;
+        Arrive.D_Arrive(gameObject, position, rb, 10, 0.5f);
     }
 
     public void Shoot(Vector3 position)
     {
         SetIsShooting(true);
-        LookToPosition(position);
+        InstantRotation(position);
         StartCoroutine(Shooting());
     }
     
@@ -72,6 +73,7 @@ public class Character : MonoBehaviourPun
     
     public void SetIsShooting(bool v)
     {
+        isShooting = v;
         if (_anim)
             _anim.SetBool("IsShooting", v);
     }
@@ -107,9 +109,10 @@ public class Character : MonoBehaviourPun
     
     private void CameraFollow()
     {
-        var charPosX = transform.position.x;
-        var charPosZ = transform.position.z + 3;
-        var charPosY = transform.position.y + 10;
+        var position = transform.position;
+        var charPosX = position.x;
+        var charPosZ = position.z + 3;
+        var charPosY = position.y + 10;
  
         myCam.transform.position = new Vector3(charPosX, charPosY, charPosZ);
     }
@@ -118,14 +121,13 @@ public class Character : MonoBehaviourPun
     {
         LevelManager.Instance.TakeDamage(dmg, PhotonNetwork.LocalPlayer);
     }
-    
-    private void LookToPosition(Vector3 position)
+
+    private void InstantRotation(Vector3 position)
     {
-        var localTarget = transform.InverseTransformPoint(position);
-        var angle = Mathf.Atan2(localTarget.x, localTarget.z) * Mathf.Rad2Deg;
-        var eulerAngleVelocity = new Vector3 (0, angle, 0);
-        var deltaRotation = Quaternion.Euler(eulerAngleVelocity * Time.deltaTime * 10 );
-        rb.MoveRotation(rb.rotation * deltaRotation);
+        var transform1 = transform;
+        var position1 = transform1.position;
+        var xzPos = new Vector3 (position.x, position1.y, position.z);
+        transform1.forward = (xzPos - position1).normalized;
     }
 
     public void UpdateHUD(float hpToUse)

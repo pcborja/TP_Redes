@@ -1,0 +1,3 @@
+[submodule "TP_Redes/Assets/Submodules"]
+	path = TP_Redes/Assets/Submodules
+	url = https://github.com/pcborja/BorjaCore.git
