@@ -59,7 +59,7 @@ public class Enemy : MonoBehaviourPun
         if (meleeEnemy && _targetSpoted && !_isAttacking)
         {
             Arrive.D_Arrive(gameObject, currentTarget.position, _rb, speed, 1);
-            SetIsMoving(Math.Abs(_rb.velocity.magnitude) > 0.01f);
+            SetIsMoving(Math.Abs(_rb.velocity.magnitude) > 0.1f);
 
             if (Vector3.Distance(transform.position, currentTarget.position) <= 2)
                 Attack();
@@ -69,7 +69,6 @@ public class Enemy : MonoBehaviourPun
     private void Attack()
     {
         _isAttacking = true;
-        currentTarget.gameObject.GetComponent<Character>().TakeDamage(damage);
         _anim.SetBool("IsAttacking", true);
         StartCoroutine(ResetAttacking());
     }
@@ -77,6 +76,7 @@ public class Enemy : MonoBehaviourPun
     private IEnumerator ResetAttacking()
     {
         yield return new WaitForSeconds(timeToAttack);
+        currentTarget.gameObject.GetComponent<Character>().TakeDamage(damage);
         _isAttacking = false;
     }
 

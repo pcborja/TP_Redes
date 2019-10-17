@@ -1,5 +1,6 @@
 ﻿using System;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class LocalSceneManger : MonoBehaviour
 {
@@ -14,22 +15,34 @@ public class LocalSceneManger : MonoBehaviour
     {
         if (Input.GetKeyDown(KeyCode.Escape))
         {
-            BackButton();
+            if (SceneManager.GetActiveScene().name == Constants.LOBBY_SCENE)
+            {
+                NetBackButton();    
+            }
+            else
+            {
+                SimpleBackButton();
+            }
         }
     }
 
-    public void ExitGame()
+    public void NetExitGame()
     {
         _networkManager.ExitGame();
     }
+    
+    public void SimpleExitGame()
+    {
+        _networkManager.SimpleExit();
+    }
 
-    public void BackButton()
+    public void NetBackButton()
     {
         _networkManager.BackButton();
     }
-
-    public void MainMenu()
+    
+    public void SimpleBackButton()
     {
-        _networkManager.MainMenu();
+        _networkManager.SimpleBack();
     }
 }

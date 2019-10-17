@@ -1,6 +1,7 @@
-﻿using Photon.Pun;
+﻿using System;
+using System.Collections;
+using Photon.Pun;
 using Photon.Realtime;
-using System.Linq;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
@@ -33,9 +34,18 @@ public class NetworkManager : MonoBehaviourPunCallbacks
         {
             PhotonNetwork.LocalPlayer.NickName = playerNameInputfield.text;
             PhotonNetwork.ConnectUsingSettings();
-        }            
+        }
         else
+        {
             ShowMessage(Constants.MessageTypes.Error, Constants.NAME_ERROR);
+            StartCoroutine(HideMessage());
+        }
+    }
+
+    private IEnumerator HideMessage()
+    {
+        yield return new WaitForSeconds(2);
+        messageObject.SetActive(false);
     }
 
     public override void OnConnectedToMaster()
@@ -79,7 +89,7 @@ public class NetworkManager : MonoBehaviourPunCallbacks
 
     public void ExitGame()
     {
-        Application.Quit();
+        DisconnectBehaviour(SimpleExit);
     }
 
     private void ShowMessage(Constants.MessageTypes messageType, string message)
@@ -100,17 +110,24 @@ public class NetworkManager : MonoBehaviourPunCallbacks
 
     public void BackButton()
     {
+        DisconnectBehaviour(() =>
+        {
+            DisconnectPlayer(Constants.INTRO_SCENE);
+            DestroyImmediate(gameObject);
+        });
+    }
+
+    private void DisconnectBehaviour(Action customAction)
+    {
         if (PhotonNetwork.LocalPlayer.IsMasterClient)
         {
             _view.RPC("DisconnectAll", RpcTarget.OthersBuffered);
-            DisconnectPlayer(Constants.INTRO_SCENE);
-            DestroyImmediate(gameObject);
+            customAction();
         }
         else
         {
             _view.RPC("NotifyDisconnection", RpcTarget.MasterClient, PhotonNetwork.LocalPlayer);
-            DisconnectPlayer(Constants.INTRO_SCENE);
-            DestroyImmediate(gameObject);
+            customAction();
         }
     }
 
@@ -158,5 +175,21 @@ public class NetworkManager : MonoBehaviourPunCallbacks
                 _view.RPC("ActivePlayerMenuObject", p, PhotonNetwork.PlayerList[i + 1], true);
             }
         }
+    }
+
+    public void HowToPlayButton()
+    {
+        SceneManager.LoadScene(Constants.HOW_TO_PLAY_SCENE);
+    }
+
+    public void SimpleExit()
+    {
+        Application.Quit();
+    }
+
+    public void SimpleBack()
+    {
+        SceneManager.LoadScene(Constants.INTRO_SCENE);
+        DestroyImmediate(gameObject);
     }
 }
