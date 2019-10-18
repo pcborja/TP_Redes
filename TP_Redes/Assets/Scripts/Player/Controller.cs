@@ -8,6 +8,7 @@ public class Controller : MonoBehaviourPun
 {
     private PhotonView _view;
     private int _packagePerSecond;
+    public Camera myCam;
     
     private void Awake()
     {
@@ -16,19 +17,19 @@ public class Controller : MonoBehaviourPun
 
     void Start()
     {
-        if (_view.IsMine)
-            StartCoroutine(SendPackageMovement());
+        if (!_view.IsMine) return;
+
+        LevelManager.Instance.StartPlayerData(PhotonNetwork.LocalPlayer);
+        StartCoroutine(SendPackage());
     }
 
-    void Update()
-    {
-    }
-
-    private IEnumerator SendPackageMovement()
+    private IEnumerator SendPackage()
     {
         while (true)
         {
-            yield return new WaitForSeconds(1 / 20);
+            yield return new WaitForSeconds(1 / _packagePerSecond);
+            
+            LevelManager.Instance.MoveCamera(PhotonNetwork.LocalPlayer);
             
             if (Input.GetMouseButtonDown(0))
             {
@@ -45,5 +46,10 @@ public class Controller : MonoBehaviourPun
                 LevelManager.Instance.OnEndHoldingPosition(PhotonNetwork.LocalPlayer);
             }
         }
+    }
+    
+    public void SetPPS(int pps)
+    {
+        _packagePerSecond = pps;
     }
 }

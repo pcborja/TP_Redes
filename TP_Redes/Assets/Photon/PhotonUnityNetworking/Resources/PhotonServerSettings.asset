@@ -45,5 +45,9 @@ MonoBehaviour:
   - RespawnSpaceship
   - StartScene
   - TakeDmg
+  - MoveCharacterCamera
+  - CreateBullet
+  - SetReference
+  - StartPlayer
   DisableAutoOpenWizard: 1
-  ShowSettings: 0
+  ShowSettings: 1

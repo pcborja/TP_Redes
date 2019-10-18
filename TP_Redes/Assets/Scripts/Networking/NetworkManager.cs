@@ -12,6 +12,7 @@ public class NetworkManager : MonoBehaviourPunCallbacks
     public GameObject messageObject;
     public GameObject startButtonObject;
     public GameObject[] playersObjects;
+    [HideInInspector] public GameObject[] playerPositions;
     private PhotonView _view;
 
     private void Awake()
@@ -84,7 +85,7 @@ public class NetworkManager : MonoBehaviourPunCallbacks
     private void StartScene()
     {
         _view.RPC("ActivePlayerMenuObject", RpcTarget.All, PhotonNetwork.LocalPlayer, false);
-        PhotonNetwork.LoadLevel("GameLevel");        
+        PhotonNetwork.LoadLevel(Constants.GAME_LEVEL);        
     }
 
     public void ExitGame()
@@ -191,5 +192,15 @@ public class NetworkManager : MonoBehaviourPunCallbacks
     {
         SceneManager.LoadScene(Constants.INTRO_SCENE);
         DestroyImmediate(gameObject);
+    }
+
+    public void GameStarted(GameObject[] playerPos)
+    {
+        playerPositions = playerPos;
+        
+        if (PhotonNetwork.LocalPlayer.IsMasterClient)
+        {
+            PhotonNetwork.Instantiate("LevelManager", Vector3.zero, Quaternion.identity);
+        }
     }
 }

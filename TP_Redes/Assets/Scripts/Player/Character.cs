@@ -6,7 +6,6 @@ using UnityEngine.UI;
 
 public class Character : MonoBehaviourPun
 {
-    public GameObject cameraPos;
     public float hp;
     public float speed;
     private PhotonView _view;
@@ -14,10 +13,8 @@ public class Character : MonoBehaviourPun
     public bool canMove;
     public float timeToShoot = 1;
     public Transform shootObject;
-    public GameObject bulletPrefab;
     public bool isHoldingPosition;
     private Animator _anim;
-    public Camera myCam;
     public float damage;
     public bool isShooting;
     private Text _hpText; 
@@ -33,8 +30,6 @@ public class Character : MonoBehaviourPun
     private void Update()
     {    
         if (!_view.IsMine) return;
-
-        CameraFollow();
         
         if (hp <= 0)
         {
@@ -95,9 +90,8 @@ public class Character : MonoBehaviourPun
     {
         yield return new WaitForSeconds(1);
         var spawnPos = new Vector3(shootObject.position.x, shootObject.position.y + 1, shootObject.position.z);
-        var bullet = Instantiate(bulletPrefab, spawnPos, transform.rotation);
-        bullet.GetComponent<Bullet>().shootBy = Bullet.ShootBy.Player;
-        bullet.GetComponent<Bullet>().damage = damage;
+        LevelManager.Instance.InstantiateBullet(PhotonNetwork.LocalPlayer, spawnPos);
+
         SetIsShooting(false);
     }
 
@@ -105,16 +99,6 @@ public class Character : MonoBehaviourPun
     {
         yield return new WaitForSeconds(1);
         LevelManager.Instance.Disconnect("LoseScene");
-    }
-    
-    private void CameraFollow()
-    {
-        var position = transform.position;
-        var charPosX = position.x;
-        var charPosZ = position.z + 3;
-        var charPosY = position.y + 10;
- 
-        myCam.transform.position = new Vector3(charPosX, charPosY, charPosZ);
     }
 
     public void TakeDamage(float dmg)

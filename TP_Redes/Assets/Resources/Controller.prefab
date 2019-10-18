@@ -44,6 +44,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3ee3f5ba8a59f9c469c3194661583353, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  myCam: {fileID: 0}
 --- !u!114 &7866999841916272321
 MonoBehaviour:
   m_ObjectHideFlags: 0

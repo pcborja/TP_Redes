@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using Photon.Pun;
@@ -8,8 +9,8 @@ using UnityEngine;
 public class LevelManager : MonoBehaviourPun
 {
     public GameObject[] characterObjects;
-    public List<Character> characters;
     public Dictionary<Player, Character> players = new Dictionary<Player, Character>();
+    public Dictionary<Player, Controller> playersController = new Dictionary<Player, Controller>();
     public static LevelManager Instance { get; private set; }
     private NetworkManager _networkManager;
     private PhotonView _view;
@@ -21,10 +22,11 @@ public class LevelManager : MonoBehaviourPun
     {
         _networkManager = FindObjectOfType<NetworkManager>();
         _view = GetComponent<PhotonView>();
+        characterObjects = _networkManager.playerPositions;
         if (!Instance)
         {
-            CreateController();
-            SetReference();
+            if (_view.IsMine)
+                StartCoroutine(SetPlayers());
         }
         else
             PhotonNetwork.Destroy(gameObject);
@@ -37,44 +39,64 @@ public class LevelManager : MonoBehaviourPun
         CheckInputs();
         Timers();
     }
-
-    private void FixedUpdate()
-    {
-        if (!_view.IsMine) return;
-    }
     
     private void Timers()
     {
         _shootTimer += Time.deltaTime;
     }
 
+    private IEnumerator SetPlayers()
+    {
+        yield return new WaitForSeconds(0.5f);
+        _view.RPC("SetReference", RpcTarget.AllBuffered);
+    }
+    
+    [PunRPC]
     private void SetReference()
     {
         Instance = this;
-        var character = CreatePlayer(PhotonNetwork.LocalPlayer);
-        _view.RPC("AddPlayer", RpcTarget.MasterClient, PhotonNetwork.LocalPlayer, character);
+        _view.RPC("AddPlayer", RpcTarget.MasterClient, PhotonNetwork.LocalPlayer);
+        CreateController(PhotonNetwork.LocalPlayer);
     }
 
     [PunRPC]
-    private void AddPlayer(Player p, GameObject character)
+    private void AddPlayer(Player p)
     {
-        players.Add(p, character.GetComponent<Character>());
+        var character = CreatePlayer(p);
+        players.Add(p, character);
     }
 
-    private GameObject CreatePlayer(Player p)
+    public void StartPlayerData(Player p)
+    {
+        _view.RPC("StartPlayer", RpcTarget.MasterClient, p);
+    }
+
+    [PunRPC]
+    private void StartPlayer(Player p)
+    {
+        if (!players.ContainsKey(p)) return;
+        
+        var characterObject = characterObjects[p.ActorNumber - 1];
+        players[p].transform.SetParent(characterObject.transform);
+        players[p].transform.rotation = Quaternion.identity;
+        players[p].UpdateHUD(players[p].hp);
+    }
+
+    private Character CreatePlayer(Player p)
     {
         var characterObject = characterObjects[p.ActorNumber - 1];
-        var instantiatedChar = Instantiate(Resources.Load<Character>("Character"), characterObject.transform.position, Quaternion.identity);
-        instantiatedChar.transform.SetParent(characterObject.transform);
-        instantiatedChar.transform.rotation = Quaternion.identity;
-        instantiatedChar.myCam.transform.SetParent(characterObject.transform);
-        instantiatedChar.UpdateHUD(instantiatedChar.hp);
-        return instantiatedChar.gameObject;
+        var instantiatedChar = PhotonNetwork.Instantiate("Character", characterObject.transform.position, Quaternion.identity);
+        instantiatedChar.gameObject.name = instantiatedChar.gameObject.name + " " + (p.ActorNumber - 1);
+        return instantiatedChar.GetComponent<Character>();
     }
 
-    private void CreateController()
+    private void CreateController(Player p)
     {
-        Instantiate(Resources.Load<GameObject>("Controller"));
+        var controller = PhotonNetwork.Instantiate("Controller", Vector3.zero, Quaternion.identity).GetComponent<Controller>();
+        controller.SetPPS(20);
+        playersController.Add(p, controller);
+        controller.myCam = Instantiate(Resources.Load<Camera>("CameraPos"), characterObjects[p.ActorNumber - 1].transform, true);
+        controller.myCam.transform.eulerAngles = new Vector3(65,180,0);
     }
     
     private void CheckInputs()
@@ -93,12 +115,31 @@ public class LevelManager : MonoBehaviourPun
         _view.RPC("DrawRaycast", RpcTarget.MasterClient, mousePosition, p);
     }
 
+    public void MoveCamera(Player p)
+    {
+        _view.RPC("MoveCharacterCamera", RpcTarget.MasterClient, p);
+    }
+
+    [PunRPC]
+    private void MoveCharacterCamera(Player p)
+    {
+        if (!playersController.ContainsKey(p)) return;
+        
+        var character = players[p];
+        var position = character.transform.position;
+        var charPosX = position.x;
+        var charPosZ = position.z + 3;
+        var charPosY = position.y + 10;
+
+        playersController[p].myCam.transform.position = new Vector3(charPosX, charPosY, charPosZ);
+    }
+
     [PunRPC]
     private void DrawRaycast(Vector3 mousePos, Player p)
     {
-        if (players.ContainsKey(p))
+        if (players.ContainsKey(p) && playersController.ContainsKey(p))
         {
-            if (Physics.Raycast(players[p].myCam.ScreenPointToRay(mousePos), out var hit, 100))
+            if (Physics.Raycast(playersController[p].myCam.ScreenPointToRay(mousePos), out var hit, 100))
             {
                 if (hit.transform.gameObject.GetComponent<Enemy>() || players[p].isHoldingPosition)
                 {
@@ -163,7 +204,7 @@ public class LevelManager : MonoBehaviourPun
     public void NotifyWinner(Character character)
     {
         var player = players.FirstOrDefault(x => x.Value == character).Key;
-        _view.RPC("FinishGame", RpcTarget.AllBuffered, player);
+        _view.RPC("FinishGame", RpcTarget.All, player);
     }
 
     [PunRPC]
@@ -185,5 +226,20 @@ public class LevelManager : MonoBehaviourPun
             players[p].hp -= damage;
             players[p].UpdateHUD(players[p].hp);
         }
+    }
+
+    public void InstantiateBullet(Player p, Vector3 spawnPos)
+    {
+        _view.RPC("CreateBullet", RpcTarget.MasterClient, p, spawnPos);
+    }
+
+    [PunRPC]
+    private void CreateBullet(Player p, Vector3 spawnPos)
+    {
+        if (!players.ContainsKey(p)) return;
+        
+        var bullet = PhotonNetwork.Instantiate("Bullet", spawnPos, players[p].transform.rotation);
+        bullet.GetComponent<Bullet>().shootBy = Bullet.ShootBy.Player;
+        bullet.GetComponent<Bullet>().damage = players[p].damage;
     }
 }

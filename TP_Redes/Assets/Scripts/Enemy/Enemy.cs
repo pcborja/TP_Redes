@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using Photon.Pun;
 using UnityEngine;
 
@@ -51,6 +52,8 @@ public class Enemy : MonoBehaviourPun
 
     private void TryToAttack()
     {
+        if (!currentTarget) return;
+        
         if (shootEnemy && _targetSpoted && _attackTimer > timeToAttack)
         {
             Shoot(currentTarget);
@@ -76,14 +79,19 @@ public class Enemy : MonoBehaviourPun
     private IEnumerator ResetAttacking()
     {
         yield return new WaitForSeconds(timeToAttack);
-        currentTarget.gameObject.GetComponent<Character>().TakeDamage(damage);
+        
+        if (currentTarget && Vector3.Distance(transform.position, currentTarget.position) <= 2)
+            currentTarget.gameObject.GetComponent<Character>().TakeDamage(damage);
+        
         _isAttacking = false;
     }
 
     private void CheckForPlayers()
     {
         if (!currentTarget)
-            currentTarget = players[0].transform;
+            currentTarget = players.FirstOrDefault(x => x != null)?.transform;
+        
+        if (!currentTarget) return;
         
         foreach (var player in players)
         {
@@ -107,15 +115,15 @@ public class Enemy : MonoBehaviourPun
     {
         if (hp <= 0)
         {
-            if (_anim)
+            /*if (_anim)
             {
                 _anim.SetBool("IsDead", true);
                 StartCoroutine(Dead());
             }
             else
-            {
+            {*/
                 DestroyImmediate(gameObject);
-            }
+            //}
         }
     }
 
