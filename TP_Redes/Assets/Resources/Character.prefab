@@ -98,6 +98,8 @@ MonoBehaviour:
   isHoldingPosition: 0
   damage: 10
   isShooting: 0
+  shootTimer: 0
+  positionToMove: {x: 0, y: 0, z: 0}
 --- !u!114 &1726287689614538615
 MonoBehaviour:
   m_ObjectHideFlags: 0

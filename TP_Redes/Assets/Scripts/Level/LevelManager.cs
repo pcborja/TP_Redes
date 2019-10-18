@@ -9,48 +9,53 @@ using UnityEngine;
 public class LevelManager : MonoBehaviourPun
 {
     public GameObject[] characterObjects;
+    public GameObject[] enemiesObjects;
     public Dictionary<Player, Character> players = new Dictionary<Player, Character>();
     public Dictionary<Player, Controller> playersController = new Dictionary<Player, Controller>();
     public static LevelManager Instance { get; private set; }
     private NetworkManager _networkManager;
     private PhotonView _view;
-    private bool _canMove;
-    private float _shootTimer;
-    private Vector3 _positionToMove;
 
     private void Awake()
     {
         _networkManager = FindObjectOfType<NetworkManager>();
         _view = GetComponent<PhotonView>();
         characterObjects = _networkManager.playerPositions;
+        enemiesObjects = _networkManager.enemiesPositions;
         if (!Instance)
         {
             if (_view.IsMine)
+            {
                 StartCoroutine(SetPlayers());
+                StartCoroutine(SetEnemies());
+            }
+                
         }
         else
             PhotonNetwork.Destroy(gameObject);
     }
 
-    private void Update()
+    private IEnumerator SetEnemies()
     {
-        if (!_view.IsMine) return;
-        
-        CheckInputs();
-        Timers();
+        yield return new WaitForSeconds(0.5f);
+        _view.RPC("StartEnemies", RpcTarget.MasterClient);
     }
     
-    private void Timers()
-    {
-        _shootTimer += Time.deltaTime;
-    }
-
     private IEnumerator SetPlayers()
     {
         yield return new WaitForSeconds(0.5f);
         _view.RPC("SetReference", RpcTarget.AllBuffered);
     }
-    
+
+    [PunRPC]
+    private void StartEnemies()
+    {
+        foreach (var enemyObj in enemiesObjects)
+        {
+            PhotonNetwork.Instantiate("Enemy", enemyObj.transform.position, Quaternion.identity);
+        }
+    }
+
     [PunRPC]
     private void SetReference()
     {
@@ -97,15 +102,11 @@ public class LevelManager : MonoBehaviourPun
         playersController.Add(p, controller);
         _view.RPC("GetPlayerHP", RpcTarget.MasterClient, p);
     }
-    
-    private void CheckInputs()
-    {
-        if (Input.GetKeyDown(KeyCode.Escape))
-            Disconnect(Constants.INTRO_SCENE);
-    }
 
-    public void Disconnect(string sceneToLoad)
+    public void Disconnect(string sceneToLoad, Player p)
     {
+        players[p].gameObject.SetActive(false);
+        players.Remove(p);
         _networkManager.DisconnectPlayer(sceneToLoad);
     }
 
@@ -145,43 +146,40 @@ public class LevelManager : MonoBehaviourPun
 
     [PunRPC]
     private void CheckActions(Vector3 hitPoint, Player p, bool hitIsEnemy, bool hitIsCharacter)
-    {
+    {   
         if (players.ContainsKey(p))
         {
             if (hitIsEnemy || players[p].isHoldingPosition)
             {
-                if (_shootTimer > players[p].timeToShoot)
+                if (players[p].shootTimer > players[p].timeToShoot)
                 {
-                    _shootTimer = 0;
+                    players[p].shootTimer = 0;
                     players[p].Shoot(hitPoint);
                 }  
             }
             else if (!hitIsCharacter)
             {
-                players[p].SetCanMove(true);
-                _positionToMove = hitPoint;
+                players[p].SetCanMove(true, hitPoint);
             }
         }
     }
 
-    public void RequestMove(Player p)
+    public void RequestMove(Player p, Vector3 posToMove)
     {
-        if (!_view.IsMine) return;
-        _view.RPC("Move", RpcTarget.MasterClient, p);
+        _view.RPC("Move", RpcTarget.MasterClient, p, posToMove);
     }
 
     [PunRPC]
-    private void Move(Player p)
+    private void Move(Player p, Vector3 posToMove)
     {
         if (players.ContainsKey(p))
         {
             if (players[p].canMove)
-                players[p].Move(_positionToMove);
+                players[p].Move(posToMove);
 
-            if (Vector3.Distance(players[p].transform.position, _positionToMove) < 0.1f)
+            if (Vector3.Distance(players[p].transform.position, posToMove) < 0.1f)
             {
-                _positionToMove = Vector3.zero;
-                players[p].SetCanMove(false);
+                players[p].SetCanMove(false, Vector3.zero);
             }
 
             players[p].SetIsMoving(Math.Abs(players[p].rb.velocity.magnitude) > 0.01f);
@@ -207,11 +205,22 @@ public class LevelManager : MonoBehaviourPun
         }
     }
 
-    public void NotifyWinner()
+    public void NotifyWinner(Player p)
     {
-        _view.RPC("FinishGame", RpcTarget.MasterClient, PhotonNetwork.LocalPlayer);
+        _view.RPC("FinishGame", RpcTarget.MasterClient, p);
     }
 
+    public void PlayerDead(Player p)
+    {
+        _view.RPC("DisconnectPlayer", RpcTarget.MasterClient, "LoseScene", p);
+    }
+
+    [PunRPC]
+    private void DisconnectPlayer(string sceneToLoad, Player p)
+    {
+        Disconnect(sceneToLoad, p);    
+    }
+    
     [PunRPC]
     public void FinishGame(Player p)
     {
@@ -221,23 +230,11 @@ public class LevelManager : MonoBehaviourPun
         {
             if (player.Key.IsMasterClient)
                 continue;
-            
-            _view.RPC(player.Key.Equals(p) ? "WinGame" : "LoseGame", player.Key);
+
+            Disconnect(player.Key.Equals(p) ? "WinScene" : "LoseScene", p);
         }
         
-        _view.RPC(masterWon ? "WinGame" : "LoseGame", PhotonNetwork.LocalPlayer);
-    }
-
-    [PunRPC]
-    private void WinGame()
-    {
-        Disconnect("WinScene");
-    }
-    
-    [PunRPC]
-    private void LoseGame()
-    {
-        Disconnect("LoseScene");
+        Disconnect(masterWon ? "WinScene" : "LoseScene", p);
     }
 
     public void TakeDamage(float damage, Player p)

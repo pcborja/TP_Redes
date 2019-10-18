@@ -55,5 +55,7 @@ MonoBehaviour:
   - MoveCamera
   - LoseGame
   - WinGame
+  - DisconnectPlayer
+  - StartEnemies
   DisableAutoOpenWizard: 1
   ShowSettings: 1

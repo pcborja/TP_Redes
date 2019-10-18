@@ -47,6 +47,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   characterObjects: []
+  enemiesObjects: []
 --- !u!114 &932639183159466275
 MonoBehaviour:
   m_ObjectHideFlags: 0

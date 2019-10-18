@@ -13,6 +13,7 @@ public class NetworkManager : MonoBehaviourPunCallbacks
     public GameObject startButtonObject;
     public GameObject[] playersObjects;
     [HideInInspector] public GameObject[] playerPositions;
+    [HideInInspector] public GameObject[] enemiesPositions;
     private PhotonView _view;
 
     private void Awake()
@@ -194,9 +195,10 @@ public class NetworkManager : MonoBehaviourPunCallbacks
         DestroyImmediate(gameObject);
     }
 
-    public void GameStarted(GameObject[] playerPos)
+    public void GameStarted(GameObject[] playerPos, GameObject[] enemiesPos)
     {
         playerPositions = playerPos;
+        enemiesPositions = enemiesPos;
         
         if (PhotonNetwork.LocalPlayer.IsMasterClient)
         {

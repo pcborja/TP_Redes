@@ -17,6 +17,8 @@ public class Character : MonoBehaviourPun
     private Animator _anim;
     public float damage;
     public bool isShooting;
+    public float shootTimer;
+    public Vector3 positionToMove;
     
     private void Awake()
     {
@@ -28,6 +30,8 @@ public class Character : MonoBehaviourPun
     private void Update()
     {    
         if (!_view.IsMine) return;
+        
+        Timers();
         
         if (hp <= 0)
         {
@@ -42,7 +46,7 @@ public class Character : MonoBehaviourPun
         if (!_view.IsMine)
             return;
         
-        LevelManager.Instance.RequestMove(PhotonNetwork.LocalPlayer);
+        LevelManager.Instance.RequestMove(PhotonNetwork.LocalPlayer, positionToMove);
     }
 
     public void Move(Vector3 position)
@@ -71,10 +75,12 @@ public class Character : MonoBehaviourPun
             _anim.SetBool("IsShooting", v);
     }
 
-    public void SetCanMove(bool v)
+    public void SetCanMove(bool v, Vector3 posToMove)
     {
         if (!_view.IsMine)
             return;
+
+        positionToMove = posToMove;
         canMove = v;
     }
 
@@ -96,7 +102,7 @@ public class Character : MonoBehaviourPun
     private IEnumerator Dead()
     {
         yield return new WaitForSeconds(1);
-        LevelManager.Instance.Disconnect("LoseScene");
+        LevelManager.Instance.PlayerDead(PhotonNetwork.LocalPlayer);
     }
 
     public void TakeDamage(float dmg)
@@ -110,5 +116,10 @@ public class Character : MonoBehaviourPun
         var position1 = transform1.position;
         var xzPos = new Vector3 (position.x, position1.y, position.z);
         transform1.forward = (xzPos - position1).normalized;
+    }
+    
+    private void Timers()
+    {
+        shootTimer += Time.deltaTime;
     }
 }
