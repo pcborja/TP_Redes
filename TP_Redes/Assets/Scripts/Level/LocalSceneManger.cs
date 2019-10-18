@@ -19,9 +19,13 @@ public class LocalSceneManger : MonoBehaviour
     {
         if (Input.GetKeyDown(KeyCode.Escape))
         {
-            if (SceneManager.GetActiveScene().name == Constants.LOBBY_SCENE || SceneManager.GetActiveScene().name == Constants.GAME_LEVEL)
+            if (SceneManager.GetActiveScene().name == Constants.LOBBY_SCENE)
             {
                 NetBackButton();    
+            }
+            else if (SceneManager.GetActiveScene().name == Constants.GAME_LEVEL)
+            {
+                
             }
             else
             {

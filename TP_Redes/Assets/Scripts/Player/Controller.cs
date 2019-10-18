@@ -3,11 +3,13 @@ using System.Collections.Generic;
 using UnityEngine;
 using Photon.Realtime;
 using Photon.Pun;
+using UnityEngine.UI;
 
 public class Controller : MonoBehaviourPun
 {
     private PhotonView _view;
     private int _packagePerSecond;
+    public Text hpText; 
     public Camera myCam;
     
     private void Awake()
@@ -17,10 +19,15 @@ public class Controller : MonoBehaviourPun
 
     void Start()
     {
-        if (!_view.IsMine) return;
-
-        LevelManager.Instance.StartPlayerData(PhotonNetwork.LocalPlayer);
-        StartCoroutine(SendPackage());
+        if (_view.IsMine)
+        {
+            LevelManager.Instance.StartPlayerData(PhotonNetwork.LocalPlayer);
+            StartCoroutine(SendPackage());
+        }
+        else
+        {
+            myCam.enabled = false;
+        }
     }
 
     private IEnumerator SendPackage()
@@ -51,5 +58,10 @@ public class Controller : MonoBehaviourPun
     public void SetPPS(int pps)
     {
         _packagePerSecond = pps;
+    }
+
+    public void UpdateHUD(float hpToUse)
+    {
+        hpText.text = "HP: " + hpToUse;
     }
 }

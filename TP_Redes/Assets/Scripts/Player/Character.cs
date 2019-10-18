@@ -17,13 +17,11 @@ public class Character : MonoBehaviourPun
     private Animator _anim;
     public float damage;
     public bool isShooting;
-    private Text _hpText; 
     
     private void Awake()
     {
         _view = GetComponent<PhotonView>();
         _anim = GetComponent<Animator>();
-        _hpText = GameObject.Find("HPText").GetComponent<Text>();
         rb = GetComponent<Rigidbody>();
     }
 
@@ -112,10 +110,5 @@ public class Character : MonoBehaviourPun
         var position1 = transform1.position;
         var xzPos = new Vector3 (position.x, position1.y, position.z);
         transform1.forward = (xzPos - position1).normalized;
-    }
-
-    public void UpdateHUD(float hpToUse)
-    {
-        _hpText.text = "HP: " + hpToUse;
     }
 }

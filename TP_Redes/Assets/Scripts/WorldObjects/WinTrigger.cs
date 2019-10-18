@@ -1,16 +1,30 @@
-﻿using System.Collections;
-using System.Collections.Generic;
+﻿using Photon.Pun;
 using UnityEngine;
 
-public class WinTrigger : MonoBehaviour
+public class WinTrigger : MonoBehaviourPun
 {
+    private bool _canBeTriggered;
+    private PhotonView _view;
+
+    private void Awake()
+    {
+        _view = GetComponent<PhotonView>();
+    }
+
+    private void Start()
+    {
+        if (!_view.IsMine)
+            DestroyImmediate(gameObject);
+        else
+            _canBeTriggered = true;
+    }
+
     private void OnTriggerEnter(Collider other)
     {
-        if (other.gameObject.GetComponent<Character>())
+        if (other.gameObject.GetComponent<Character>() && _canBeTriggered)
         {
-            LevelManager.Instance.NotifyWinner(other.gameObject.GetComponent<Character>());
-            DestroyImmediate(gameObject);
-        }
-            
+            _canBeTriggered = false;
+            LevelManager.Instance.NotifyWinner();
+        }            
     }
 }

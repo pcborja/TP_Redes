@@ -23,16 +23,21 @@ public class Enemy : MonoBehaviourPun
     private bool _targetSpoted;
     private Rigidbody _rb;
     private bool _isAttacking;
+    private PhotonView _view;
 
     private void Awake()
     {
+        _view = GetComponent<PhotonView>();
         _anim = GetComponent<Animator>(); 
         _rb = GetComponent<Rigidbody>();
     }
 
     void Start()
     {
-        StartCoroutine(FindPlayers());
+        if (!_view.IsMine)
+            DestroyImmediate(gameObject);
+        else
+            StartCoroutine(FindPlayers());
     }
 
     void Update()
