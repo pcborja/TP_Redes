@@ -21,7 +21,7 @@ public class NetworkManager : MonoBehaviourPunCallbacks
         DontDestroyOnLoad(gameObject);
         _view = GetComponent<PhotonView>();
     }
-
+    
     private void Update()
     {
         if (SceneManager.GetActiveScene().name == Constants.INTRO_SCENE && Input.GetKeyDown(KeyCode.Return))
@@ -52,23 +52,15 @@ public class NetworkManager : MonoBehaviourPunCallbacks
 
     public override void OnConnectedToMaster()
     {
-        PhotonNetwork.JoinOrCreateRoom("MainRoom", new RoomOptions { MaxPlayers = 4 }, TypedLobby.Default);
-    }
-
-    public override void OnCreatedRoom()
-    {
-        startButtonObject.SetActive(true);
+        PhotonNetwork.JoinOrCreateRoom("MainRoom", new RoomOptions { MaxPlayers = 5 }, TypedLobby.Default);
     }
     
     public override void OnJoinedRoom()
     {
         PhotonNetwork.LoadLevel("Lobby");
-        Debug.Log(PhotonNetwork.CurrentRoom);
-        _view.RPC("NotifyConnection", RpcTarget.MasterClient, PhotonNetwork.LocalPlayer);
-    }
-
-    public override void OnDisconnected(DisconnectCause cause)
-    {
+        
+        if (!PhotonNetwork.IsMasterClient)
+            _view.RPC("NotifyConnection", RpcTarget.MasterClient, PhotonNetwork.LocalPlayer);
     }
     
     public override void OnJoinRandomFailed(short returnCode, string message)
@@ -103,11 +95,13 @@ public class NetworkManager : MonoBehaviourPunCallbacks
     [PunRPC]
     private void ActivePlayerMenuObject(Player p, bool active)
     {
-        playersObjects[p.ActorNumber - 1].SetActive(active);
-        playersObjects[p.ActorNumber - 1].GetComponent<PlayerMenuData>().isTaken = active;
+        if (!_view.IsMine) return;
+        
+        playersObjects[p.ActorNumber - 2].SetActive(active);
+        playersObjects[p.ActorNumber - 2].GetComponent<PlayerMenuData>().isTaken = active;
 
         if (active)
-            playersObjects[p.ActorNumber - 1].GetComponentInChildren<Text>().text = p.NickName;
+            playersObjects[p.ActorNumber - 2].GetComponentInChildren<Text>().text = p.NickName;
     }
 
     public void BackButton()
@@ -164,7 +158,11 @@ public class NetworkManager : MonoBehaviourPunCallbacks
     private void NotifyConnection(Player p)
     {
         if (!_view.IsMine) return;
-        CheckForAlreadyConnectedPlayers(p);
+        
+        if (PhotonNetwork.PlayerList.Length > 2)
+            startButtonObject.SetActive(true);
+        
+        CheckForAlreadyConnectedPlayers(p); 
         _view.RPC("ActivePlayerMenuObject", RpcTarget.AllBuffered, p, true);
     }
 
@@ -177,11 +175,6 @@ public class NetworkManager : MonoBehaviourPunCallbacks
                 _view.RPC("ActivePlayerMenuObject", p, PhotonNetwork.PlayerList[i + 1], true);
             }
         }
-    }
-
-    public void HowToPlayButton()
-    {
-        SceneManager.LoadScene(Constants.HOW_TO_PLAY_SCENE);
     }
 
     public void SimpleExit()
@@ -199,10 +192,14 @@ public class NetworkManager : MonoBehaviourPunCallbacks
     {
         playerPositions = playerPos;
         enemiesPositions = enemiesPos;
-        
-        if (PhotonNetwork.LocalPlayer.IsMasterClient)
-        {
-            PhotonNetwork.Instantiate("LevelManager", Vector3.zero, Quaternion.identity);
-        }
+
+        PhotonNetwork.Instantiate(PhotonNetwork.LocalPlayer.IsMasterClient ? "LevelManager" : "Controller",
+            Vector3.zero, Quaternion.identity);
     }
+    
+    public void HowToPlayButton()
+    {
+        SceneManager.LoadScene(Constants.HOW_TO_PLAY_SCENE);
+    }
+
 }
