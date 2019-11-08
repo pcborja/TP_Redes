@@ -5,4 +5,5 @@ using UnityEngine;
 public class PlayerMenuData : MonoBehaviour
 {
     public bool isTaken;
+    public GameObject readyImage;
 }

@@ -68,17 +68,22 @@ public class NetworkManager : MonoBehaviourPunCallbacks
         PhotonNetwork.Disconnect();
     }
 
+    public override void OnDisconnected(DisconnectCause cause)
+    {
+        _view.RPC("NotifyDisconnection", RpcTarget.MasterClient, PhotonNetwork.LocalPlayer);
+    }
+
     public void StartGame()
     {
         startButtonObject.SetActive(false);
-        _view.RPC("StartScene", RpcTarget.All);
-    }   
+        _view.RPC("StartScene", RpcTarget.AllBuffered);
+    }
 
     [PunRPC]
     private void StartScene()
     {
         _view.RPC("ActivePlayerMenuObject", RpcTarget.All, PhotonNetwork.LocalPlayer, false);
-        PhotonNetwork.LoadLevel(Constants.GAME_LEVEL);        
+        PhotonNetwork.LoadLevel(Constants.GAME_LEVEL);
     }
 
     public void ExitGame()
@@ -97,11 +102,11 @@ public class NetworkManager : MonoBehaviourPunCallbacks
     {
         if (!_view.IsMine) return;
         
-        playersObjects[p.ActorNumber - 2].SetActive(active);
-        playersObjects[p.ActorNumber - 2].GetComponent<PlayerMenuData>().isTaken = active;
+        playersObjects[p.ActorNumber].SetActive(active);
+        playersObjects[p.ActorNumber].GetComponent<PlayerMenuData>().isTaken = active;
 
         if (active)
-            playersObjects[p.ActorNumber - 2].GetComponentInChildren<Text>().text = p.NickName;
+            playersObjects[p.ActorNumber].GetComponentInChildren<Text>().text = p.NickName;
     }
 
     public void BackButton()

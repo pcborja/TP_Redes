@@ -17,7 +17,7 @@ public class Controller : MonoBehaviourPun
         _view = GetComponent<PhotonView>();
     }
 
-    void Start()
+    private void Start()
     {
         if (_view.IsMine)
         {
