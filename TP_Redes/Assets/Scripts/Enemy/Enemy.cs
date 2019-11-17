@@ -43,11 +43,14 @@ public class Enemy : MonoBehaviourPun
     void Update()
     {
         Timers();
-        CheckVitals();
+
+        if (players.Length > 0)
+        {
+            CheckForPlayers();
+            TryToAttack();
+        }
         
-        if (players.Length == 0) return; 
-        CheckForPlayers();
-        TryToAttack();
+        CheckVitals();
     }
 
     private void Timers()

@@ -1,8 +1,11 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
+using System.Numerics;
 using Photon.Pun;
 using UnityEngine;
 using UnityEngine.UI;
+using Vector3 = UnityEngine.Vector3;
 
 public class Character : MonoBehaviourPun
 {
@@ -45,8 +48,22 @@ public class Character : MonoBehaviourPun
     {
         if (!_view.IsMine)
             return;
-        
-        LevelManager.Instance.RequestMove(PhotonNetwork.LocalPlayer, positionToMove);
+
+        TryToMove(positionToMove);
+        //LevelManager.Instance.RequestMove(PhotonNetwork.LocalPlayer, positionToMove);
+    }
+
+    private void TryToMove(Vector3 posToMove)
+    {
+        if (canMove)
+            Move(posToMove);
+
+        if (Vector3.Distance(transform.position, posToMove) < 0.1f)
+        {
+            SetCanMove(false, Vector3.zero);
+        }
+
+        SetIsMoving(Math.Abs(rb.velocity.magnitude) > 0.01f);
     }
 
     public void Move(Vector3 position)

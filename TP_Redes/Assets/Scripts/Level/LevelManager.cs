@@ -26,10 +26,9 @@ public class LevelManager : MonoBehaviourPun
         {
             if (_view.IsMine)
             {
-                StartCoroutine(SetPlayers());
+                SetPlayers();
                 StartCoroutine(SetEnemies());
             }
-                
         }
         else
             PhotonNetwork.Destroy(gameObject);
@@ -41,9 +40,8 @@ public class LevelManager : MonoBehaviourPun
         _view.RPC("StartEnemies", RpcTarget.MasterClient);
     }
     
-    private IEnumerator SetPlayers()
+    private void SetPlayers()
     {
-        yield return new WaitForSeconds(0.5f);
         _view.RPC("SetReference", RpcTarget.AllBuffered);
     }
 

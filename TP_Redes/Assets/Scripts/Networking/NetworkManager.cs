@@ -76,13 +76,6 @@ public class NetworkManager : MonoBehaviourPunCallbacks
     public void StartGame()
     {
         startButtonObject.SetActive(false);
-        _view.RPC("StartScene", RpcTarget.AllBuffered);
-    }
-
-    [PunRPC]
-    private void StartScene()
-    {
-        _view.RPC("ActivePlayerMenuObject", RpcTarget.All, PhotonNetwork.LocalPlayer, false);
         PhotonNetwork.LoadLevel(Constants.GAME_LEVEL);
     }
 
