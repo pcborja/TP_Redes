@@ -1,9 +1,8 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 
 public class PlayerMenuData : MonoBehaviour
 {
     public bool isTaken;
-    public GameObject readyImage;
+    public bool isReady;
+    public GameObject readyObj;
 }

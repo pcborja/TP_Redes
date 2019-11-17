@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections;
+using System.Collections.Generic;
+using System.Linq;
 using Photon.Pun;
 using Photon.Realtime;
 using UnityEngine;
@@ -11,11 +13,13 @@ public class NetworkManager : MonoBehaviourPunCallbacks
     public InputField playerNameInputfield;
     public GameObject messageObject;
     public GameObject startButtonObject;
+    public GameObject readyButtonObject;
     public GameObject[] playersObjects;
     [HideInInspector] public GameObject[] playerPositions;
     [HideInInspector] public GameObject[] enemiesPositions;
     private PhotonView _view;
-
+    private Dictionary<Player, PlayerMenuData> _playersData = new Dictionary<Player, PlayerMenuData>();
+    
     private void Awake()
     {
         DontDestroyOnLoad(gameObject);
@@ -60,7 +64,10 @@ public class NetworkManager : MonoBehaviourPunCallbacks
         PhotonNetwork.LoadLevel("Lobby");
         
         if (!PhotonNetwork.IsMasterClient)
+        {
             _view.RPC("NotifyConnection", RpcTarget.MasterClient, PhotonNetwork.LocalPlayer);
+            readyButtonObject.SetActive(true);
+        }
     }
     
     public override void OnJoinRandomFailed(short returnCode, string message)
@@ -88,18 +95,6 @@ public class NetworkManager : MonoBehaviourPunCallbacks
     {
         messageObject.SetActive(true);
         messageObject.GetComponentInChildren<Text>().text = message;
-    }
-
-    [PunRPC]
-    private void ActivePlayerMenuObject(Player p, bool active)
-    {
-        if (!_view.IsMine) return;
-        
-        playersObjects[p.ActorNumber].SetActive(active);
-        playersObjects[p.ActorNumber].GetComponent<PlayerMenuData>().isTaken = active;
-
-        if (active)
-            playersObjects[p.ActorNumber].GetComponentInChildren<Text>().text = p.NickName;
     }
 
     public void BackButton()
@@ -148,31 +143,29 @@ public class NetworkManager : MonoBehaviourPunCallbacks
     [PunRPC]
     private void NotifyDisconnection(Player p)
     {
-        if (!_view.IsMine) return;
-        _view.RPC("ActivePlayerMenuObject", RpcTarget.AllBuffered, p, false);
+        ActivePlayerMenuObject(p, false);
+        _playersData.Remove(p);
     }
 
     [PunRPC]
     private void NotifyConnection(Player p)
     {
-        if (!_view.IsMine) return;
-        
-        if (PhotonNetwork.PlayerList.Length > 2)
-            startButtonObject.SetActive(true);
-        
-        CheckForAlreadyConnectedPlayers(p); 
-        _view.RPC("ActivePlayerMenuObject", RpcTarget.AllBuffered, p, true);
+        _playersData.Add(p, GetNotTakenMenuData());
+        ActivePlayerMenuObject(p, true);
     }
-
-    private void CheckForAlreadyConnectedPlayers(Player p)
+    
+    private void ActivePlayerMenuObject(Player p, bool active)
     {
-        for (var i = 0; i < playersObjects.Length; i++)
-        {
-            if (playersObjects[i].activeInHierarchy)
-            {
-                _view.RPC("ActivePlayerMenuObject", p, PhotonNetwork.PlayerList[i + 1], true);
-            }
-        }
+        _playersData[p].gameObject.SetActive(active);
+        _playersData[p].isTaken = active;
+
+        if (active)
+            _playersData[p].GetComponentInChildren<Text>().text = p.NickName;
+    }
+    
+    private PlayerMenuData GetNotTakenMenuData()
+    {
+        return playersObjects.Select(playerObj => playerObj.GetComponent<PlayerMenuData>()).FirstOrDefault(dataObj => !dataObj.isTaken);
     }
 
     public void SimpleExit()
@@ -200,4 +193,28 @@ public class NetworkManager : MonoBehaviourPunCallbacks
         SceneManager.LoadScene(Constants.HOW_TO_PLAY_SCENE);
     }
 
+    public void OnReady()
+    {
+        _view.RPC("SetPlayerIsReady", RpcTarget.MasterClient, PhotonNetwork.LocalPlayer);
+    }
+
+    [PunRPC]
+    private void SetPlayerIsReady(Player p)
+    {
+        var playerData = _playersData[p];
+        playerData.isReady = !playerData.isReady;
+        playerData.readyObj.SetActive(playerData.isReady);
+        CheckStartButton();
+    }
+
+    private void CheckStartButton()
+    { 
+        if (_playersData.Count > 1 && AllPlayersReady())
+            startButtonObject.SetActive(true);
+    }
+
+    private bool AllPlayersReady()
+    {
+        return _playersData.Any(x => !x.Value.GetComponent<PlayerMenuData>().isReady);
+    }
 }
