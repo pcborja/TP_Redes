@@ -82,8 +82,17 @@ public class NetworkManager : MonoBehaviourPunCallbacks
 
     public void StartGame()
     {
-        startButtonObject.SetActive(false);
         PhotonNetwork.LoadLevel(Constants.GAME_LEVEL);
+    }
+
+    public void ClearLobbyData()
+    {
+        startButtonObject.SetActive(false);
+        _playersData.Clear();
+        foreach (var playersObject in playersObjects)
+        {
+            playersObject.SetActive(false);
+        }
     }
 
     public void ExitGame()
@@ -156,6 +165,8 @@ public class NetworkManager : MonoBehaviourPunCallbacks
     
     private void ActivePlayerMenuObject(Player p, bool active)
     {
+        if (!_playersData[p]) return;
+        
         _playersData[p].gameObject.SetActive(active);
         _playersData[p].isTaken = active;
 
@@ -209,12 +220,11 @@ public class NetworkManager : MonoBehaviourPunCallbacks
 
     private void CheckStartButton()
     { 
-        if (_playersData.Count > 1 && AllPlayersReady())
-            startButtonObject.SetActive(true);
+        startButtonObject.SetActive(_playersData.Count > 1 && AllPlayersReady());
     }
 
     private bool AllPlayersReady()
     {
-        return _playersData.Any(x => !x.Value.GetComponent<PlayerMenuData>().isReady);
+        return _playersData.All(x => x.Value.GetComponent<PlayerMenuData>().isReady);
     }
 }

@@ -18,19 +18,20 @@ public class LevelManager : MonoBehaviourPun
 
     private void Awake()
     {
-        _networkManager = FindObjectOfType<NetworkManager>();
         _view = GetComponent<PhotonView>();
+        if (!_view.IsMine) return;
+        
+        _networkManager = FindObjectOfType<NetworkManager>();
         characterObjects = _networkManager.playerPositions;
         enemiesObjects = _networkManager.enemiesPositions;
-        if (!Instance)
+        _networkManager.ClearLobbyData();
+        
+        if (!Instance && PhotonNetwork.IsMasterClient)
         {
-            if (_view.IsMine)
-            {
-                SetPlayers();
-                StartCoroutine(SetEnemies());
-            }
+            SetPlayers();
+            StartCoroutine(SetEnemies());
         }
-        else
+        else if (Instance)
             PhotonNetwork.Destroy(gameObject);
     }
 
@@ -58,10 +59,16 @@ public class LevelManager : MonoBehaviourPun
     private void SetReference()
     {
         Instance = this;
-        _view.RPC("AddPlayer", RpcTarget.MasterClient, PhotonNetwork.LocalPlayer);
+        if (PhotonNetwork.IsMasterClient) return;
+        
         CreateController(PhotonNetwork.LocalPlayer);
     }
 
+    public void StartPlayer(Player p)
+    {
+        _view.RPC("AddPlayer", RpcTarget.MasterClient, p);
+    }
+    
     [PunRPC]
     private void AddPlayer(Player p)
     {
@@ -69,27 +76,18 @@ public class LevelManager : MonoBehaviourPun
         players.Add(p, character);
     }
 
-    public void StartPlayerData(Player p)
-    {
-        _view.RPC("StartPlayer", RpcTarget.MasterClient, p);
-    }
-
-    [PunRPC]
-    private void StartPlayer(Player p)
-    {
-        if (!players.ContainsKey(p)) return;
-        
-        var characterObject = characterObjects[p.ActorNumber - 1];
-        players[p].transform.SetParent(characterObject.transform);
-        players[p].transform.rotation = Quaternion.identity;
-    }
-
     private Character CreatePlayer(Player p)
     {
-        var characterObject = characterObjects[p.ActorNumber - 1];
+        var characterObject = GetCharacterObject();
         var instantiatedChar = PhotonNetwork.Instantiate("Character", characterObject.transform.position, Quaternion.identity);
-        instantiatedChar.gameObject.name = instantiatedChar.gameObject.name + " " + (p.ActorNumber - 1);
+        instantiatedChar.transform.SetParent(characterObject.transform);
+        instantiatedChar.gameObject.name = instantiatedChar.gameObject.name + " " + p.NickName;
         return instantiatedChar.GetComponent<Character>();
+    }
+
+    private GameObject GetCharacterObject()
+    {
+        return characterObjects.FirstOrDefault(charObj => !charObj.GetComponentInChildren<Character>());
     }
 
     private void CreateController(Player p)

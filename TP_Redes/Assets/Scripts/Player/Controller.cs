@@ -21,7 +21,7 @@ public class Controller : MonoBehaviourPun
     {
         if (_view.IsMine)
         {
-            LevelManager.Instance.StartPlayerData(PhotonNetwork.LocalPlayer);
+            LevelManager.Instance.StartPlayer(PhotonNetwork.LocalPlayer);
             StartCoroutine(SendPackage());
         }
         else
