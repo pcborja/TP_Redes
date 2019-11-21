@@ -63,5 +63,9 @@ MonoBehaviour:
   - SetMyCamera
   - LoadGameScene
   - Disconnect
+  - GetChatControllerVariables
+  - SetChatController
+  - CreateChatController
+  - OnConnection
   DisableAutoOpenWizard: 1
   ShowSettings: 1

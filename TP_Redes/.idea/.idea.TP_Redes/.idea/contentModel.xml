@@ -363,6 +363,7 @@
             <e p="CameraFollow.cs" t="Include" />
             <e p="Character.cs" t="Include" />
             <e p="Controller.cs" t="Include" />
+            <e p="PlayerChatController.cs" t="Include" />
           </e>
           <e p="Utils" t="Include">
             <e p="Constants.cs" t="Include" />

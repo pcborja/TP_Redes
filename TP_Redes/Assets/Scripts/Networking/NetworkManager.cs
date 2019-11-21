@@ -15,6 +15,7 @@ public class NetworkManager : MonoBehaviourPunCallbacks
     public GameObject startButtonObject;
     public GameObject readyButtonObject;
     public GameObject[] playersObjects;
+    public GameObject chatObject;
     public int pps;
     
     [HideInInspector] public GameObject[] playerPositions;
@@ -22,6 +23,7 @@ public class NetworkManager : MonoBehaviourPunCallbacks
     
     private PhotonView _view;
     private Dictionary<Player, PlayerMenuData> _playersData = new Dictionary<Player, PlayerMenuData>();
+    private PlayerChatController _chatController;
     
     private void Awake()
     {
@@ -68,11 +70,34 @@ public class NetworkManager : MonoBehaviourPunCallbacks
         
         if (!PhotonNetwork.IsMasterClient)
         {
-            _view.RPC("NotifyConnection", RpcTarget.MasterClient, PhotonNetwork.LocalPlayer);
+            _view.RPC("OnConnection", RpcTarget.MasterClient, PhotonNetwork.LocalPlayer);
             readyButtonObject.SetActive(true);
         }
+        else
+        {
+            PhotonNetwork.LocalPlayer.NickName = "[SERVER]";
+            ActiveChat(true);
+        }
+    }
+
+    private void ActiveChat(bool active)
+    {
+        chatObject.SetActive(active);
+    }
+
+    public void ChatController()
+    {
+        if (PhotonNetwork.IsMasterClient)
+            CreateChatController("#" + ColorUtility.ToHtmlStringRGB(Color.red));
     }
     
+    [PunRPC]
+    private void CreateChatController(string color)
+    {
+        _chatController = PhotonNetwork.Instantiate("PlayerChatController", Vector3.zero, Quaternion.identity).GetComponent<PlayerChatController>();
+        _chatController.SetChat(chatObject.GetComponentInChildren<Text>(), chatObject.GetComponentInChildren<InputField>(), color);
+    }
+
     public override void OnJoinRandomFailed(short returnCode, string message)
     {
         PhotonNetwork.Disconnect();
@@ -85,12 +110,15 @@ public class NetworkManager : MonoBehaviourPunCallbacks
 
     public void StartGame()
     {
+        PhotonNetwork.CurrentRoom.IsOpen = false;
+        ActiveChat(false);
         _view.RPC("LoadGameScene", RpcTarget.AllBuffered);
     }
 
     [PunRPC]
     private void LoadGameScene()
     {
+        _chatController.DisconnectFromChat();
         readyButtonObject.SetActive(false);
         PhotonNetwork.LoadLevel(Constants.GAME_LEVEL);
     }
@@ -173,10 +201,11 @@ public class NetworkManager : MonoBehaviourPunCallbacks
     }
 
     [PunRPC]
-    private void NotifyConnection(Player p)
+    private void OnConnection(Player p)
     {
         _playersData.Add(p, GetNotTakenMenuData());
         ActivePlayerMenuObject(p, true);
+        _view.RPC("CreateChatController", p, "#" + ColorUtility.ToHtmlStringRGB(_playersData[p].colorImg.GetComponent<Image>().color));
     }
     
     private void ActivePlayerMenuObject(Player p, bool active)
@@ -210,7 +239,7 @@ public class NetworkManager : MonoBehaviourPunCallbacks
     {
         playerPositions = playerPos;
         enemiesPositions = enemiesPos;
-
+        
         if (PhotonNetwork.IsMasterClient)
             CreateLevelManager();
         else

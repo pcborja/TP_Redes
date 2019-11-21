@@ -16,6 +16,11 @@ public class LocalSceneManger : MonoBehaviour
             _networkManager.GameStarted(playerPositions, enemiesPositions);
     }
 
+    private void Start()
+    {
+        _networkManager.ChatController();
+    }
+
     private void Update()
     {
         if (Input.GetKeyDown(KeyCode.Escape))

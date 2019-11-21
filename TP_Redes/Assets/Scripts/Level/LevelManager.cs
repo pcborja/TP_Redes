@@ -75,7 +75,7 @@ public class LevelManager : MonoBehaviourPun
         
         instantiatedChar.transform.SetParent(characterObject.transform);
         instantiatedChar.gameObject.name = instantiatedChar.gameObject.name + " " + p.NickName;
-        character.SetMyView();
+        character.SetView();
         character.SetCamera(p);
         character.SetOwner(p);
     }

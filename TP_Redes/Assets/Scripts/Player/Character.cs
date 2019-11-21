@@ -158,7 +158,7 @@ public class Character : MonoBehaviourPun
         shootTimer += Time.deltaTime;
     }
 
-    public void SetMyView()
+    public void SetView()
     {
         _view = GetComponent<PhotonView>();
     }

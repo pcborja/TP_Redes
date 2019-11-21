@@ -1379,7 +1379,7 @@ namespace Photon.Pun
                 return true;
             }
 
-            Debug.LogError("Cannot send messages when not connected. Either connect to Photon OR use offline mode!");
+            Debug.Log("Cannot send messages when not connected. Either connect to Photon OR use offline mode!");
             return false;
         }
 
