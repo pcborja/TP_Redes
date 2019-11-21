@@ -61,5 +61,7 @@ MonoBehaviour:
   - OnLifeChange
   - SetLocalSettings
   - SetMyCamera
+  - LoadGameScene
+  - Disconnect
   DisableAutoOpenWizard: 1
   ShowSettings: 1

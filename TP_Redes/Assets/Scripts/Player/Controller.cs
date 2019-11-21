@@ -46,7 +46,7 @@ public class Controller : MonoBehaviourPun
 
             if (Input.GetKeyDown(KeyCode.Escape))
             {
-                LevelManager.Instance.Disconnect(Constants.INTRO_SCENE, PhotonNetwork.LocalPlayer);
+                LevelManager.Instance.OnDisconnect(Constants.INTRO_SCENE, PhotonNetwork.LocalPlayer);
             }
         }
     }

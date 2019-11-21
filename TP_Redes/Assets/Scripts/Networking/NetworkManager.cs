@@ -15,8 +15,11 @@ public class NetworkManager : MonoBehaviourPunCallbacks
     public GameObject startButtonObject;
     public GameObject readyButtonObject;
     public GameObject[] playersObjects;
+    public int pps;
+    
     [HideInInspector] public GameObject[] playerPositions;
     [HideInInspector] public GameObject[] enemiesPositions;
+    
     private PhotonView _view;
     private Dictionary<Player, PlayerMenuData> _playersData = new Dictionary<Player, PlayerMenuData>();
     
@@ -82,6 +85,13 @@ public class NetworkManager : MonoBehaviourPunCallbacks
 
     public void StartGame()
     {
+        _view.RPC("LoadGameScene", RpcTarget.AllBuffered);
+    }
+
+    [PunRPC]
+    private void LoadGameScene()
+    {
+        readyButtonObject.SetActive(false);
         PhotonNetwork.LoadLevel(Constants.GAME_LEVEL);
     }
 
@@ -135,8 +145,14 @@ public class NetworkManager : MonoBehaviourPunCallbacks
         DisconnectPlayer(Constants.INTRO_SCENE);
         DestroyImmediate(gameObject);
     }
-
-    public void DisconnectPlayer(string sceneToLoad)
+    
+    public void DisconnectPlayer(string sceneToLoad, Player p)
+    {
+        _view.RPC("DisconnectPlayer", p, sceneToLoad);
+    }
+    
+    [PunRPC]
+    private void DisconnectPlayer(string sceneToLoad)
     {
         PhotonNetwork.LeaveRoom();
         PhotonNetwork.Disconnect();
@@ -195,14 +211,20 @@ public class NetworkManager : MonoBehaviourPunCallbacks
         playerPositions = playerPos;
         enemiesPositions = enemiesPos;
 
-        PhotonNetwork.Instantiate(PhotonNetwork.LocalPlayer.IsMasterClient ? "LevelManager" : "Controller",
-            Vector3.zero, Quaternion.identity);
+        if (PhotonNetwork.IsMasterClient)
+            CreateLevelManager();
+        else
+            CreateController();
     }
     
-    private void CreateController(Player p)
+    private void CreateLevelManager()
     {
-        var controller = PhotonNetwork.Instantiate("Controller", Vector3.zero, Quaternion.identity).GetComponent<Controller>();
-        controller.SetPPS(20);
+        PhotonNetwork.Instantiate("LevelManager", Vector3.zero, Quaternion.identity);
+    }
+    
+    private void CreateController()
+    {
+        PhotonNetwork.Instantiate("Controller", Vector3.zero, Quaternion.identity).GetComponent<Controller>().SetPPS(pps);
     }
     
     public void HowToPlayButton()

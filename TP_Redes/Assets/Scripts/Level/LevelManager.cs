@@ -52,9 +52,9 @@ public class LevelManager : MonoBehaviourPun
     private void SetReference()
     {
         Instance = this;
-        if (PhotonNetwork.IsMasterClient) return;
         
-        _view.RPC("AddPlayer", RpcTarget.MasterClient, PhotonNetwork.LocalPlayer);
+        if (!PhotonNetwork.IsMasterClient)
+            _view.RPC("AddPlayer", RpcTarget.MasterClient, PhotonNetwork.LocalPlayer);
     }
     
     [PunRPC]
@@ -69,13 +69,15 @@ public class LevelManager : MonoBehaviourPun
     {
         var characterObject = GetCharacterObject();
         var instantiatedChar = PhotonNetwork.Instantiate("Character", characterObject.transform.position, Quaternion.identity);
+        var character = instantiatedChar.GetComponent<Character>();
+       
+        players.Add(p, character);
+        
         instantiatedChar.transform.SetParent(characterObject.transform);
         instantiatedChar.gameObject.name = instantiatedChar.gameObject.name + " " + p.NickName;
-        var character = instantiatedChar.GetComponent<Character>();
         character.SetMyView();
         character.SetCamera(p);
         character.SetOwner(p);
-        players.Add(p, character);
     }
 
     private GameObject GetCharacterObject()
@@ -83,39 +85,46 @@ public class LevelManager : MonoBehaviourPun
         return characterObjects.FirstOrDefault(charObj => !charObj.GetComponentInChildren<Character>());
     }
 
-    public void Disconnect(string sceneToLoad, Player p)
+    public void OnDisconnect(string sceneToLoad, Player p)
+    {
+        _view.RPC("Disconnect", RpcTarget.MasterClient, sceneToLoad, p);
+    }
+
+    [PunRPC]
+    private void Disconnect(string sceneToLoad, Player p)
     {
         players[p].gameObject.SetActive(false);
         players.Remove(p);
-        _networkManager.DisconnectPlayer(sceneToLoad);
+        _networkManager.DisconnectPlayer(sceneToLoad, p);
     }
 
     public void OnClicked(Vector3 mousePosition, Player p)
+    {
+        _view.RPC("CheckActions", RpcTarget.MasterClient, mousePosition, p);
+    }
+
+    [PunRPC]
+    private void CheckActions(Vector3 mousePosition, Player p)
     {
         if (Physics.Raycast(players[p].myCam.ScreenPointToRay(mousePosition), out var hit, 100))
         {
             bool hitIsEnemy = hit.transform.gameObject.GetComponent<Enemy>();
             bool hitIsCharacter = hit.transform.gameObject.GetComponent<Character>();
-            _view.RPC("CheckActions", RpcTarget.MasterClient, hit.point, p, hitIsEnemy, hitIsCharacter);
-        }
-    }
 
-    [PunRPC]
-    private void CheckActions(Vector3 hitPoint, Player p, bool hitIsEnemy, bool hitIsCharacter)
-    {   
-        if (players.ContainsKey(p))
-        {
-            if (hitIsEnemy || players[p].isHoldingPosition)
+            if (players.ContainsKey(p))
             {
-                if (players[p].shootTimer > players[p].timeToShoot)
+                if (hitIsEnemy || players[p].isHoldingPosition)
                 {
-                    players[p].shootTimer = 0;
-                    players[p].Shoot(hitPoint);
-                }  
-            }
-            else if (!hitIsCharacter)
-            {
-                players[p].SetCanMove(true, hitPoint);
+                    if (players[p].shootTimer > players[p].timeToShoot)
+                    {
+                        players[p].shootTimer = 0;
+                        players[p].Shoot(hit.point);
+                    }
+                }
+                else if (!hitIsCharacter)
+                {
+                    players[p].SetCanMove(true, hit.point);
+                }
             }
         }
     }

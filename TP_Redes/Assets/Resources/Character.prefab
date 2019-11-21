@@ -100,7 +100,7 @@ MonoBehaviour:
   shootTimer: 0
   positionToMove: {x: 0, y: 0, z: 0}
   hpText: {fileID: 0}
-  maxHp: 0
+  maxHp: 100
   myCam: {fileID: 0}
 --- !u!114 &1726287689614538615
 MonoBehaviour:
