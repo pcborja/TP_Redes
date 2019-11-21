@@ -89,7 +89,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ce4360156cc1140269213c9b933f83dc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  hp: 100
   speed: 5
   rb: {fileID: 0}
   canMove: 0
@@ -100,6 +99,9 @@ MonoBehaviour:
   isShooting: 0
   shootTimer: 0
   positionToMove: {x: 0, y: 0, z: 0}
+  hpText: {fileID: 0}
+  maxHp: 0
+  myCam: {fileID: 0}
 --- !u!114 &1726287689614538615
 MonoBehaviour:
   m_ObjectHideFlags: 0

@@ -3,31 +3,42 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Numerics;
 using Photon.Pun;
+using Photon.Realtime;
 using UnityEngine;
 using UnityEngine.UI;
 using Vector3 = UnityEngine.Vector3;
 
 public class Character : MonoBehaviourPun
 {
-    public float hp;
     public float speed;
-    private PhotonView _view;
     public Rigidbody rb;
     public bool canMove;
     public float timeToShoot = 1;
     public Transform shootObject;
     public bool isHoldingPosition;
-    private Animator _anim;
     public float damage;
     public bool isShooting;
     public float shootTimer;
     public Vector3 positionToMove;
+    public Text hpText;
+    public float maxHp;
+    public Camera myCam;
+    
+    private float _hp;
+    private Animator _anim;
+    private PhotonView _view;
+    private Player _owner;
     
     private void Awake()
     {
-        _view = GetComponent<PhotonView>();
         _anim = GetComponent<Animator>();
         rb = GetComponent<Rigidbody>();
+    }
+    
+    private void Start()
+    {
+        _view = GetComponent<PhotonView>();
+        _hp = maxHp;
     }
 
     private void Update()
@@ -36,7 +47,7 @@ public class Character : MonoBehaviourPun
         
         Timers();
         
-        if (hp <= 0)
+        if (_hp <= 0)
         {
             if (_anim)
                 _anim.SetBool("IsDead", true);
@@ -124,7 +135,14 @@ public class Character : MonoBehaviourPun
 
     public void TakeDamage(float dmg)
     {
-        LevelManager.Instance.TakeDamage(dmg, PhotonNetwork.LocalPlayer);
+        _hp -= dmg;
+        _view.RPC("OnLifeChange", _owner, _hp);
+    }
+    
+    [PunRPC]
+    void OnLifeChange(float hp)
+    {
+        hpText.text = hp.ToString();
     }
 
     private void InstantRotation(Vector3 position)
@@ -138,5 +156,35 @@ public class Character : MonoBehaviourPun
     private void Timers()
     {
         shootTimer += Time.deltaTime;
+    }
+
+    public void SetMyView()
+    {
+        _view = GetComponent<PhotonView>();
+    }
+    
+    public void SetCamera(Player p)
+    {
+        _view.RPC("SetMyCamera", p);
+    }
+    
+    [PunRPC]
+    void SetMyCamera()
+    {
+        myCam = Camera.main;
+        myCam.GetComponent<CameraFollow>().SetTarget(transform);
+    }
+    
+    public void SetOwner(Player p)
+    {
+        _owner = p;
+        photonView.RPC("SetLocalSettings", _owner);
+    }
+    
+    [PunRPC]
+    void SetLocalSettings()
+    {
+        hpText = FindObjectOfType<Text>();
+        hpText.text = _hp.ToString();
     }
 }

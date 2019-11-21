@@ -9,8 +9,6 @@ public class Controller : MonoBehaviourPun
 {
     private PhotonView _view;
     private int _packagePerSecond;
-    public Text hpText; 
-    public Camera myCam;
     
     private void Awake()
     {
@@ -21,12 +19,7 @@ public class Controller : MonoBehaviourPun
     {
         if (_view.IsMine)
         {
-            LevelManager.Instance.StartPlayer(PhotonNetwork.LocalPlayer);
             StartCoroutine(SendPackage());
-        }
-        else
-        {
-            myCam.enabled = false;
         }
     }
 
@@ -35,8 +28,6 @@ public class Controller : MonoBehaviourPun
         while (true)
         {
             yield return new WaitForSeconds(1 / _packagePerSecond);
-            
-            LevelManager.Instance.MoveCamera(PhotonNetwork.LocalPlayer);
             
             if (Input.GetMouseButtonDown(0))
             {
@@ -63,10 +54,5 @@ public class Controller : MonoBehaviourPun
     public void SetPPS(int pps)
     {
         _packagePerSecond = pps;
-    }
-
-    public void UpdateHUD(float hpToUse)
-    {
-        hpText.text = "HP: " + hpToUse;
     }
 }

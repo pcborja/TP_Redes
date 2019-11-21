@@ -199,6 +199,12 @@ public class NetworkManager : MonoBehaviourPunCallbacks
             Vector3.zero, Quaternion.identity);
     }
     
+    private void CreateController(Player p)
+    {
+        var controller = PhotonNetwork.Instantiate("Controller", Vector3.zero, Quaternion.identity).GetComponent<Controller>();
+        controller.SetPPS(20);
+    }
+    
     public void HowToPlayButton()
     {
         SceneManager.LoadScene(Constants.HOW_TO_PLAY_SCENE);
