@@ -22,7 +22,6 @@ public class Character : MonoBehaviourPun
     public Vector3 positionToMove;
     public Text hpText;
     public float maxHp;
-    public Camera myCam;
     
     private float _hp;
     private Animator _anim;
@@ -171,8 +170,7 @@ public class Character : MonoBehaviourPun
     [PunRPC]
     void SetMyCamera()
     {
-        myCam = Camera.main;
-        myCam.GetComponent<CameraFollow>().SetTarget(transform);
+        Camera.main.GetComponent<CameraFollow>().SetTarget(transform);
     }
     
     public void SetOwner(Player p)

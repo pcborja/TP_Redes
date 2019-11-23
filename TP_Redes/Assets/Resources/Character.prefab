@@ -101,7 +101,6 @@ MonoBehaviour:
   positionToMove: {x: 0, y: 0, z: 0}
   hpText: {fileID: 0}
   maxHp: 100
-  myCam: {fileID: 0}
 --- !u!114 &1726287689614538615
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -220,19 +219,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   ShowLayerWeightsInspector: 1
   ShowParameterInspector: 1
-  m_SynchronizeParameters:
-  - Type: 4
-    SynchronizeType: 1
-    Name: IsMoving
-  - Type: 4
-    SynchronizeType: 1
-    Name: IsShooting
-  - Type: 4
-    SynchronizeType: 1
-    Name: IsDead
-  m_SynchronizeLayers:
-  - SynchronizeType: 0
-    LayerIndex: 0
+  m_SynchronizeParameters: []
+  m_SynchronizeLayers: []
 --- !u!1 &8145665523580918605
 GameObject:
   m_ObjectHideFlags: 0
@@ -270,10 +258,6 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 1726287689614538616}
     m_Modifications:
-    - target: {fileID: 1088446404920904, guid: 4de534fd36773e04db77497c7cb89e55, type: 3}
-      propertyPath: m_Name
-      value: SciFiWarriorPBR
-      objectReference: {fileID: 0}
     - target: {fileID: 4461509016300196, guid: 4de534fd36773e04db77497c7cb89e55, type: 3}
       propertyPath: m_LocalPosition.x
       value: 0
@@ -317,6 +301,10 @@ PrefabInstance:
     - target: {fileID: 4461509016300196, guid: 4de534fd36773e04db77497c7cb89e55, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1088446404920904, guid: 4de534fd36773e04db77497c7cb89e55, type: 3}
+      propertyPath: m_Name
+      value: SciFiWarriorPBR
       objectReference: {fileID: 0}
     - target: {fileID: 4006512851812304, guid: 4de534fd36773e04db77497c7cb89e55, type: 3}
       propertyPath: m_LocalRotation.x

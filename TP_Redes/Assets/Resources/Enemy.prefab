@@ -134,16 +134,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   ShowLayerWeightsInspector: 1
   ShowParameterInspector: 1
-  m_SynchronizeParameters:
-  - Type: 4
-    SynchronizeType: 1
-    Name: IsAttacking
-  - Type: 4
-    SynchronizeType: 1
-    Name: IsMoving
-  m_SynchronizeLayers:
-  - SynchronizeType: 0
-    LayerIndex: 0
+  m_SynchronizeParameters: []
+  m_SynchronizeLayers: []
 --- !u!114 &1503933156
 MonoBehaviour:
   m_ObjectHideFlags: 0

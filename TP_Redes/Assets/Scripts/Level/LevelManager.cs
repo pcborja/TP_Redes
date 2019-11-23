@@ -98,13 +98,13 @@ public class LevelManager : MonoBehaviourPun
         _networkManager.DisconnectPlayer(sceneToLoad, p);
     }
 
-    public void OnClicked(Vector3 mousePosition, Player p)
+    public void OnClicked(Vector3 hitPoint, Player p)
     {
-        _view.RPC("CheckActions", RpcTarget.MasterClient, mousePosition, p);
+        _view.RPC("CheckActions", RpcTarget.MasterClient, hitPoint, p);
     }
 
     [PunRPC]
-    private void CheckActions(Vector3 mousePosition, Player p)
+    private void CheckActions(Vector3 hitPoint, Player p)
     {
         if (Physics.Raycast(players[p].myCam.ScreenPointToRay(mousePosition), out var hit, 100))
         {
