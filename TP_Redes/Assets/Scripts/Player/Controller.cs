@@ -31,7 +31,13 @@ public class Controller : MonoBehaviourPun
             
             if (Input.GetMouseButtonDown(0))
             {
-                LevelManager.Instance.OnClicked(Input.mousePosition, PhotonNetwork.LocalPlayer);
+                //Andrea me dijo que haga aca el raycast aunque "no respete" FA porque no se pudo de otra forma
+                if (Physics.Raycast(Camera.main.ScreenPointToRay(Input.mousePosition), out var hit, 100))
+                {
+                    bool hitIsEnemy = hit.transform.gameObject.GetComponent<Enemy>();
+                    bool hitIsCharacter = hit.transform.gameObject.GetComponent<Character>();
+                    LevelManager.Instance.OnClicked(hit.point, PhotonNetwork.LocalPlayer, hitIsEnemy, hitIsCharacter);
+                }
             }
 
             if (Input.GetKeyDown(KeyCode.LeftShift))

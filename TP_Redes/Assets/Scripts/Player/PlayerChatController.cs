@@ -60,14 +60,21 @@ public class PlayerChatController : MonoBehaviourPun, IChatClientListener
 
     private void SendPublicMessage()
     {
-        _chatClient.PublishMessage("channelA", _inputField.text);
+        var userColor = "<color=" + _playerColorCode + ">" + PhotonNetwork.LocalPlayer.NickName + "</color>";
+        var textToSend = userColor + " : " + _inputField.text;
+        
+        _chatClient.PublishMessage("channelA", textToSend);
     }
 
     private void SendPrivateMessage()
     {
         var user = _inputField.text.Split('@')[1].Split(' ')[0];
         var msg = _inputField.text.Split('@')[1].Split(' ')[1];
-        _chatClient.SendPrivateMessage(user, msg);
+        
+        var userColor = "<color=" + Color.magenta + ">" + PhotonNetwork.LocalPlayer.NickName + "</color>";
+        var textToSend = userColor + " : " + msg;
+        
+        _chatClient.SendPrivateMessage(user, textToSend);
     }
     
     private void UpdateChatText()
@@ -103,15 +110,13 @@ public class PlayerChatController : MonoBehaviourPun, IChatClientListener
     {
         for (var i = 0; i < senders.Length; i++)
         {
-            var userColor = "<color=" + _playerColorCode + ">" + senders[i] + "</color>";
-            _chatText.text += userColor + " : " + messages[i] + "\n";
+            _chatText.text += messages[i] + "\n";
         }
-            
     }
 
     public void OnPrivateMessage(string sender, object message, string channelName)
     {
-        _chatText.text += "[WHISPER] " + sender + " : " + message + "\n";
+        _chatText.text += "[WHISPER] " + message + "\n";
     }
 
     public void OnSubscribed(string[] channels, bool[] results)

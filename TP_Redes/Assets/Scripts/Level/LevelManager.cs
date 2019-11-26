@@ -98,33 +98,27 @@ public class LevelManager : MonoBehaviourPun
         _networkManager.DisconnectPlayer(sceneToLoad, p);
     }
 
-    public void OnClicked(Vector3 hitPoint, Player p)
+    public void OnClicked(Vector3 hitPoint, Player p, bool hitIsEnemy, bool hitIsCharacter)
     {
-        _view.RPC("CheckActions", RpcTarget.MasterClient, hitPoint, p);
+        _view.RPC("CheckActions", RpcTarget.MasterClient, hitPoint, p, hitIsEnemy, hitIsCharacter);
     }
 
     [PunRPC]
-    private void CheckActions(Vector3 hitPoint, Player p)
+    private void CheckActions(Vector3 hitPoint, Player p, bool hitIsEnemy, bool hitIsCharacter)
     {
-        if (Physics.Raycast(players[p].myCam.ScreenPointToRay(mousePosition), out var hit, 100))
+        if (players.ContainsKey(p))
         {
-            bool hitIsEnemy = hit.transform.gameObject.GetComponent<Enemy>();
-            bool hitIsCharacter = hit.transform.gameObject.GetComponent<Character>();
-
-            if (players.ContainsKey(p))
+            if (hitIsEnemy || players[p].isHoldingPosition)
             {
-                if (hitIsEnemy || players[p].isHoldingPosition)
+                if (players[p].shootTimer > players[p].timeToShoot)
                 {
-                    if (players[p].shootTimer > players[p].timeToShoot)
-                    {
-                        players[p].shootTimer = 0;
-                        players[p].Shoot(hit.point);
-                    }
+                    players[p].shootTimer = 0;
+                    players[p].Shoot(hitPoint);
                 }
-                else if (!hitIsCharacter)
-                {
-                    players[p].SetCanMove(true, hit.point);
-                }
+            }
+            else if (!hitIsCharacter)
+            {
+                players[p].SetCanMove(true, hitPoint);
             }
         }
     }

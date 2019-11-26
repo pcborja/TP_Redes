@@ -24,6 +24,7 @@ public class NetworkManager : MonoBehaviourPunCallbacks
     private PhotonView _view;
     private Dictionary<Player, PlayerMenuData> _playersData = new Dictionary<Player, PlayerMenuData>();
     private PlayerChatController _chatController;
+    private PlayerMenuData _localPlayerData;
     
     private void Awake()
     {
@@ -76,10 +77,12 @@ public class NetworkManager : MonoBehaviourPunCallbacks
         else
         {
             PhotonNetwork.LocalPlayer.NickName = "[SERVER]";
-            ActiveChat(true);
         }
+
+        ActiveChat(true);
     }
 
+    [PunRPC]
     private void ActiveChat(bool active)
     {
         chatObject.SetActive(active);
@@ -111,13 +114,14 @@ public class NetworkManager : MonoBehaviourPunCallbacks
     public void StartGame()
     {
         PhotonNetwork.CurrentRoom.IsOpen = false;
-        ActiveChat(false);
+        _view.RPC("ActiveChat", RpcTarget.AllBuffered, false);
         _view.RPC("LoadGameScene", RpcTarget.AllBuffered);
     }
 
     [PunRPC]
     private void LoadGameScene()
     {
+        _localPlayerData.gameObject.SetActive(false);
         _chatController.DisconnectFromChat();
         readyButtonObject.SetActive(false);
         PhotonNetwork.LoadLevel(Constants.GAME_LEVEL);
@@ -196,7 +200,7 @@ public class NetworkManager : MonoBehaviourPunCallbacks
     [PunRPC]
     private void NotifyDisconnection(Player p)
     {
-        ActivePlayerMenuObject(p, false);
+        _view.RPC("ActivePlayerMenuObject", RpcTarget.AllBuffered, Array.IndexOf(_playersData.Keys.ToArray(), p), false, p);
         _playersData.Remove(p);
     }
 
@@ -204,19 +208,21 @@ public class NetworkManager : MonoBehaviourPunCallbacks
     private void OnConnection(Player p)
     {
         _playersData.Add(p, GetNotTakenMenuData());
-        ActivePlayerMenuObject(p, true);
+        _view.RPC("ActivePlayerMenuObject", RpcTarget.AllBuffered, Array.IndexOf(_playersData.Keys.ToArray(), p), true, p);
         _view.RPC("CreateChatController", p, "#" + ColorUtility.ToHtmlStringRGB(_playersData[p].colorImg.GetComponent<Image>().color));
     }
     
-    private void ActivePlayerMenuObject(Player p, bool active)
+    [PunRPC]
+    private void ActivePlayerMenuObject(int index, bool active, Player p)
     {
-        if (!_playersData[p]) return;
+        if (Equals(PhotonNetwork.LocalPlayer, p))
+            _localPlayerData = playersObjects[index].GetComponent<PlayerMenuData>();
         
-        _playersData[p].gameObject.SetActive(active);
-        _playersData[p].isTaken = active;
+        playersObjects[index].SetActive(active);
+        playersObjects[index].GetComponent<PlayerMenuData>().isTaken = active;
 
         if (active)
-            _playersData[p].GetComponentInChildren<Text>().text = p.NickName;
+            playersObjects[index].GetComponent<PlayerMenuData>().GetComponentInChildren<Text>().text = p.NickName;
     }
     
     private PlayerMenuData GetNotTakenMenuData()
@@ -271,8 +277,16 @@ public class NetworkManager : MonoBehaviourPunCallbacks
     {
         var playerData = _playersData[p];
         playerData.isReady = !playerData.isReady;
+        _view.RPC("PlayerReadyVisuals", RpcTarget.AllBuffered, Array.IndexOf(_playersData.Keys.ToArray(), p), playerData.isReady);
+
         playerData.readyObj.SetActive(playerData.isReady);
         CheckStartButton();
+    }
+
+    [PunRPC]
+    private void PlayerReadyVisuals(int index, bool active)
+    {
+        playersObjects[index].GetComponent<PlayerMenuData>().readyObj.SetActive(active);
     }
 
     private void CheckStartButton()

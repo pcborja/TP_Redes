@@ -67,5 +67,7 @@ MonoBehaviour:
   - SetChatController
   - CreateChatController
   - OnConnection
+  - ActiveChat
+  - PlayerReadyVisuals
   DisableAutoOpenWizard: 1
   ShowSettings: 1
