@@ -92,7 +92,7 @@ public class NetworkManager : MonoBehaviourPunCallbacks
     {
         chatObject.SetActive(active);
         
-        if (!active)
+        if (!active && _chatController)
             _chatController.DisconnectFromChat();
     }
 
@@ -116,11 +116,9 @@ public class NetworkManager : MonoBehaviourPunCallbacks
 
     public override void OnDisconnected(DisconnectCause cause)
     {
-        DisconnectBehaviour(() =>
-        {
-            SceneManager.LoadScene(Constants.INTRO_SCENE);
-            DestroyImmediate(gameObject);
-        });
+        ActiveChat(false);
+        SceneManager.LoadScene(Constants.INTRO_SCENE);
+        DestroyImmediate(gameObject);
     }
 
     public void StartGame()
@@ -166,11 +164,7 @@ public class NetworkManager : MonoBehaviourPunCallbacks
 
     public void BackButton()
     {
-        DisconnectBehaviour(() =>
-        {
-            OnDisconnectPlayer(Constants.INTRO_SCENE);
-            DestroyImmediate(gameObject);
-        });
+        DisconnectBehaviour(OnDisconnectPlayer);
     }
 
     private void DisconnectBehaviour(Action customAction = null)
@@ -190,21 +184,19 @@ public class NetworkManager : MonoBehaviourPunCallbacks
     [PunRPC]
     private void DisconnectAll()
     {
-        OnDisconnectPlayer(Constants.INTRO_SCENE);
-        DestroyImmediate(gameObject);
+        OnDisconnectPlayer();
     }
     
-    public void DisconnectPlayer(string sceneToLoad, Player p)
+    public void DisconnectPlayer(Player p)
     {
-        _view.RPC("OnDisconnectPlayer", p, sceneToLoad);
+        _view.RPC("OnDisconnectPlayer", p);
     }
     
     [PunRPC]
-    private void OnDisconnectPlayer(string sceneToLoad)
+    private void OnDisconnectPlayer()
     {
         PhotonNetwork.LeaveRoom();
         PhotonNetwork.Disconnect();
-        SceneManager.LoadScene(sceneToLoad);
     }
 
     public void MainMenu()
@@ -315,5 +307,47 @@ public class NetworkManager : MonoBehaviourPunCallbacks
     private bool AllPlayersReady()
     {
         return _playersData.All(x => x.Value.GetComponent<PlayerMenuData>().isReady);
+    }
+
+    private void FinishGameScene(bool winner)
+    {
+        PhotonNetwork.LoadLevel(Constants.FINISH_GAME_SCENE);
+        StartCoroutine(FinishGameSceneLoaded(winner));
+        ActiveChat(true);
+    }
+
+    private IEnumerator FinishGameSceneLoaded(bool winner)
+    {
+        yield return new WaitForSeconds(0.5f);
+        FindObjectOfType<LocalSceneManger>().ActiveCanvas(winner);
+    }
+
+    public void PlayerLose(Player p)
+    {
+        _view.RPC("LoadFinishGame", p, false);
+    }
+    
+    public void FinishGame(Player p)
+    {
+        foreach (var player in PhotonNetwork.PlayerList)
+        {
+            if (PhotonNetwork.IsMasterClient) continue;
+            
+            _view.RPC("LoadFinishGame", player, player.Equals(p));
+        }
+
+        StartCoroutine(MasterFinishGame());
+    }
+
+    private IEnumerator MasterFinishGame()
+    {
+        yield return new WaitForSeconds(0.5f);
+        LoadFinishGame(true);
+    }
+
+    [PunRPC]
+    private void LoadFinishGame(bool winner)
+    {
+        FinishGameScene(winner);
     }
 }

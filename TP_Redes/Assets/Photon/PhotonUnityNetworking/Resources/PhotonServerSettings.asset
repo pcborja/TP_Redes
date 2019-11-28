@@ -29,48 +29,33 @@ MonoBehaviour:
   RunInBackground: 1
   StartInOfflineMode: 0
   RpcList:
+  - ActiveChat
   - ActivePlayerMenuObject
   - AddPlayer
+  - CheckActions
   - ClickRpc
+  - CreateChatController
   - DestroyRpc
   - DestroySpaceship
   - DisconnectAll
-  - DrawRaycast
+  - DisconnectRPC
   - FinishGame
   - Fire
   - HoldPosKey
-  - Move
-  - NotifyConnection
-  - NotifyDisconnection
-  - RespawnSpaceship
-  - StartScene
-  - TakeDmg
-  - MoveCharacterCamera
-  - CreateBullet
-  - SetReference
-  - StartPlayer
-  - UpdatePlayerHUD
-  - GetPlayerHP
-  - CheckActions
-  - MoveCamera
-  - LoseGame
-  - WinGame
-  - DisconnectPlayer
-  - StartEnemies
-  - SetPlayerIsReady
-  - OnLifeChange
-  - SetLocalSettings
-  - SetMyCamera
   - LoadGameScene
-  - Disconnect
-  - GetChatControllerVariables
-  - SetChatController
-  - CreateChatController
+  - Move
+  - NotifyDisconnection
   - OnConnection
-  - ActiveChat
+  - OnDisconnectPlayer
+  - OnLifeChange
   - PlayerReadyVisuals
   - RemoveCharacter
+  - RespawnSpaceship
   - ServerDestroy
-  - OnDisconnectPlayer
+  - SetLocalSettings
+  - SetMyCamera
+  - SetPlayerIsReady
+  - SetReference
+  - LoadFinishGame
   DisableAutoOpenWizard: 1
   ShowSettings: 1

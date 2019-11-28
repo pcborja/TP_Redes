@@ -86,13 +86,13 @@ public class LevelManager : MonoBehaviourPun
         return characterObjects.FirstOrDefault(charObj => !charObj.GetComponentInChildren<Character>());
     }
 
-    public void OnDisconnect(string sceneToLoad, Player p)
+    public void Disconnect(Player p)
     {
-        _view.RPC("Disconnect", RpcTarget.MasterClient, sceneToLoad, p);
+        _view.RPC("DisconnectRPC", RpcTarget.MasterClient, p);
     }
 
     [PunRPC]
-    private void Disconnect(string sceneToLoad, Player p)
+    public void DisconnectRPC(Player p)
     {
         if (players.ContainsKey(p))
         {
@@ -100,7 +100,7 @@ public class LevelManager : MonoBehaviourPun
             players.Remove(p);
         }
         
-        _networkManager.DisconnectPlayer(sceneToLoad, p);
+        _networkManager.DisconnectPlayer(p);
     }
 
     [PunRPC]
@@ -178,24 +178,13 @@ public class LevelManager : MonoBehaviourPun
         }
     }
 
-    public void NotifyWinner(Player p)
+    public void NotifyWinner(Character c)
     {
-        _view.RPC("FinishGame", RpcTarget.MasterClient, p);
+        _networkManager.FinishGame(players.FirstOrDefault(x => x.Value == c).Key);
     }
 
     public void PlayerDead(Player p)
     {
-        _view.RPC("Disconnect", RpcTarget.MasterClient, "LoseScene", p);
-    }
-    
-    [PunRPC]
-    public void FinishGame(Player p)
-    {
-        if (PhotonNetwork.IsMasterClient) return;
-        
-        foreach (var player in players)
-        {
-            _view.RPC("Disconnect", RpcTarget.MasterClient, player.Key.Equals(p) ? "WinScene" : "LoseScene", p);
-        }
+        _networkManager.PlayerLose(p);
     }
 }

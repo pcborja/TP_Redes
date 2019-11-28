@@ -52,7 +52,7 @@ public class Controller : MonoBehaviourPun
 
             if (Input.GetKeyDown(KeyCode.Escape))
             {
-                LevelManager.Instance.OnDisconnect(Constants.INTRO_SCENE, PhotonNetwork.LocalPlayer);
+                LevelManager.Instance.Disconnect(PhotonNetwork.LocalPlayer);
             }
         }
     }

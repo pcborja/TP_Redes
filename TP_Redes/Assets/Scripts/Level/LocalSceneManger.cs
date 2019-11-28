@@ -1,4 +1,4 @@
-﻿using System;
+﻿using Photon.Pun;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
@@ -7,6 +7,8 @@ public class LocalSceneManger : MonoBehaviour
     public GameObject[] playerPositions;
     public GameObject[] enemiesPositions;
     public GameObject winObject;
+    public GameObject winCanvas;
+    public GameObject loseCanvas;
     private NetworkManager _networkManager;
     
     private void Awake()
@@ -26,13 +28,11 @@ public class LocalSceneManger : MonoBehaviour
     {
         if (Input.GetKeyDown(KeyCode.Escape))
         {
-            if (SceneManager.GetActiveScene().name == Constants.LOBBY_SCENE)
+            var currentSceneName = SceneManager.GetActiveScene().name;
+            
+            if (currentSceneName == Constants.LOBBY_SCENE || currentSceneName == Constants.FINISH_GAME_SCENE || currentSceneName == Constants.GAME_LEVEL && PhotonNetwork.LocalPlayer.IsMasterClient)
             {
                 NetBackButton();    
-            }
-            else if (SceneManager.GetActiveScene().name == Constants.GAME_LEVEL)
-            {
-                
             }
             else
             {
@@ -59,5 +59,13 @@ public class LocalSceneManger : MonoBehaviour
     public void SimpleBackButton()
     {
         _networkManager.SimpleBack();
+    }
+
+    public void ActiveCanvas(bool winner)
+    {
+        if (winner)
+            winCanvas.SetActive(true);
+        else
+            loseCanvas.SetActive(true);
     }
 }

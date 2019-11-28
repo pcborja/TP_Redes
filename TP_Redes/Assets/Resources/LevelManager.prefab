@@ -48,6 +48,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   characterObjects: []
   enemiesObjects: []
+  winObject: {fileID: 0}
 --- !u!114 &932639183159466275
 MonoBehaviour:
   m_ObjectHideFlags: 0

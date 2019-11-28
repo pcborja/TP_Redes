@@ -24,7 +24,7 @@ public class WinObject : MonoBehaviourPun
         if (other.gameObject.GetComponent<Character>() && _canBeTriggered)
         {
             _canBeTriggered = false;
-            LevelManager.Instance.NotifyWinner(PhotonNetwork.LocalPlayer);
+            LevelManager.Instance.NotifyWinner(other.gameObject.GetComponent<Character>());
         }            
     }
 }
