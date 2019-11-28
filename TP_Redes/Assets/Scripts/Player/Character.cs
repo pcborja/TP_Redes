@@ -22,11 +22,11 @@ public class Character : MonoBehaviourPun
     public Vector3 positionToMove;
     public Text hpText;
     public float maxHp;
+    public Player owner;
     
     private float _hp;
     private Animator _anim;
     private PhotonView _view;
-    private Player _owner;
     
     private void Awake()
     {
@@ -60,7 +60,6 @@ public class Character : MonoBehaviourPun
             return;
 
         TryToMove(positionToMove);
-        //LevelManager.Instance.RequestMove(PhotonNetwork.LocalPlayer, positionToMove);
     }
 
     private void TryToMove(Vector3 posToMove)
@@ -69,9 +68,7 @@ public class Character : MonoBehaviourPun
             Move(posToMove);
 
         if (Vector3.Distance(transform.position, posToMove) < 0.1f)
-        {
             SetCanMove(false, Vector3.zero);
-        }
 
         SetIsMoving(Math.Abs(rb.velocity.magnitude) > 0.01f);
     }
@@ -95,7 +92,7 @@ public class Character : MonoBehaviourPun
             _anim.SetBool("IsMoving", v);
     }
     
-    public void SetIsShooting(bool v)
+    private void SetIsShooting(bool v)
     {
         isShooting = v;
         if (_anim)
@@ -119,29 +116,35 @@ public class Character : MonoBehaviourPun
     
     private IEnumerator Shooting()
     {
+        var position = shootObject.position;
+        var spawnPos = new Vector3(position.x, position.y + 1, position.z);
+        var bullet = PhotonNetwork.Instantiate("Bullet", spawnPos, transform.rotation).GetComponent<Bullet>();
+        
+        bullet.shootBy = Bullet.ShootBy.Player;
+        bullet.damage = damage;
+        
         yield return new WaitForSeconds(1);
-        var spawnPos = new Vector3(shootObject.position.x, shootObject.position.y + 1, shootObject.position.z);
-        LevelManager.Instance.InstantiateBullet(PhotonNetwork.LocalPlayer, spawnPos);
-
+        
         SetIsShooting(false);
     }
 
     private IEnumerator Dead()
     {
         yield return new WaitForSeconds(1);
-        LevelManager.Instance.PlayerDead(PhotonNetwork.LocalPlayer);
+        LevelManager.Instance.PlayerDead(owner);
     }
 
     public void TakeDamage(float dmg)
     {
         _hp -= dmg;
-        _view.RPC("OnLifeChange", _owner, _hp);
+        _view.RPC("OnLifeChange", owner, _hp);
     }
     
-    [PunRPC]
+    [PunRPC] 
     void OnLifeChange(float hp)
     {
-        hpText.text = hp.ToString();
+        if (hpText)
+            hpText.text = "HP: " + hp;
     }
 
     private void InstantRotation(Vector3 position)
@@ -168,21 +171,21 @@ public class Character : MonoBehaviourPun
     }
     
     [PunRPC]
-    void SetMyCamera()
+    private void SetMyCamera()
     {
         Camera.main.GetComponent<CameraFollow>().SetTarget(transform);
     }
     
     public void SetOwner(Player p)
     {
-        _owner = p;
-        photonView.RPC("SetLocalSettings", _owner);
+        owner = p;
+        photonView.RPC("SetLocalSettings", owner);
     }
     
     [PunRPC]
-    void SetLocalSettings()
+    private void SetLocalSettings()
     {
         hpText = FindObjectOfType<Text>();
-        hpText.text = _hp.ToString();
+        hpText.text = "HP: " + maxHp;
     }
 }

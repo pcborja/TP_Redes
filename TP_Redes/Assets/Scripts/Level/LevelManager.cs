@@ -23,21 +23,14 @@ public class LevelManager : MonoBehaviourPun
         _networkManager = FindObjectOfType<NetworkManager>();
         characterObjects = _networkManager.playerPositions;
         enemiesObjects = _networkManager.enemiesPositions;
-        _networkManager.ClearLobbyData();
         
         if (!Instance && PhotonNetwork.IsMasterClient)
         {
             _view.RPC("SetReference", RpcTarget.AllBuffered);
-            StartCoroutine(SetEnemies());
+            StartEnemies();
         }
         else if (Instance)
             PhotonNetwork.Destroy(gameObject);
-    }
-
-    private IEnumerator SetEnemies()
-    {
-        yield return new WaitForSeconds(0.5f);
-        StartEnemies();
     }
 
     private void StartEnemies()
@@ -93,9 +86,22 @@ public class LevelManager : MonoBehaviourPun
     [PunRPC]
     private void Disconnect(string sceneToLoad, Player p)
     {
-        players[p].gameObject.SetActive(false);
-        players.Remove(p);
+        if (players.ContainsKey(p))
+        {
+            PhotonNetwork.Destroy(players[p].gameObject);
+            players.Remove(p);
+        }
+        
         _networkManager.DisconnectPlayer(sceneToLoad, p);
+    }
+
+    [PunRPC]
+    private void RemoveCharacter(Player p)
+    {
+        var characters = FindObjectsOfType<Character>().Where(x => Equals(x.owner, p)).ToArray();
+        
+        if (characters.Any())
+            characters[0].gameObject.SetActive(false);
     }
 
     public void OnClicked(Vector3 hitPoint, Player p, bool hitIsEnemy, bool hitIsCharacter)
@@ -171,43 +177,17 @@ public class LevelManager : MonoBehaviourPun
 
     public void PlayerDead(Player p)
     {
-        _view.RPC("DisconnectPlayer", RpcTarget.MasterClient, "LoseScene", p);
-    }
-
-    [PunRPC]
-    private void DisconnectPlayer(string sceneToLoad, Player p)
-    {
-        Disconnect(sceneToLoad, p);    
+        _view.RPC("Disconnect", RpcTarget.MasterClient, "LoseScene", p);
     }
     
     [PunRPC]
     public void FinishGame(Player p)
     {
-        var masterWon = p.IsMasterClient;
-
+        if (PhotonNetwork.IsMasterClient) return;
+        
         foreach (var player in players)
         {
-            if (player.Key.IsMasterClient)
-                continue;
-
-            Disconnect(player.Key.Equals(p) ? "WinScene" : "LoseScene", p);
+            _view.RPC("Disconnect", RpcTarget.MasterClient, player.Key.Equals(p) ? "WinScene" : "LoseScene", p);
         }
-        
-        Disconnect(masterWon ? "WinScene" : "LoseScene", p);
-    }
-
-    public void InstantiateBullet(Player p, Vector3 spawnPos)
-    {
-        _view.RPC("CreateBullet", RpcTarget.MasterClient, p, spawnPos);
-    }
-
-    [PunRPC]
-    private void CreateBullet(Player p, Vector3 spawnPos)
-    {
-        if (!players.ContainsKey(p)) return;
-        
-        var bullet = PhotonNetwork.Instantiate("Bullet", spawnPos, players[p].transform.rotation);
-        bullet.GetComponent<Bullet>().shootBy = Bullet.ShootBy.Player;
-        bullet.GetComponent<Bullet>().damage = players[p].damage;
     }
 }

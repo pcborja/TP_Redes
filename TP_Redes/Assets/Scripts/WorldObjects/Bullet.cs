@@ -8,9 +8,16 @@ public class Bullet : MonoBehaviourPun
     [HideInInspector] public float damage;
     public float bulletLife;
     public float bulletSpeed;
+    
     private float _timer;
+    private PhotonView _view;
 
-    void Update()
+    private void Awake()
+    {
+        _view = GetComponent<PhotonView>();
+    }
+
+    private void Update()
     {
         transform.position += transform.forward * bulletSpeed * Time.deltaTime;
         CheckDeath();
@@ -29,20 +36,25 @@ public class Bullet : MonoBehaviourPun
         if (other.gameObject.GetComponent<Character>() && shootBy == ShootBy.Enemy)
         {
             other.gameObject.GetComponent<Character>().TakeDamage(damage);
-            Destroy(gameObject);
+            Destroy();
         }
 
         if (other.gameObject.GetComponent<Enemy>() && shootBy == ShootBy.Player)
-        {
             other.gameObject.GetComponent<Enemy>().TakeDamage(damage);
-        }
         
         if (!other.gameObject.GetComponent<Character>())
-            Destroy(gameObject);
+            Destroy();
     }
 
+    
     private void Destroy()
     {
-        DestroyImmediate(gameObject);
+        _view.RPC("ServerDestroy", RpcTarget.MasterClient);
+    }
+
+    [PunRPC]
+    private void ServerDestroy()
+    {
+        PhotonNetwork.Destroy(gameObject);
     }
 }

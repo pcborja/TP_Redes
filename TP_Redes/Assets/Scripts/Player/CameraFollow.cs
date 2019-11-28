@@ -10,8 +10,6 @@ public class CameraFollow : MonoBehaviour
     public void SetTarget(Transform t)
     {
         _target = t;
-        //transform.SetParent(t);
-        
         SetPosition();
     }
 

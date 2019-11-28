@@ -69,5 +69,8 @@ MonoBehaviour:
   - OnConnection
   - ActiveChat
   - PlayerReadyVisuals
+  - RemoveCharacter
+  - ServerDestroy
+  - OnDisconnectPlayer
   DisableAutoOpenWizard: 1
   ShowSettings: 1

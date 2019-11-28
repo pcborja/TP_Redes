@@ -1,11 +1,11 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using ExitGames.Client.Photon;
+﻿using ExitGames.Client.Photon;
 using Photon.Chat;
 using Photon.Pun;
+using Photon.Realtime;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
+using AuthenticationValues = Photon.Chat.AuthenticationValues;
 
 public class PlayerChatController : MonoBehaviourPun, IChatClientListener
 {
@@ -56,6 +56,11 @@ public class PlayerChatController : MonoBehaviourPun, IChatClientListener
         _chatText = chatText;
         _inputField = inputField;
         _playerColorCode = color;
+    }
+
+    public void SendConnectionMessage(Player p)
+    {
+        _chatClient.PublishMessage("channelA", p.NickName + " has joined the game.");
     }
 
     private void SendPublicMessage()

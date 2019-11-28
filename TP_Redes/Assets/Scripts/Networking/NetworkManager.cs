@@ -16,6 +16,7 @@ public class NetworkManager : MonoBehaviourPunCallbacks
     public GameObject readyButtonObject;
     public GameObject[] playersObjects;
     public GameObject chatObject;
+    public GameObject connectionObj;
     public int pps;
     
     [HideInInspector] public GameObject[] playerPositions;
@@ -86,6 +87,9 @@ public class NetworkManager : MonoBehaviourPunCallbacks
     private void ActiveChat(bool active)
     {
         chatObject.SetActive(active);
+        
+        if (!active)
+            _chatController.DisconnectFromChat();
     }
 
     public void ChatController()
@@ -108,11 +112,16 @@ public class NetworkManager : MonoBehaviourPunCallbacks
 
     public override void OnDisconnected(DisconnectCause cause)
     {
-        _view.RPC("NotifyDisconnection", RpcTarget.MasterClient, PhotonNetwork.LocalPlayer);
+        DisconnectBehaviour(() =>
+        {
+            OnDisconnectPlayer(Constants.INTRO_SCENE);
+            DestroyImmediate(gameObject);
+        });
     }
 
     public void StartGame()
     {
+        PhotonNetwork.CurrentRoom.IsVisible = false;
         PhotonNetwork.CurrentRoom.IsOpen = false;
         _view.RPC("ActiveChat", RpcTarget.AllBuffered, false);
         _view.RPC("LoadGameScene", RpcTarget.AllBuffered);
@@ -121,14 +130,17 @@ public class NetworkManager : MonoBehaviourPunCallbacks
     [PunRPC]
     private void LoadGameScene()
     {
-        _localPlayerData.gameObject.SetActive(false);
-        _chatController.DisconnectFromChat();
-        readyButtonObject.SetActive(false);
+        if (_localPlayerData)
+            _localPlayerData.gameObject.SetActive(false);
+
+        ClearLobbyData();
+        
         PhotonNetwork.LoadLevel(Constants.GAME_LEVEL);
     }
 
-    public void ClearLobbyData()
+    private void ClearLobbyData()
     {
+        readyButtonObject.SetActive(false);
         startButtonObject.SetActive(false);
         _playersData.Clear();
         foreach (var playersObject in playersObjects)
@@ -152,39 +164,39 @@ public class NetworkManager : MonoBehaviourPunCallbacks
     {
         DisconnectBehaviour(() =>
         {
-            DisconnectPlayer(Constants.INTRO_SCENE);
+            OnDisconnectPlayer(Constants.INTRO_SCENE);
             DestroyImmediate(gameObject);
         });
     }
 
-    private void DisconnectBehaviour(Action customAction)
+    private void DisconnectBehaviour(Action customAction = null)
     {
         if (PhotonNetwork.LocalPlayer.IsMasterClient)
         {
             _view.RPC("DisconnectAll", RpcTarget.OthersBuffered);
-            customAction();
+            customAction?.Invoke();
         }
         else
         {
             _view.RPC("NotifyDisconnection", RpcTarget.MasterClient, PhotonNetwork.LocalPlayer);
-            customAction();
+            customAction?.Invoke();
         }
     }
 
     [PunRPC]
     private void DisconnectAll()
     {
-        DisconnectPlayer(Constants.INTRO_SCENE);
+        OnDisconnectPlayer(Constants.INTRO_SCENE);
         DestroyImmediate(gameObject);
     }
     
     public void DisconnectPlayer(string sceneToLoad, Player p)
     {
-        _view.RPC("DisconnectPlayer", p, sceneToLoad);
+        _view.RPC("OnDisconnectPlayer", p, sceneToLoad);
     }
     
     [PunRPC]
-    private void DisconnectPlayer(string sceneToLoad)
+    private void OnDisconnectPlayer(string sceneToLoad)
     {
         PhotonNetwork.LeaveRoom();
         PhotonNetwork.Disconnect();
@@ -208,6 +220,7 @@ public class NetworkManager : MonoBehaviourPunCallbacks
     private void OnConnection(Player p)
     {
         _playersData.Add(p, GetNotTakenMenuData());
+        _chatController.SendConnectionMessage(p);
         _view.RPC("ActivePlayerMenuObject", RpcTarget.AllBuffered, Array.IndexOf(_playersData.Keys.ToArray(), p), true, p);
         _view.RPC("CreateChatController", p, "#" + ColorUtility.ToHtmlStringRGB(_playersData[p].colorImg.GetComponent<Image>().color));
     }

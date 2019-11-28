@@ -32,15 +32,12 @@ public class Enemy : MonoBehaviourPun
         _rb = GetComponent<Rigidbody>();
     }
 
-    void Start()
+    private void Start()
     {
-        if (!_view.IsMine)
-            DestroyImmediate(gameObject);
-        else
-            StartCoroutine(FindPlayers());
+        StartCoroutine(FindPlayers());
     }
 
-    void Update()
+    private void Update()
     {
         Timers();
 
@@ -63,9 +60,7 @@ public class Enemy : MonoBehaviourPun
         if (!currentTarget) return;
         
         if (shootEnemy && _targetSpoted && _attackTimer > timeToAttack)
-        {
             Shoot(currentTarget);
-        }
 
         if (meleeEnemy && _targetSpoted && !_isAttacking)
         {
@@ -103,6 +98,8 @@ public class Enemy : MonoBehaviourPun
         
         foreach (var player in players)
         {
+            if (!player) return;
+            
             if (Vector3.Distance(transform.position, currentTarget.position) >
                 Vector3.Distance(transform.position, player.transform.position))
             {
@@ -122,17 +119,7 @@ public class Enemy : MonoBehaviourPun
     private void CheckVitals()
     {
         if (hp <= 0)
-        {
-            /*if (_anim)
-            {
-                _anim.SetBool("IsDead", true);
-                StartCoroutine(Dead());
-            }
-            else
-            {*/
-                DestroyImmediate(gameObject);
-            //}
-        }
+            PhotonNetwork.Destroy(gameObject);
     }
 
     public void TakeDamage(float dmg)
@@ -140,7 +127,7 @@ public class Enemy : MonoBehaviourPun
         hp -= dmg;
     }
     
-    public void Shoot(Transform target)
+    private void Shoot(Transform target)
     {
         SetIsShooting(true);
         LookToTarget(target);
@@ -149,11 +136,13 @@ public class Enemy : MonoBehaviourPun
 
     private IEnumerator Shooting()
     {
-        yield return new WaitForSeconds(1);
         var spawnPos = new Vector3(shootObject.position.x, shootObject.position.y + 1, shootObject.position.z);
         var bullet = Instantiate(bulletPrefab, spawnPos, transform.rotation);
         bullet.GetComponent<Bullet>().shootBy = Bullet.ShootBy.Enemy;
         bullet.GetComponent<Bullet>().damage = damage;
+        
+        yield return new WaitForSeconds(1);
+        
         SetIsShooting(false);
     }
     
@@ -169,7 +158,7 @@ public class Enemy : MonoBehaviourPun
         DestroyImmediate(gameObject);
     }
     
-    public void SetIsMoving(bool v)
+    private void SetIsMoving(bool v)
     {
         if (_anim)
             _anim.SetBool("IsMoving", v);
@@ -185,7 +174,7 @@ public class Enemy : MonoBehaviourPun
 
     private IEnumerator FindPlayers()
     {
-        yield return new WaitForSeconds(2);
+        yield return new WaitForSeconds(1);
         players = FindObjectsOfType<Character>();
     }
 }
