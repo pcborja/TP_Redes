@@ -18,9 +18,11 @@ public class NetworkManager : MonoBehaviourPunCallbacks
     public GameObject chatObject;
     public GameObject connectionObj;
     public int pps;
+    public Text connectingText;
     
     [HideInInspector] public GameObject[] playerPositions;
     [HideInInspector] public GameObject[] enemiesPositions;
+    [HideInInspector] public GameObject winObject;
     
     private PhotonView _view;
     private Dictionary<Player, PlayerMenuData> _playersData = new Dictionary<Player, PlayerMenuData>();
@@ -47,6 +49,7 @@ public class NetworkManager : MonoBehaviourPunCallbacks
         {
             PhotonNetwork.LocalPlayer.NickName = playerNameInputfield.text;
             PhotonNetwork.ConnectUsingSettings();
+            connectingText.gameObject.SetActive(true);
         }
         else
         {
@@ -68,6 +71,7 @@ public class NetworkManager : MonoBehaviourPunCallbacks
     
     public override void OnJoinedRoom()
     {
+        connectingText.gameObject.SetActive(false);
         PhotonNetwork.LoadLevel("Lobby");
         
         if (!PhotonNetwork.IsMasterClient)
@@ -114,7 +118,7 @@ public class NetworkManager : MonoBehaviourPunCallbacks
     {
         DisconnectBehaviour(() =>
         {
-            OnDisconnectPlayer(Constants.INTRO_SCENE);
+            SceneManager.LoadScene(Constants.INTRO_SCENE);
             DestroyImmediate(gameObject);
         });
     }
@@ -254,10 +258,11 @@ public class NetworkManager : MonoBehaviourPunCallbacks
         DestroyImmediate(gameObject);
     }
 
-    public void GameStarted(GameObject[] playerPos, GameObject[] enemiesPos)
+    public void GameStarted(GameObject[] playerPos, GameObject[] enemiesPos, GameObject winObjectPos)
     {
         playerPositions = playerPos;
         enemiesPositions = enemiesPos;
+        winObject = winObjectPos;
         
         if (PhotonNetwork.IsMasterClient)
             CreateLevelManager();

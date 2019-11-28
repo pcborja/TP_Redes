@@ -1,7 +1,7 @@
 ﻿using Photon.Pun;
 using UnityEngine;
 
-public class WinTrigger : MonoBehaviourPun
+public class WinObject : MonoBehaviourPun
 {
     private bool _canBeTriggered;
     private PhotonView _view;

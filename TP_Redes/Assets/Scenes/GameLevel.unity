@@ -17085,31 +17085,6 @@ MeshCollider:
   m_Convex: 0
   m_CookingOptions: 14
   m_Mesh: {fileID: 0}
---- !u!65 &1860657872
-BoxCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8264693635105671749}
-  m_Material: {fileID: 0}
-  m_IsTrigger: 1
-  m_Enabled: 1
-  serializedVersion: 2
-  m_Size: {x: 0.95048666, y: 1.4838791, z: 1.0000002}
-  m_Center: {x: -0.024756785, y: 0.56412125, z: 0.0000000029512224}
---- !u!114 &1860657873
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8264693635105671749}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: cf666a06f6954ad46a2e5e22b2fb275e, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!1 &1887160202
 GameObject:
   m_ObjectHideFlags: 0
@@ -17542,6 +17517,36 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 6
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!4 &2309615712441786952
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2309615712441786955}
+  m_LocalRotation: {x: -0, y: -0.000000059604638, z: -0, w: 1}
+  m_LocalPosition: {x: 43.28, y: 221.80301, z: 108.23}
+  m_LocalScale: {x: 3, y: 3, z: 3}
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_RootOrder: 7
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &2309615712441786955
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 2309615712441786952}
+  m_Layer: 0
+  m_Name: WinObject
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
 --- !u!4 &5494207251397934723
 Transform:
   m_ObjectHideFlags: 0
@@ -17631,6 +17636,7 @@ MonoBehaviour:
   - {fileID: 977606696}
   - {fileID: 1841957735}
   - {fileID: 1937260534}
+  winObject: {fileID: 2309615712441786955}
 --- !u!4 &8260729657335700057
 Transform:
   m_ObjectHideFlags: 0
@@ -36973,9 +36979,6 @@ GameObject:
   - component: {fileID: 8272127647295641133}
   - component: {fileID: 8277664521193213551}
   - component: {fileID: 1860657754}
-  - component: {fileID: 1860657872}
-  - component: {fileID: 1860657873}
-  - component: {fileID: 8264693635105671750}
   m_Layer: 9
   m_Name: flor_to_wall_door
   m_TagString: Untagged
@@ -36983,28 +36986,6 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!114 &8264693635105671750
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8264693635105671749}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: aa584fbee541324448dd18d8409c7a41, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  ObservedComponentsFoldoutOpen: 1
-  Group: 0
-  prefixField: -1
-  Synchronization: 0
-  OwnershipTransfer: 0
-  ObservedComponents:
-  - {fileID: 0}
-  viewIdField: 48
-  InstantiationId: 0
-  isRuntimeInstantiated: 0
 --- !u!1 &8264693635677553759
 GameObject:
   m_ObjectHideFlags: 0

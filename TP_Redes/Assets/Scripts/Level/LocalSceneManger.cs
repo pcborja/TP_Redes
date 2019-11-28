@@ -6,6 +6,7 @@ public class LocalSceneManger : MonoBehaviour
 {
     public GameObject[] playerPositions;
     public GameObject[] enemiesPositions;
+    public GameObject winObject;
     private NetworkManager _networkManager;
     
     private void Awake()
@@ -13,7 +14,7 @@ public class LocalSceneManger : MonoBehaviour
         _networkManager = FindObjectOfType<NetworkManager>();
 
         if (SceneManager.GetActiveScene().name == Constants.GAME_LEVEL)
-            _networkManager.GameStarted(playerPositions, enemiesPositions);
+            _networkManager.GameStarted(playerPositions, enemiesPositions, winObject);
     }
 
     private void Start()

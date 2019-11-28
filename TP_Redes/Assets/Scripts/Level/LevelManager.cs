@@ -10,6 +10,7 @@ public class LevelManager : MonoBehaviourPun
 {
     public GameObject[] characterObjects;
     public GameObject[] enemiesObjects;
+    public GameObject winObject;
     public Dictionary<Player, Character> players = new Dictionary<Player, Character>();
     public static LevelManager Instance { get; private set; }
     private NetworkManager _networkManager;
@@ -23,14 +24,21 @@ public class LevelManager : MonoBehaviourPun
         _networkManager = FindObjectOfType<NetworkManager>();
         characterObjects = _networkManager.playerPositions;
         enemiesObjects = _networkManager.enemiesPositions;
+        winObject = _networkManager.winObject;
         
         if (!Instance && PhotonNetwork.IsMasterClient)
         {
             _view.RPC("SetReference", RpcTarget.AllBuffered);
             StartEnemies();
+            StartWinObject();
         }
         else if (Instance)
             PhotonNetwork.Destroy(gameObject);
+    }
+
+    private void StartWinObject()
+    {
+        PhotonNetwork.Instantiate("WinObject", winObject.transform.position, Quaternion.identity);
     }
 
     private void StartEnemies()
