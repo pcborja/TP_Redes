@@ -50,6 +50,7 @@ public class Character : MonoBehaviourPun
         {
             if (_anim)
                 _anim.SetBool("IsDead", true);
+            
             StartCoroutine(Dead());
         }
     }

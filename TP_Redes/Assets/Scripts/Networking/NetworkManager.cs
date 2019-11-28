@@ -311,6 +311,7 @@ public class NetworkManager : MonoBehaviourPunCallbacks
 
     private void FinishGameScene(bool winner)
     {
+        Debug.Log("Gane/perdi");
         PhotonNetwork.LoadLevel(Constants.FINISH_GAME_SCENE);
         StartCoroutine(FinishGameSceneLoaded(winner));
         ActiveChat(true);
