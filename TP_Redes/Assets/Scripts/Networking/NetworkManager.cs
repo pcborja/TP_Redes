@@ -144,7 +144,6 @@ public class NetworkManager : MonoBehaviourPunCallbacks
     {
         readyButtonObject.SetActive(false);
         startButtonObject.SetActive(false);
-        _playersData.Clear();
         foreach (var playersObject in playersObjects)
         {
             playersObject.SetActive(false);
@@ -309,14 +308,6 @@ public class NetworkManager : MonoBehaviourPunCallbacks
         return _playersData.All(x => x.Value.GetComponent<PlayerMenuData>().isReady);
     }
 
-    private void FinishGameScene(bool winner)
-    {
-        Debug.Log("Gane/perdi");
-        PhotonNetwork.LoadLevel(Constants.FINISH_GAME_SCENE);
-        StartCoroutine(FinishGameSceneLoaded(winner));
-        ActiveChat(true);
-    }
-
     private IEnumerator FinishGameSceneLoaded(bool winner)
     {
         yield return new WaitForSeconds(0.5f);
@@ -325,16 +316,15 @@ public class NetworkManager : MonoBehaviourPunCallbacks
 
     public void PlayerLose(Player p)
     {
-        _view.RPC("LoadFinishGame", p, false);
+        _view.RPC("LoadFinishGame", p, p, false);
     }
     
     public void FinishGame(Player p)
     {
         foreach (var player in PhotonNetwork.PlayerList)
         {
-            if (PhotonNetwork.IsMasterClient) continue;
-            
-            _view.RPC("LoadFinishGame", player, player.Equals(p));
+            if (!Equals(player, PhotonNetwork.MasterClient))
+                _view.RPC("LoadFinishGame", player, player, player.Equals(p));
         }
 
         StartCoroutine(MasterFinishGame());
@@ -343,12 +333,30 @@ public class NetworkManager : MonoBehaviourPunCallbacks
     private IEnumerator MasterFinishGame()
     {
         yield return new WaitForSeconds(0.5f);
-        LoadFinishGame(true);
+        LoadFinishGame(PhotonNetwork.LocalPlayer, true);
     }
 
     [PunRPC]
-    private void LoadFinishGame(bool winner)
+    private void LoadFinishGame(Player p, bool winner)
     {
-        FinishGameScene(winner);
+        FinishGameScene(p, winner);
+    }
+    
+    private void FinishGameScene(Player p, bool winner)
+    {
+        PhotonNetwork.LoadLevel(Constants.FINISH_GAME_SCENE);
+        
+        StartCoroutine(FinishGameSceneLoaded(winner));
+
+        if (!Equals(p, PhotonNetwork.MasterClient))
+            _view.RPC("ActivateChat", RpcTarget.MasterClient, p);
+        
+        ActiveChat(true);
+    }
+    
+    [PunRPC]
+    private void ActivateChat(Player p)
+    {
+        _view.RPC("CreateChatController", p, "#" + ColorUtility.ToHtmlStringRGB(_playersData[p].colorImg.GetComponent<Image>().color));
     }
 }

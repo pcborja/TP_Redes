@@ -29,6 +29,7 @@ MonoBehaviour:
   RunInBackground: 1
   StartInOfflineMode: 0
   RpcList:
+  - ActivateChat
   - ActiveChat
   - ActivePlayerMenuObject
   - AddPlayer
@@ -39,9 +40,9 @@ MonoBehaviour:
   - DestroySpaceship
   - DisconnectAll
   - DisconnectRPC
-  - FinishGame
   - Fire
   - HoldPosKey
+  - LoadFinishGame
   - LoadGameScene
   - Move
   - NotifyDisconnection
@@ -56,6 +57,5 @@ MonoBehaviour:
   - SetMyCamera
   - SetPlayerIsReady
   - SetReference
-  - LoadFinishGame
   DisableAutoOpenWizard: 1
   ShowSettings: 1

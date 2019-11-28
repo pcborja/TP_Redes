@@ -185,6 +185,9 @@ public class LevelManager : MonoBehaviourPun
 
     public void PlayerDead(Player p)
     {
-        _networkManager.PlayerLose(p);
+        if (players.All(x => x.Value.isDead))
+            _networkManager.FinishGame(null);
+        else
+            _networkManager.PlayerLose(p);
     }
 }

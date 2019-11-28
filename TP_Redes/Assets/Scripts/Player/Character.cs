@@ -24,6 +24,8 @@ public class Character : MonoBehaviourPun
     public float maxHp;
     public Player owner;
     
+    [HideInInspector] public bool isDead;
+    
     private float _hp;
     private Animator _anim;
     private PhotonView _view;
@@ -46,8 +48,10 @@ public class Character : MonoBehaviourPun
         
         Timers();
         
-        if (_hp <= 0)
+        if (!isDead && _hp <= 0)
         {
+            isDead = true;
+            
             if (_anim)
                 _anim.SetBool("IsDead", true);
             
@@ -133,6 +137,7 @@ public class Character : MonoBehaviourPun
     {
         yield return new WaitForSeconds(1);
         LevelManager.Instance.PlayerDead(owner);
+        gameObject.SetActive(false);
     }
 
     public void TakeDamage(float dmg)
