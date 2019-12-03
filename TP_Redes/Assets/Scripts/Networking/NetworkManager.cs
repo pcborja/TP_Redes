@@ -28,25 +28,19 @@ public class NetworkManager : MonoBehaviourPunCallbacks
     private Dictionary<Player, PlayerMenuData> _playersData = new Dictionary<Player, PlayerMenuData>();
     private PlayerChatController _chatController;
     private PlayerMenuData _localPlayerData;
+    private bool _host;
     
     private void Awake()
     {
         DontDestroyOnLoad(gameObject);
         _view = GetComponent<PhotonView>();
     }
-    
-    private void Update()
-    {
-        if (SceneManager.GetActiveScene().name == Constants.INTRO_SCENE && Input.GetKeyDown(KeyCode.Return))
-        {
-            ConnectToServerButton();
-        }
-    }
 
-    public void ConnectToServerButton()
+    public void ConnectToServerButton(bool host)
     {
         if (playerNameInputfield.text != "")
         {
+            _host = host;
             PhotonNetwork.LocalPlayer.NickName = playerNameInputfield.text;
             PhotonNetwork.ConnectUsingSettings();
             connectingText.gameObject.SetActive(true);
@@ -54,7 +48,6 @@ public class NetworkManager : MonoBehaviourPunCallbacks
         else
         {
             ShowMessage(Constants.MessageTypes.Error, Constants.NAME_ERROR);
-            StartCoroutine(HideMessage());
         }
     }
 
@@ -66,7 +59,15 @@ public class NetworkManager : MonoBehaviourPunCallbacks
 
     public override void OnConnectedToMaster()
     {
-        PhotonNetwork.JoinOrCreateRoom("MainRoom", new RoomOptions { MaxPlayers = 5 }, TypedLobby.Default);
+        if (_host)
+            PhotonNetwork.CreateRoom("MainRoom", new RoomOptions { MaxPlayers = 5 }, TypedLobby.Default);
+        else if (PhotonNetwork.CountOfRooms > 0)
+            PhotonNetwork.JoinRandomRoom();
+        else
+        {
+            OnDisconnectPlayer();
+            ShowMessage(Constants.MessageTypes.Error, "There are no rooms hosted");
+        }
     }
     
     public override void OnJoinedRoom()
@@ -159,6 +160,7 @@ public class NetworkManager : MonoBehaviourPunCallbacks
     {
         messageObject.SetActive(true);
         messageObject.GetComponentInChildren<Text>().text = message;
+        StartCoroutine(HideMessage());
     }
 
     public void BackButton()
@@ -194,7 +196,9 @@ public class NetworkManager : MonoBehaviourPunCallbacks
     [PunRPC]
     private void OnDisconnectPlayer()
     {
-        PhotonNetwork.LeaveRoom();
+        if (PhotonNetwork.InRoom)
+            PhotonNetwork.LeaveRoom();
+        
         PhotonNetwork.Disconnect();
     }
 
