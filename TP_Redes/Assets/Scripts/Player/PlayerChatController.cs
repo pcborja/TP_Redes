@@ -37,9 +37,9 @@ public class PlayerChatController : MonoBehaviourPun, IChatClientListener
         if (Input.GetKeyDown(KeyCode.Return))
         {
             if (_inputField.text[0] == '@')
-                SendPrivateMessage();
+                _view.RPC("RequestSendPrivateMessage", RpcTarget.MasterClient, PhotonNetwork.LocalPlayer, _inputField.text);
             else
-                SendPublicMessage();
+                _view.RPC("RequestSendPublicMessage", RpcTarget.MasterClient, PhotonNetwork.LocalPlayer, _inputField.text, _playerColorCode);
             
             UpdateChatText();
         }
@@ -63,20 +63,22 @@ public class PlayerChatController : MonoBehaviourPun, IChatClientListener
         _chatClient.PublishMessage("channelA", p.NickName + " has joined the game.");
     }
 
-    private void SendPublicMessage()
+    [PunRPC]
+    private void RequestSendPublicMessage(Player p, string text, string color)
     {
-        var userColor = "<color=" + _playerColorCode + ">" + PhotonNetwork.LocalPlayer.NickName + "</color>";
-        var textToSend = userColor + " : " + _inputField.text;
+        var userColor = "<color=" + color + ">" + p.NickName + "</color>";
+        var textToSend = userColor + " : " + text;
         
         _chatClient.PublishMessage("channelA", textToSend);
     }
 
-    private void SendPrivateMessage()
+    [PunRPC]
+    private void RequestSendPrivateMessage(Player p, string text)
     {
-        var user = _inputField.text.Split('@')[1].Split(' ')[0];
-        var msg = _inputField.text.Split('@')[1].Split(' ')[1];
+        var user = text.Split('@')[1].Split(' ')[0];
+        var msg = text.Split('@')[1].Split(' ')[1];
         
-        var userColor = "<color=" + Color.magenta + ">" + PhotonNetwork.LocalPlayer.NickName + "</color>";
+        var userColor = "<color=" + Color.magenta + ">" + p.NickName + "</color>";
         var textToSend = userColor + " : " + msg;
         
         _chatClient.SendPrivateMessage(user, textToSend);

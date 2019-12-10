@@ -34,7 +34,8 @@ public class Enemy : MonoBehaviourPun
 
     private void Start()
     {
-        StartCoroutine(FindPlayers());
+        if (PhotonNetwork.IsMasterClient)
+            StartCoroutine(FindPlayers());
     }
 
     private void Update()

@@ -57,5 +57,7 @@ MonoBehaviour:
   - SetMyCamera
   - SetPlayerIsReady
   - SetReference
+  - RequestSendPrivateMessage
+  - RequestSendPublicMessage
   DisableAutoOpenWizard: 1
   ShowSettings: 1
