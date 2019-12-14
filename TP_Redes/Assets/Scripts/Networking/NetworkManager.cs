@@ -38,7 +38,7 @@ public class NetworkManager : MonoBehaviourPunCallbacks
 
     public void ConnectToServerButton(bool host)
     {
-        if (playerNameInputfield.text != "")
+        if (playerNameInputfield.text != "" || host)
         {
             _host = host;
             PhotonNetwork.LocalPlayer.NickName = playerNameInputfield.text;
