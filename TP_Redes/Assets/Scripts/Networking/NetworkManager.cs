@@ -18,7 +18,10 @@ public class NetworkManager : MonoBehaviourPunCallbacks
     public GameObject chatObject;
     public GameObject connectionObj;
     public int pps;
+    public int maxMessages;
     public Text connectingText;
+    public GameObject textObject;
+    public GameObject chatScroll;
     
     [HideInInspector] public GameObject[] playerPositions;
     [HideInInspector] public GameObject[] enemiesPositions;
@@ -26,9 +29,10 @@ public class NetworkManager : MonoBehaviourPunCallbacks
     
     private PhotonView _view;
     private Dictionary<Player, PlayerMenuData> _playersData = new Dictionary<Player, PlayerMenuData>();
-    private PlayerChatController _chatController;
+    private ChatController _chatController;
     private PlayerMenuData _localPlayerData;
     private bool _host;
+    private List<Message> _messagesList = new List<Message>();
     
     private void Awake()
     {
@@ -100,14 +104,14 @@ public class NetworkManager : MonoBehaviourPunCallbacks
     public void ChatController()
     {
         if (PhotonNetwork.IsMasterClient)
-            CreateChatController("#" + ColorUtility.ToHtmlStringRGB(Color.red));
+            _chatController = CreateChatController();
     }
     
-    [PunRPC]
-    private void CreateChatController(string color)
+    private ChatController CreateChatController()
     {
-        _chatController = PhotonNetwork.Instantiate("PlayerChatController", Vector3.zero, Quaternion.identity).GetComponent<PlayerChatController>();
-        _chatController.SetChat(chatObject.GetComponentInChildren<Text>(), chatObject.GetComponentInChildren<InputField>(), color);
+        var chatController = PhotonNetwork.Instantiate("ChatController", Vector3.zero, Quaternion.identity).GetComponent<ChatController>();
+
+        return chatController;
     }
 
     public override void OnJoinRandomFailed(short returnCode, string message)
@@ -221,7 +225,14 @@ public class NetworkManager : MonoBehaviourPunCallbacks
         _playersData.Add(p, GetNotTakenMenuData());
         _chatController.SendConnectionMessage(p);
         _view.RPC("ActivePlayerMenuObject", RpcTarget.AllBuffered, Array.IndexOf(_playersData.Keys.ToArray(), p), true, p);
-        _view.RPC("CreateChatController", p, "#" + ColorUtility.ToHtmlStringRGB(_playersData[p].colorImg.GetComponent<Image>().color));
+    }
+
+    public string GetPlayerColor(Player p)
+    {
+        if (Equals(p, PhotonNetwork.MasterClient))
+            return "#" + ColorUtility.ToHtmlStringRGB(Color.red);
+        
+        return "#" + ColorUtility.ToHtmlStringRGB(_playersData[p].colorImg.GetComponent<Image>().color);
     }
     
     [PunRPC]
@@ -357,10 +368,49 @@ public class NetworkManager : MonoBehaviourPunCallbacks
         
         ActiveChat(true);
     }
+
+    public void RequestSendMessage(Player p, string text)
+    {
+        _view.RPC("SendChatMessage", RpcTarget.MasterClient, p, text);
+    }
+
+    [PunRPC]
+    public void SendChatMessage(Player p, string text)
+    {
+        if (text[0] == '@')
+            _chatController.SendPrivateMessage(p, text);
+        else
+            _chatController.SendPublicMessage(p, text);
+    }
+
+    public void WriteChat(string text, Player p = null)
+    {
+        if (p != null)
+            _view.RPC("UpdatePlayersChat", p, text);
+        else
+            _view.RPC("UpdatePlayersChat", RpcTarget.AllBuffered, text);
+    }
     
     [PunRPC]
-    private void ActivateChat(Player p)
+    private void UpdatePlayersChat(string text)
     {
-        _view.RPC("CreateChatController", p, "#" + ColorUtility.ToHtmlStringRGB(_playersData[p].colorImg.GetComponent<Image>().color));
+        if (_messagesList.Count >= maxMessages)
+            _messagesList.Remove(_messagesList[0]);
+
+        var newMessage = new Message();
+
+        newMessage.text = text;
+        
+        Instantiate(textObject, chatScroll.transform);
+        
+        _messagesList.Add(newMessage);
+        
+        //chatObject.GetComponentInChildren<Text>().text += text + "\n";
     }
+}
+
+[Serializable]
+public class Message
+{
+    public string text;
 }

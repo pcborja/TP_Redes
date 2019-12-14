@@ -25,6 +25,8 @@ public class Controller : MonoBehaviourPun
 
     private IEnumerator SendPackage()
     {
+        yield return new WaitForSeconds(0.5f);
+        
         while (true)
         {
             yield return new WaitForSeconds(1 / _packagePerSecond);
@@ -34,21 +36,13 @@ public class Controller : MonoBehaviourPun
                 //Andrea me dijo que haga aca el raycast aunque "no respete" FA porque no se pudo de otra forma
                 if (Physics.Raycast(Camera.main.ScreenPointToRay(Input.mousePosition), out var hit, 100))
                 {
-                    bool hitIsEnemy = hit.transform.gameObject.GetComponent<Enemy>();
-                    bool hitIsCharacter = hit.transform.gameObject.GetComponent<Character>();
-                    LevelManager.Instance.OnClicked(hit.point, PhotonNetwork.LocalPlayer, hitIsEnemy, hitIsCharacter);
+                    LevelManager.Instance.OnClicked(hit.point, PhotonNetwork.LocalPlayer);
                 }
             }
-
-            if (Input.GetKeyDown(KeyCode.LeftShift))
-            {
-                LevelManager.Instance.OnStartHoldingPosition(PhotonNetwork.LocalPlayer);
-            }
-
-            if (Input.GetKeyUp(KeyCode.LeftShift))
-            {
-                LevelManager.Instance.OnEndHoldingPosition(PhotonNetwork.LocalPlayer);
-            }
+            
+            LevelManager.Instance.PlayerRequestMove(new Vector3(0, 0, Input.GetAxis("Vertical")), PhotonNetwork.LocalPlayer);
+            
+            LevelManager.Instance.PlayerRequestRotation(Input.GetAxis("Horizontal"), PhotonNetwork.LocalPlayer);
 
             if (Input.GetKeyDown(KeyCode.Escape))
             {

@@ -1,6 +1,8 @@
 ﻿using Photon.Pun;
 using UnityEngine;
+using UnityEngine.EventSystems;
 using UnityEngine.SceneManagement;
+using UnityEngine.UI;
 
 public class LocalSceneManger : MonoBehaviour
 {
@@ -9,12 +11,14 @@ public class LocalSceneManger : MonoBehaviour
     public GameObject winObject;
     public GameObject winCanvas;
     public GameObject loseCanvas;
+    private InputField _inputField;
+    
     private NetworkManager _networkManager;
     
     private void Awake()
     {
         _networkManager = FindObjectOfType<NetworkManager>();
-
+ 
         if (SceneManager.GetActiveScene().name == Constants.GAME_LEVEL)
             _networkManager.GameStarted(playerPositions, enemiesPositions, winObject);
     }
@@ -22,6 +26,7 @@ public class LocalSceneManger : MonoBehaviour
     private void Start()
     {
         _networkManager.ChatController();
+        _inputField = _networkManager.chatObject.GetComponentInChildren<InputField>();
     }
 
     private void Update()
@@ -39,6 +44,22 @@ public class LocalSceneManger : MonoBehaviour
                 SimpleBackButton();
             }
         }
+        
+        if (Input.GetKeyDown(KeyCode.Return) && _networkManager.chatObject.activeInHierarchy)
+        {
+            _networkManager.RequestSendMessage(PhotonNetwork.LocalPlayer, _inputField.text);
+
+            UpdateChatText();
+        }
+    }
+
+    private void UpdateChatText()
+    {
+        _inputField.text = "";
+
+        EventSystem current;
+        (current = EventSystem.current).SetSelectedGameObject(_inputField.gameObject, null);
+        _inputField.OnPointerClick(new PointerEventData(current));
     }
 
     public void NetExitGame()

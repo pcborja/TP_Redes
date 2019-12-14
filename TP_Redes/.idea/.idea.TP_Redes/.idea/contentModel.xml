@@ -365,8 +365,8 @@
           <e p="Player" t="Include">
             <e p="CameraFollow.cs" t="Include" />
             <e p="Character.cs" t="Include" />
+            <e p="ChatController.cs" t="Include" />
             <e p="Controller.cs" t="Include" />
-            <e p="PlayerChatController.cs" t="Include" />
           </e>
           <e p="UI" t="Include">
             <e p="TextFadeInOut.cs" t="Include" />

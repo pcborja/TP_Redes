@@ -15,7 +15,6 @@ public class Character : MonoBehaviourPun
     public bool canMove;
     public float timeToShoot = 1;
     public Transform shootObject;
-    public bool isHoldingPosition;
     public float damage;
     public bool isShooting;
     public float shootTimer;
@@ -29,6 +28,7 @@ public class Character : MonoBehaviourPun
     private float _hp;
     private Animator _anim;
     private PhotonView _view;
+    private float _direction;
     
     private void Awake()
     {
@@ -57,31 +57,19 @@ public class Character : MonoBehaviourPun
             
             StartCoroutine(Dead());
         }
+        
+        transform.position += transform.forward * _direction * Time.deltaTime * speed;
     }
 
-    private void FixedUpdate()
-    {
-        if (!_view.IsMine)
-            return;
-
-        TryToMove(positionToMove);
-    }
-
-    private void TryToMove(Vector3 posToMove)
-    {
-        if (canMove)
-            Move(posToMove);
-
-        if (Vector3.Distance(transform.position, posToMove) < 0.1f)
-            SetCanMove(false, Vector3.zero);
-
-        SetIsMoving(Math.Abs(rb.velocity.magnitude) > 0.01f);
-    }
-
-    public void Move(Vector3 position)
+    public void Move(Vector3 dir)
     {
         if (isShooting) return;
-        Arrive.D_Arrive(gameObject, position, rb, 10, 0.5f);
+        _direction = dir.z;
+    }
+    
+    public void Rotate(Vector3 rot)
+    {
+        transform.Rotate(rot * Time.deltaTime);
     }
 
     public void Shoot(Vector3 position)
@@ -102,21 +90,6 @@ public class Character : MonoBehaviourPun
         isShooting = v;
         if (_anim)
             _anim.SetBool("IsShooting", v);
-    }
-
-    public void SetCanMove(bool v, Vector3 posToMove)
-    {
-        if (!_view.IsMine)
-            return;
-
-        positionToMove = posToMove;
-        canMove = v;
-    }
-
-    public void SetHoldingPos(bool holdingPos)
-    {
-        if (!_view.IsMine) return;
-        isHoldingPosition = holdingPos;
     }
     
     private IEnumerator Shooting()

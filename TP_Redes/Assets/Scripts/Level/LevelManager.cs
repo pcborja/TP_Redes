@@ -112,69 +112,21 @@ public class LevelManager : MonoBehaviourPun
             characters[0].gameObject.SetActive(false);
     }
 
-    public void OnClicked(Vector3 hitPoint, Player p, bool hitIsEnemy, bool hitIsCharacter)
+    public void OnClicked(Vector3 hitPoint, Player p)
     {
-        _view.RPC("CheckActions", RpcTarget.MasterClient, hitPoint, p, hitIsEnemy, hitIsCharacter);
+        _view.RPC("Shoot", RpcTarget.MasterClient, hitPoint, p);
     }
 
     [PunRPC]
-    private void CheckActions(Vector3 hitPoint, Player p, bool hitIsEnemy, bool hitIsCharacter)
+    private void Shoot(Vector3 hitPoint, Player p)
     {
         if (players.ContainsKey(p))
         {
-            if (hitIsEnemy || players[p].isHoldingPosition)
+            if (players[p].shootTimer > players[p].timeToShoot)
             {
-                if (players[p].shootTimer > players[p].timeToShoot)
-                {
-                    players[p].shootTimer = 0;
-                    players[p].Shoot(hitPoint);
-                }
+                players[p].shootTimer = 0;
+                players[p].Shoot(hitPoint);
             }
-            else if (!hitIsCharacter)
-            {
-                players[p].SetCanMove(true, hitPoint);
-            }
-        }
-    }
-
-    public void RequestMove(Player p, Vector3 posToMove)
-    {
-        _view.RPC("Move", RpcTarget.MasterClient, p, posToMove);
-    }
-
-    [PunRPC]
-    private void Move(Player p, Vector3 posToMove)
-    {
-        if (players.ContainsKey(p))
-        {
-            if (players[p].canMove)
-                players[p].Move(posToMove);
-
-            if (Vector3.Distance(players[p].transform.position, posToMove) < 0.1f)
-            {
-                players[p].SetCanMove(false, Vector3.zero);
-            }
-
-            players[p].SetIsMoving(Math.Abs(players[p].rb.velocity.magnitude) > 0.01f);
-        }
-    }
-
-    public void OnStartHoldingPosition(Player p)
-    {
-        _view.RPC("HoldPosKey", RpcTarget.MasterClient, true, p);
-    }
-    
-    public void OnEndHoldingPosition(Player p)
-    {
-        _view.RPC("HoldPosKey", RpcTarget.MasterClient, false, p);
-    }
-    
-    [PunRPC]
-    private void HoldPosKey(bool hold, Player p)
-    {
-        if (players.ContainsKey(p))
-        {
-            players[p].SetHoldingPos(hold);
         }
     }
 
@@ -189,5 +141,32 @@ public class LevelManager : MonoBehaviourPun
             _networkManager.FinishGame(null);
         else
             _networkManager.PlayerLose(p);
+    }
+
+    public void PlayerRequestMove(Vector3 dir, Player p)
+    {
+        _view.RPC("RequestMove", RpcTarget.MasterClient, dir, p);
+    }
+
+    public void PlayerRequestRotation(float dir, Player p)
+    {
+        _view.RPC("RequestRotation", RpcTarget.MasterClient, dir, p);
+    }
+
+    [PunRPC]
+    private void RequestMove(Vector3 dir, Player p)
+    {
+        if (players.ContainsKey(p))
+        {
+            players[p].Move(dir);
+            players[p].SetIsMoving(dir != Vector3.zero);
+        }
+    }
+    
+    [PunRPC]
+    void RequestRotation(float dir, Player p)
+    {
+        if (players.ContainsKey(p))
+            players[p].Rotate(new Vector3(0, dir * 45, 0));
     }
 }

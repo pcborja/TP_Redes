@@ -29,35 +29,33 @@ MonoBehaviour:
   RunInBackground: 1
   StartInOfflineMode: 0
   RpcList:
-  - ActivateChat
   - ActiveChat
   - ActivePlayerMenuObject
   - AddPlayer
-  - CheckActions
   - ClickRpc
-  - CreateChatController
   - DestroyRpc
   - DestroySpaceship
   - DisconnectAll
   - DisconnectRPC
   - Fire
-  - HoldPosKey
   - LoadFinishGame
   - LoadGameScene
-  - Move
   - NotifyDisconnection
   - OnConnection
   - OnDisconnectPlayer
   - OnLifeChange
   - PlayerReadyVisuals
   - RemoveCharacter
+  - RequestMove
+  - RequestRotation
   - RespawnSpaceship
+  - SendChatMessage
   - ServerDestroy
   - SetLocalSettings
   - SetMyCamera
   - SetPlayerIsReady
   - SetReference
-  - RequestSendPrivateMessage
-  - RequestSendPublicMessage
+  - Shoot
+  - UpdatePlayersChat
   DisableAutoOpenWizard: 1
   ShowSettings: 1
