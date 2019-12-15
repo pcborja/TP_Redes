@@ -377,6 +377,8 @@ public class NetworkManager : MonoBehaviourPunCallbacks
     [PunRPC]
     public void SendChatMessage(Player p, string text)
     {
+        if (text == "") return;
+        
         if (text[0] == '@')
             _chatController.SendPrivateMessage(p, text);
         else
@@ -395,17 +397,18 @@ public class NetworkManager : MonoBehaviourPunCallbacks
     private void UpdatePlayersChat(string text)
     {
         if (_messagesList.Count >= maxMessages)
+        {
+            Destroy(_messagesList[0].textObject.gameObject);
             _messagesList.Remove(_messagesList[0]);
+        }
 
-        var newMessage = new Message();
-
-        newMessage.text = text;
+        var newMessage = new Message {text = text};
+        var newText = Instantiate(textObject, chatScroll.transform);
         
-        Instantiate(textObject, chatScroll.transform);
+        newMessage.textObject = newText.GetComponent<Text>();
+        newMessage.textObject.text = newMessage.text;
         
         _messagesList.Add(newMessage);
-        
-        //chatObject.GetComponentInChildren<Text>().text += text + "\n";
     }
 }
 
@@ -413,4 +416,5 @@ public class NetworkManager : MonoBehaviourPunCallbacks
 public class Message
 {
     public string text;
+    public Text textObject;
 }

@@ -1955,7 +1955,7 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 1420044775}
   m_HandleRect: {fileID: 1420044774}
   m_Direction: 0
-  m_Value: 1
+  m_Value: 0
   m_Size: 1
   m_NumberOfSteps: 0
   m_OnValueChanged:
@@ -2358,7 +2358,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0.5}
   m_AnchorMax: {x: 1, y: 0.5}
-  m_AnchoredPosition: {x: 0.000015258789, y: 115.51499}
+  m_AnchoredPosition: {x: -0.000030517578, y: 115.514984}
   m_SizeDelta: {x: -16.43, y: 0}
   m_Pivot: {x: 0, y: 1}
 --- !u!114 &848224582
@@ -3495,7 +3495,7 @@ RectTransform:
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 1, y: 1}
+  m_AnchorMax: {x: 1, y: 0.9999999}
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 20, y: 20}
   m_Pivot: {x: 0.5, y: 0.5}
@@ -3836,7 +3836,7 @@ MonoBehaviour:
   chatObject: {fileID: 1842094792}
   connectionObj: {fileID: 0}
   pps: 20
-  maxMessages: 0
+  maxMessages: 100
   connectingText: {fileID: 865550899}
   textObject: {fileID: 3151250931805598005, guid: f67d5834ffa311f488e690d4e7e4488a,
     type: 3}
