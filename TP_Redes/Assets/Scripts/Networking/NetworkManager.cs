@@ -16,7 +16,6 @@ public class NetworkManager : MonoBehaviourPunCallbacks
     public GameObject readyButtonObject;
     public GameObject[] playersObjects;
     public GameObject chatObject;
-    public GameObject connectionObj;
     public int pps;
     public int maxMessages;
     public Text connectingText;
@@ -31,6 +30,7 @@ public class NetworkManager : MonoBehaviourPunCallbacks
     private Dictionary<Player, PlayerMenuData> _playersData = new Dictionary<Player, PlayerMenuData>();
     private ChatController _chatController;
     private PlayerMenuData _localPlayerData;
+    private PlayFabController _playFabController;
     private bool _host;
     private List<Message> _messagesList = new List<Message>();
     
@@ -38,39 +38,34 @@ public class NetworkManager : MonoBehaviourPunCallbacks
     {
         DontDestroyOnLoad(gameObject);
         _view = GetComponent<PhotonView>();
+        _playFabController = FindObjectOfType<PlayFabController>();
     }
 
     public void ConnectToServerButton(bool host)
     {
-        if (playerNameInputfield.text != "" || host)
-        {
-            _host = host;
-            PhotonNetwork.LocalPlayer.NickName = playerNameInputfield.text;
-            PhotonNetwork.ConnectUsingSettings();
-            connectingText.gameObject.SetActive(true);
-        }
-        else
-        {
-            ShowMessage(Constants.MessageTypes.Error, Constants.NAME_ERROR);
-        }
+        _host = host;
+        PhotonNetwork.LocalPlayer.NickName = playerNameInputfield.text;
+        PhotonNetwork.ConnectUsingSettings();
     }
 
-    private IEnumerator HideMessage()
+    private IEnumerator HideMessage(int time)
     {
-        yield return new WaitForSeconds(2);
+        yield return new WaitForSeconds(time);
         messageObject.SetActive(false);
     }
 
     public override void OnConnectedToMaster()
     {
+        FindObjectOfType<PlayFabLogin>().IsConnecting();
+        
         if (_host)
             PhotonNetwork.CreateRoom("MainRoom", new RoomOptions { MaxPlayers = 5 }, TypedLobby.Default);
         else if (PhotonNetwork.CountOfRooms > 0)
             PhotonNetwork.JoinRandomRoom();
         else
         {
+            ShowMessage(Constants.MessageTypes.Error, "There are no rooms hosted", 5);
             OnDisconnectPlayer();
-            ShowMessage(Constants.MessageTypes.Error, "There are no rooms hosted");
         }
     }
     
@@ -83,6 +78,7 @@ public class NetworkManager : MonoBehaviourPunCallbacks
         {
             _view.RPC("OnConnection", RpcTarget.MasterClient, PhotonNetwork.LocalPlayer);
             readyButtonObject.SetActive(true);
+            _playFabController.GetFriends();
         }
         else
         {
@@ -121,6 +117,8 @@ public class NetworkManager : MonoBehaviourPunCallbacks
 
     public override void OnDisconnected(DisconnectCause cause)
     {
+        if (SceneManager.GetActiveScene().name == "IntroMenu") return;
+        
         ActiveChat(false);
         SceneManager.LoadScene(Constants.INTRO_SCENE);
         DestroyImmediate(gameObject);
@@ -160,11 +158,11 @@ public class NetworkManager : MonoBehaviourPunCallbacks
         DisconnectBehaviour(SimpleExit);
     }
 
-    private void ShowMessage(Constants.MessageTypes messageType, string message)
+    public void ShowMessage(Constants.MessageTypes messageType, string message, int time)
     {
         messageObject.SetActive(true);
         messageObject.GetComponentInChildren<Text>().text = message;
-        StartCoroutine(HideMessage());
+        StartCoroutine(HideMessage(time));
     }
 
     public void BackButton()
