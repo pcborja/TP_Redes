@@ -569,6 +569,7 @@
           </e>
           <e p="WorldObjects" t="Include">
             <e p="Bullet.cs" t="Include" />
+            <e p="PowerUp.cs" t="Include" />
             <e p="WinObject.cs" t="Include" />
           </e>
         </e>

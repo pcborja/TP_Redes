@@ -57,5 +57,7 @@ MonoBehaviour:
   - SetReference
   - Shoot
   - UpdatePlayersChat
+  - CheckActions
+  - Move
   DisableAutoOpenWizard: 1
   ShowSettings: 1

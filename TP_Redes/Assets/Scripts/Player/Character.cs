@@ -28,6 +28,12 @@ public class Character : MonoBehaviourPun
     private float _hp;
     private Animator _anim;
     private PhotonView _view;
+    private float _speedTimer;
+    private float _invulnerabilityTimer;
+    private float _speedTime;
+    private float _invulnerabilityTime;
+    private float _speedValue;
+    private bool _invulnerabilityActive;
     
     private void Awake()
     {
@@ -80,7 +86,7 @@ public class Character : MonoBehaviourPun
     public void Move(Vector3 position)
     {
        if (isShooting) return;
-            Arrive.D_Arrive(gameObject, position, rb, 10, 0.5f);
+            Arrive.D_Arrive(gameObject, position, rb, speed, 0.5f);
     }
     
     public void SetCanMove(bool v, Vector3 posToMove)
@@ -133,17 +139,26 @@ public class Character : MonoBehaviourPun
         gameObject.SetActive(false);
     }
 
-    public void TakeDamage(float dmg)
+    public void LifeChange(float amount)
     {
-        _hp -= dmg;
+        if (amount < 0 && _invulnerabilityActive) return;
+        
+        _hp += amount;
         _view.RPC("OnLifeChange", owner, _hp);
     }
     
     [PunRPC] 
-    void OnLifeChange(float hp)
+    private void OnLifeChange(float hp)
     {
         if (hpText)
             hpText.text = "HP: " + hp;
+    }
+
+    [PunRPC]
+    private void OnInvulnerability(bool active)
+    {
+        if (hpText)
+            hpText.color = active ? Color.magenta : Color.green;
     }
 
     private void InstantRotation(Vector3 position)
@@ -157,6 +172,14 @@ public class Character : MonoBehaviourPun
     private void Timers()
     {
         shootTimer += Time.deltaTime;
+        _speedTimer += Time.deltaTime;
+        _invulnerabilityTimer += Time.deltaTime;
+        
+        if (_speedTimer >= _speedTime)
+            ChangeSpeed(false, -_speedValue);
+        
+        if (_invulnerabilityTimer >= _invulnerabilityTime)
+            ChangeInvulnerability(false);
     }
 
     public void SetView()
@@ -186,5 +209,26 @@ public class Character : MonoBehaviourPun
     {
         hpText = FindObjectOfType<Text>();
         hpText.text = "HP: " + maxHp;
+    }
+
+    public void ChangeSpeed(bool active, float value, float time = 0)
+    {
+        speed += value;
+
+        if (active)
+        {
+            _speedTimer = 0;
+            _speedTime = time;
+            _speedValue = value;
+        }
+    }
+
+    public void ChangeInvulnerability(bool active, float time = 0)
+    {
+        _invulnerabilityActive = active;
+        _view.RPC("OnInvulnerability", owner, active);
+
+        if (active)
+            _invulnerabilityTime = time;
     }
 }

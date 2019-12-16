@@ -8,6 +8,9 @@ public class LocalSceneManger : MonoBehaviour
 {
     public GameObject[] playerPositions;
     public GameObject[] enemiesPositions;
+    public GameObject[] healPowerUpObjects;
+    public GameObject[] speedPowerUpObjects;
+    public GameObject[] invulnerabilityPowerUpObjects;
     public GameObject winObject;
     public GameObject winCanvas;
     public GameObject loseCanvas;
@@ -20,7 +23,8 @@ public class LocalSceneManger : MonoBehaviour
         _networkManager = FindObjectOfType<NetworkManager>();
  
         if (SceneManager.GetActiveScene().name == Constants.GAME_LEVEL)
-            _networkManager.GameStarted(playerPositions, enemiesPositions, winObject);
+            _networkManager.GameStarted(playerPositions, enemiesPositions, winObject, 
+                healPowerUpObjects, speedPowerUpObjects, invulnerabilityPowerUpObjects);
     }
 
     private void Start()

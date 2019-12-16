@@ -35,7 +35,7 @@ public class Bullet : MonoBehaviourPun
     {
         if (other.gameObject.GetComponent<Character>() && shootBy == ShootBy.Enemy)
         {
-            other.gameObject.GetComponent<Character>().TakeDamage(damage);
+            other.gameObject.GetComponent<Character>().LifeChange(-damage);
             Destroy();
         }
 

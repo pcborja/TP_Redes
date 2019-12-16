@@ -85,7 +85,7 @@ public class Enemy : MonoBehaviourPun
         yield return new WaitForSeconds(timeToAttack);
         
         if (currentTarget && Vector3.Distance(transform.position, currentTarget.position) <= 2)
-            currentTarget.gameObject.GetComponent<Character>().TakeDamage(damage);
+            currentTarget.gameObject.GetComponent<Character>().LifeChange(-damage);
         
         _isAttacking = false;
     }

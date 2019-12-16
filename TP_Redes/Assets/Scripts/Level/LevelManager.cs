@@ -10,6 +10,9 @@ public class LevelManager : MonoBehaviourPun
 {
     public GameObject[] characterObjects;
     public GameObject[] enemiesObjects;
+    public GameObject[] healPowerUpObjects;
+    public GameObject[] speedPowerUpObjects;
+    public GameObject[] invulnerabilityPowerUpObjects;
     public GameObject winObject;
     public Dictionary<Player, Character> players = new Dictionary<Player, Character>();
     public static LevelManager Instance { get; private set; }
@@ -22,18 +25,25 @@ public class LevelManager : MonoBehaviourPun
         if (!_view.IsMine) return;
         
         _networkManager = FindObjectOfType<NetworkManager>();
-        characterObjects = _networkManager.playerPositions;
-        enemiesObjects = _networkManager.enemiesPositions;
-        winObject = _networkManager.winObject;
+
+        GetObjectPositions();
         
         if (!Instance && PhotonNetwork.IsMasterClient)
         {
             _view.RPC("SetReference", RpcTarget.AllBuffered);
             StartEnemies();
             StartWinObject();
+            StartPowerUps();
         }
         else if (Instance)
             PhotonNetwork.Destroy(gameObject);
+    }
+
+    private void StartPowerUps()
+    {
+        InstantiatePrefabs(healPowerUpObjects, "HealPowerUp");
+        InstantiatePrefabs(speedPowerUpObjects, "SpeedPowerUp");
+        InstantiatePrefabs(invulnerabilityPowerUpObjects, "InvulnerabilityPowerUp");
     }
 
     private void StartWinObject()
@@ -43,10 +53,7 @@ public class LevelManager : MonoBehaviourPun
 
     private void StartEnemies()
     {
-        foreach (var enemyObj in enemiesObjects)
-        {
-            PhotonNetwork.Instantiate("Enemy", enemyObj.transform.position, Quaternion.identity);
-        }
+        InstantiatePrefabs(enemiesObjects, "Enemy");
     }
 
     [PunRPC]
@@ -145,5 +152,38 @@ public class LevelManager : MonoBehaviourPun
             _networkManager.FinishGame(null);
         else
             _networkManager.PlayerLose(p);
+    }
+    
+    private void GetObjectPositions()
+    {
+        characterObjects = _networkManager.playerPositions;
+        enemiesObjects = _networkManager.enemiesPositions;
+        healPowerUpObjects = _networkManager.healPowerUpObjects;
+        speedPowerUpObjects = _networkManager.speedPowerUpObjects;
+        invulnerabilityPowerUpObjects = _networkManager.invulnerabilityPowerUpObjects;
+        winObject = _networkManager.winObject;
+    }
+
+    public void HealPowerUp(Character character, float amount)
+    {
+        character.LifeChange(amount);
+    }
+    
+    public void SpeedPowerUp(Character character, float value, float time)
+    {
+        character.ChangeSpeed(true, value, time);
+    }
+    
+    public void InvulnerabilityPowerUp(Character character, float time)
+    {
+        character.ChangeInvulnerability(true, time);
+    }
+
+    private void InstantiatePrefabs(IEnumerable<GameObject> places, string prefabName)
+    {
+        foreach (var place in places)
+        {
+            PhotonNetwork.Instantiate(prefabName, place.transform.position, Quaternion.identity);
+        }
     }
 }

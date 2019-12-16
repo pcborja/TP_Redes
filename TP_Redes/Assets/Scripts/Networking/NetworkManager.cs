@@ -23,6 +23,9 @@ public class NetworkManager : MonoBehaviourPunCallbacks
     
     [HideInInspector] public GameObject[] playerPositions;
     [HideInInspector] public GameObject[] enemiesPositions;
+    [HideInInspector] public GameObject[] healPowerUpObjects;
+    [HideInInspector] public GameObject[] speedPowerUpObjects;
+    [HideInInspector] public GameObject[] invulnerabilityPowerUpObjects;
     [HideInInspector] public GameObject winObject;
     
     private PhotonView _view;
@@ -269,11 +272,15 @@ public class NetworkManager : MonoBehaviourPunCallbacks
         DestroyImmediate(gameObject);
     }
 
-    public void GameStarted(GameObject[] playerPos, GameObject[] enemiesPos, GameObject winObjectPos)
+    public void GameStarted(GameObject[] playerPos, GameObject[] enemiesPos, GameObject winObjectPos, 
+        GameObject[] healPowerUps, GameObject[] speedPowerUps, GameObject[] invulnerabilityPowerUps)
     {
         playerPositions = playerPos;
         enemiesPositions = enemiesPos;
         winObject = winObjectPos;
+        healPowerUpObjects = healPowerUps;
+        speedPowerUpObjects = speedPowerUps;
+        invulnerabilityPowerUpObjects = invulnerabilityPowerUps;
         
         if (PhotonNetwork.IsMasterClient)
             CreateLevelManager();
