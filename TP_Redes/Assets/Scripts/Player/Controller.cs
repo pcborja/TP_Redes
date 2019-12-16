@@ -30,24 +30,25 @@ public class Controller : MonoBehaviourPun
         while (true)
         {
             yield return new WaitForSeconds(1 / _packagePerSecond);
-            
+
             if (Input.GetMouseButtonDown(0))
-            {
-                //Andrea me dijo que haga aca el raycast aunque "no respete" FA porque no se pudo de otra forma
-                if (Physics.Raycast(Camera.main.ScreenPointToRay(Input.mousePosition), out var hit, 100))
-                {
-                    LevelManager.Instance.OnClicked(hit.point, PhotonNetwork.LocalPlayer);
-                }
-            }
-            
-            LevelManager.Instance.PlayerRequestMove(new Vector3(0, 0, Input.GetAxis("Vertical")), PhotonNetwork.LocalPlayer);
-            
-            LevelManager.Instance.PlayerRequestRotation(Input.GetAxis("Horizontal"), PhotonNetwork.LocalPlayer);
+                CheckClickActions(true);
+            if (Input.GetMouseButtonDown(1))
+                CheckClickActions(false);
 
             if (Input.GetKeyDown(KeyCode.Escape))
             {
                 LevelManager.Instance.Disconnect(PhotonNetwork.LocalPlayer);
             }
+        }
+    }
+
+    private void CheckClickActions(bool isMovement)
+    {
+        //Andrea me dijo que haga aca el raycast aunque "no respete" FA porque no se pudo de otra forma
+        if (Physics.Raycast(Camera.main.ScreenPointToRay(Input.mousePosition), out var hit, 100))
+        {
+            LevelManager.Instance.OnClicked(hit.point, PhotonNetwork.LocalPlayer, isMovement);
         }
     }
     

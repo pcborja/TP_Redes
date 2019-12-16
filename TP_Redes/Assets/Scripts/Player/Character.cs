@@ -28,7 +28,6 @@ public class Character : MonoBehaviourPun
     private float _hp;
     private Animator _anim;
     private PhotonView _view;
-    private float _direction;
     
     private void Awake()
     {
@@ -57,19 +56,40 @@ public class Character : MonoBehaviourPun
             
             StartCoroutine(Dead());
         }
-        
-        transform.position += transform.forward * _direction * Time.deltaTime * speed;
     }
 
-    public void Move(Vector3 dir)
+    private void FixedUpdate()
     {
-        if (isShooting) return;
-        _direction = dir.z;
+        if (!_view.IsMine)
+            return;
+
+        TryToMove(positionToMove);
+    }
+
+    private void TryToMove(Vector3 posToMove)
+    {
+        if (canMove)
+            Move(posToMove);
+
+        if (Vector3.Distance(transform.position, posToMove) < 0.1f)
+            SetCanMove(false, Vector3.zero);
+
+        SetIsMoving(Math.Abs(rb.velocity.magnitude) > 0.01f);
+    }
+
+    public void Move(Vector3 position)
+    {
+       if (isShooting) return;
+            Arrive.D_Arrive(gameObject, position, rb, 10, 0.5f);
     }
     
-    public void Rotate(Vector3 rot)
+    public void SetCanMove(bool v, Vector3 posToMove)
     {
-        transform.Rotate(rot * Time.deltaTime);
+        if (!_view.IsMine)
+            return;
+
+        positionToMove = posToMove;
+        canMove = v;
     }
 
     public void Shoot(Vector3 position)

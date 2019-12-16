@@ -112,24 +112,28 @@ public class LevelManager : MonoBehaviourPun
             characters[0].gameObject.SetActive(false);
     }
 
-    public void OnClicked(Vector3 hitPoint, Player p)
+    public void OnClicked(Vector3 hitPoint, Player p, bool isMovement)
     {
-        _view.RPC("Shoot", RpcTarget.MasterClient, hitPoint, p);
+        _view.RPC("CheckActions", RpcTarget.MasterClient, hitPoint, p, isMovement);
     }
 
     [PunRPC]
-    private void Shoot(Vector3 hitPoint, Player p)
+    private void CheckActions(Vector3 hitPoint, Player p, bool isMovement)
     {
         if (players.ContainsKey(p))
         {
-            if (players[p].shootTimer > players[p].timeToShoot)
+            if (players[p].shootTimer > players[p].timeToShoot && !isMovement)
             {
                 players[p].shootTimer = 0;
                 players[p].Shoot(hitPoint);
             }
+            else if (isMovement)
+            {
+                players[p].SetCanMove(true, hitPoint);
+            }
         }
     }
-
+    
     public void NotifyWinner(Character c)
     {
         _networkManager.FinishGame(players.FirstOrDefault(x => x.Value == c).Key);
@@ -141,32 +145,5 @@ public class LevelManager : MonoBehaviourPun
             _networkManager.FinishGame(null);
         else
             _networkManager.PlayerLose(p);
-    }
-
-    public void PlayerRequestMove(Vector3 dir, Player p)
-    {
-        _view.RPC("RequestMove", RpcTarget.MasterClient, dir, p);
-    }
-
-    public void PlayerRequestRotation(float dir, Player p)
-    {
-        _view.RPC("RequestRotation", RpcTarget.MasterClient, dir, p);
-    }
-
-    [PunRPC]
-    private void RequestMove(Vector3 dir, Player p)
-    {
-        if (players.ContainsKey(p))
-        {
-            players[p].Move(dir);
-            players[p].SetIsMoving(dir != Vector3.zero);
-        }
-    }
-    
-    [PunRPC]
-    void RequestRotation(float dir, Player p)
-    {
-        if (players.ContainsKey(p))
-            players[p].Rotate(new Vector3(0, dir * 45, 0));
     }
 }
