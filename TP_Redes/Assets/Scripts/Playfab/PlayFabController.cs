@@ -55,7 +55,7 @@ public class PlayFabController : MonoBehaviour
             default:
                 throw new ArgumentOutOfRangeException(nameof(idType), idType, null);
         }
-        PlayFabClientAPI.AddFriend(request, result => { AddFriendMessage(true); }, DisplayPlayFabError);
+        PlayFabClientAPI.AddFriend(request, result => { GenerateResultMessage(true, "Successfully added new friend"); }, DisplayPlayFabError);
     }
     
     public void DisplayFriends(List<FriendInfo> friendsCache)
@@ -76,11 +76,12 @@ public class PlayFabController : MonoBehaviour
             {
                 var listing = Instantiate(listingPrefab, friendsScrollView);
                 var tempListing = listing.GetComponent<ListingPrefab>();
-                tempListing.playerNameText.text = f.Username;
-                
                 var currentTime = DateTime.UtcNow;
                 var breakDuration = TimeSpan.FromMinutes(5);
+                
+                tempListing.playerNameText.text = f.Username;
                 tempListing.SetPlayerStatus(!(currentTime - f.Profile.LastLogin > breakDuration));
+                tempListing.removeButton.onClick.AddListener(() => RemoveFriend(f));
             }
         }
         _myFriends = friendsCache;
@@ -103,14 +104,26 @@ public class PlayFabController : MonoBehaviour
 
     private void DisplayPlayFabError(PlayFabError error)
     {
-        AddFriendMessage(false, error.GenerateErrorReport());
+        GenerateResultMessage(false, "", error.GenerateErrorReport());
     }
     
-    private void AddFriendMessage(bool success, string message = "")
+    private void GenerateResultMessage(bool success, string successMessage, string message = "")
     {
         if (success)
-            _networkManager.ShowMessage(Constants.MessageTypes.Success, "Successfully added new friend", 5);
+            _networkManager.ShowMessage(Constants.MessageTypes.Success, successMessage, 5);
         else
             _networkManager.ShowMessage(Constants.MessageTypes.Error, message, 5);
+    }
+
+    private void RemoveFriend(FriendInfo friendInfo) 
+    {
+        PlayFabClientAPI.RemoveFriend(new RemoveFriendRequest 
+        { FriendPlayFabId = friendInfo.FriendPlayFabId },
+            result =>
+            {
+                _myFriends.Remove(friendInfo); 
+                GenerateResultMessage(true, "Successfully removed friend");
+            }, 
+            DisplayPlayFabError);
     }
 }

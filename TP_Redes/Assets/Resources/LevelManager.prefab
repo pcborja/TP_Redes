@@ -48,6 +48,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   characterObjects: []
   enemiesObjects: []
+  healPowerUpObjects: []
+  speedPowerUpObjects: []
+  invulnerabilityPowerUpObjects: []
   winObject: {fileID: 0}
 --- !u!114 &932639183159466275
 MonoBehaviour:

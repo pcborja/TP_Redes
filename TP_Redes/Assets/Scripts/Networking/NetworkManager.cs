@@ -281,6 +281,7 @@ public class NetworkManager : MonoBehaviourPunCallbacks
         healPowerUpObjects = healPowerUps;
         speedPowerUpObjects = speedPowerUps;
         invulnerabilityPowerUpObjects = invulnerabilityPowerUps;
+        _playFabController.OpenCloseFriends();
         
         if (PhotonNetwork.IsMasterClient)
             CreateLevelManager();
@@ -374,10 +375,7 @@ public class NetworkManager : MonoBehaviourPunCallbacks
         PhotonNetwork.LoadLevel(Constants.FINISH_GAME_SCENE);
         
         StartCoroutine(FinishGameSceneLoaded(winner));
-
-        if (!Equals(p, PhotonNetwork.MasterClient))
-            _view.RPC("ActivateChat", RpcTarget.MasterClient, p);
-        
+        _playFabController.OpenCloseFriends();
         ActiveChat(true);
     }
 
