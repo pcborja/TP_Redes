@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using PlayFab;
 using PlayFab.ClientModels;
 using UnityEngine;
@@ -13,11 +14,12 @@ public class PlayFabController : MonoBehaviour
     
     private List<FriendInfo> _myFriends;
     private string _friendSearch;
-    [SerializeField] private GameObject _friendPanel;
+    private NetworkManager _networkManager;
+    [SerializeField] private GameObject friendPanel;
 
-    private void DisplayPlayFabError(PlayFabError error)
+    public void Start()
     {
-        Debug.Log(error.GenerateErrorReport());
+        _networkManager = FindObjectOfType<NetworkManager>();
     }
     
     public void GetFriends()
@@ -53,9 +55,9 @@ public class PlayFabController : MonoBehaviour
             default:
                 throw new ArgumentOutOfRangeException(nameof(idType), idType, null);
         }
-        PlayFabClientAPI.AddFriend(request, result => { Debug.Log("Friend added successfully!"); }, DisplayPlayFabError);
+        PlayFabClientAPI.AddFriend(request, result => { AddFriendMessage(true); }, DisplayPlayFabError);
     }
-
+    
     public void DisplayFriends(List<FriendInfo> friendsCache)
     {
         foreach (var f in friendsCache)
@@ -73,22 +75,15 @@ public class PlayFabController : MonoBehaviour
             if (isFound == false)
             {
                 var listing = Instantiate(listingPrefab, friendsScrollView);
-                ListingPrefab tempListing = listing.GetComponent<ListingPrefab>();
-                tempListing.playerNameText.text = f.TitleDisplayName;
+                var tempListing = listing.GetComponent<ListingPrefab>();
+                tempListing.playerNameText.text = f.Username;
+                
+                var currentTime = DateTime.UtcNow;
+                var breakDuration = TimeSpan.FromMinutes(5);
+                tempListing.SetPlayerStatus(!(currentTime - f.Profile.LastLogin > breakDuration));
             }
         }
         _myFriends = friendsCache;
-    }
-    
-    public void RunWaitFunction()
-    {
-        StartCoroutine(WaitForFriend());
-    }
-    
-    private IEnumerator WaitForFriend()
-    {
-        yield return new WaitForSeconds(2);
-        GetFriends();
     }
     
     public void InputFriendID(string id)
@@ -98,11 +93,24 @@ public class PlayFabController : MonoBehaviour
     
     public void SubmitFriendRequest()
     {
-        AddFriend(FriendIdType.PlayFabId, _friendSearch);
+        AddFriend(FriendIdType.Username, _friendSearch);
     }
 
     public void OpenCloseFriends()
     {
-        _friendPanel.SetActive(!_friendPanel.activeInHierarchy);
+        friendPanel.SetActive(!friendPanel.activeInHierarchy);
+    }
+
+    private void DisplayPlayFabError(PlayFabError error)
+    {
+        AddFriendMessage(false, error.GenerateErrorReport());
+    }
+    
+    private void AddFriendMessage(bool success, string message = "")
+    {
+        if (success)
+            _networkManager.ShowMessage(Constants.MessageTypes.Success, "Successfully added new friend", 5);
+        else
+            _networkManager.ShowMessage(Constants.MessageTypes.Error, message, 5);
     }
 }

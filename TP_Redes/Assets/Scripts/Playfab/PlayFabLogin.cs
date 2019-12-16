@@ -1,6 +1,9 @@
-﻿using PlayFab;
+﻿using System.Linq;
+using PlayFab;
 using PlayFab.ClientModels;
 using UnityEngine;
+using UnityEngine.EventSystems;
+using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
 public class PlayFabLogin : MonoBehaviour
@@ -13,10 +16,12 @@ public class PlayFabLogin : MonoBehaviour
 
     private bool _host;
     private NetworkManager _networkManager;
+    private Text[] _texts;
     
     public void Start()
     {
         _networkManager = FindObjectOfType<NetworkManager>();
+        _texts = new[] { userName, userEmail, userPassword };
         
         if (string.IsNullOrEmpty(PlayFabSettings.TitleId))
             PlayFabSettings.TitleId = "5824A"; 
@@ -25,12 +30,18 @@ public class PlayFabLogin : MonoBehaviour
         userPassword.text = PlayerPrefs.GetString("PASSWORD");
     }
 
+    private void Update()
+    {
+        if (Input.GetKeyDown(KeyCode.Tab) && SceneManager.GetActiveScene().name.Equals("IntroMenu"))
+            SwitchSelection();
+    }
+
     private void OnLoginSuccess(LoginResult result)
     {
         PlayerPrefs.SetString("EMAIL", userEmail.text);
         PlayerPrefs.SetString("PASSWORD", userPassword.text);
         
-        _networkManager.ConnectToServerButton(_host);
+        _networkManager.ConnectToServerButton(userName.text, _host);
     } 
     
     private void OnRegisterSuccess(RegisterPlayFabUserResult result)
@@ -38,7 +49,7 @@ public class PlayFabLogin : MonoBehaviour
         PlayerPrefs.SetString("EMAIL", userEmail.text);
         PlayerPrefs.SetString("PASSWORD", userPassword.text);
         
-        _networkManager.ConnectToServerButton(_host);
+        _networkManager.ConnectToServerButton(userName.text, _host);
     }
     
     private void OnRegisterFailure(PlayFabError error)
@@ -69,7 +80,7 @@ public class PlayFabLogin : MonoBehaviour
         }
         else if (_host)
         {
-            _networkManager.ConnectToServerButton(_host);
+            _networkManager.ConnectToServerButton("[SERVER]", _host);
         }
     }
 
@@ -77,5 +88,28 @@ public class PlayFabLogin : MonoBehaviour
     {
         isConnecting = !isConnecting;
         _networkManager.connectingText.gameObject.SetActive(isConnecting);
+    }
+    
+    private void SwitchSelection()
+    {
+        for (var i = 0; i < _texts.Length; i++)
+        {
+            if (_texts[i].transform.parent.GetComponent<InputField>().isFocused)
+            {
+                if (_texts.ElementAtOrDefault(i + 1) != null)
+                {
+                    EventSystem current;
+                    (current = EventSystem.current).SetSelectedGameObject(_texts[i + 1].transform.parent.GetComponent<InputField>().gameObject, null);
+                    _texts[i + 1].transform.parent.GetComponent<InputField>().OnPointerClick(new PointerEventData(current));
+                }
+                else
+                {
+                    EventSystem current;
+                    (current = EventSystem.current).SetSelectedGameObject(_texts[0].transform.parent.GetComponent<InputField>().gameObject, null);
+                    _texts[0].transform.parent.GetComponent<InputField>().OnPointerClick(new PointerEventData(current));
+                }
+                break;
+            }
+        }
     }
 }

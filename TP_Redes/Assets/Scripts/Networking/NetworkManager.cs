@@ -10,7 +10,6 @@ using UnityEngine.UI;
 
 public class NetworkManager : MonoBehaviourPunCallbacks
 {
-    public InputField playerNameInputfield;
     public GameObject messageObject;
     public GameObject startButtonObject;
     public GameObject readyButtonObject;
@@ -41,10 +40,10 @@ public class NetworkManager : MonoBehaviourPunCallbacks
         _playFabController = FindObjectOfType<PlayFabController>();
     }
 
-    public void ConnectToServerButton(bool host)
+    public void ConnectToServerButton(string nickname, bool host)
     {
         _host = host;
-        PhotonNetwork.LocalPlayer.NickName = playerNameInputfield.text;
+        PhotonNetwork.LocalPlayer.NickName = nickname;
         PhotonNetwork.ConnectUsingSettings();
     }
 
@@ -79,10 +78,7 @@ public class NetworkManager : MonoBehaviourPunCallbacks
             _view.RPC("OnConnection", RpcTarget.MasterClient, PhotonNetwork.LocalPlayer);
             readyButtonObject.SetActive(true);
             _playFabController.GetFriends();
-        }
-        else
-        {
-            PhotonNetwork.LocalPlayer.NickName = "[SERVER]";
+            _playFabController.OpenCloseFriends();
         }
 
         ActiveChat(true);
@@ -128,6 +124,7 @@ public class NetworkManager : MonoBehaviourPunCallbacks
     {
         PhotonNetwork.CurrentRoom.IsVisible = false;
         PhotonNetwork.CurrentRoom.IsOpen = false;
+        _playFabController.OpenCloseFriends();
         _view.RPC("ActiveChat", RpcTarget.AllBuffered, false);
         _view.RPC("LoadGameScene", RpcTarget.AllBuffered);
     }
@@ -160,6 +157,16 @@ public class NetworkManager : MonoBehaviourPunCallbacks
 
     public void ShowMessage(Constants.MessageTypes messageType, string message, int time)
     {
+        switch (messageType)
+        {
+            case Constants.MessageTypes.Success:
+                messageObject.GetComponentsInChildren<Image>()[1].sprite = Resources.Load<Sprite>("SuccessIcon");
+                break;
+            case Constants.MessageTypes.Error:
+                messageObject.GetComponentsInChildren<Image>()[1].sprite = Resources.Load<Sprite>("ErrorIcon");
+                break;
+        }
+        
         messageObject.SetActive(true);
         messageObject.GetComponentInChildren<Text>().text = message;
         StartCoroutine(HideMessage(time));
