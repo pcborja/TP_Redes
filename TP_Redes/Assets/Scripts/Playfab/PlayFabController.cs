@@ -15,6 +15,7 @@ public class PlayFabController : MonoBehaviour
     private List<FriendInfo> _myFriends;
     private string _friendSearch;
     private NetworkManager _networkManager;
+    private List<ListingPrefab> _instantiatedFriendsInfo = new List<ListingPrefab>();
     [SerializeField] private GameObject friendPanel;
 
     public void Start()
@@ -69,14 +70,14 @@ public class PlayFabController : MonoBehaviour
             var isFound = false;
             if (_myFriends != null)
             {
-                foreach (var g in _myFriends)
+                foreach (var g in _instantiatedFriendsInfo)
                 {
-                    if (f.FriendPlayFabId == g.FriendPlayFabId)
+                    if (f.Username == g.playerNameText.text)
                         isFound = true;
                 }
             }
             
-            if (isFound == false)
+            if (!isFound)
             {
                 var listing = Instantiate(listingPrefab, friendsScrollView);
                 var tempListing = listing.GetComponent<ListingPrefab>();
@@ -86,6 +87,8 @@ public class PlayFabController : MonoBehaviour
                 tempListing.playerNameText.text = f.Username;
                 tempListing.SetPlayerStatus(!(currentTime - f.Profile.LastLogin > breakDuration));
                 tempListing.removeButton.onClick.AddListener(() => RemoveFriend(f));
+                
+                _instantiatedFriendsInfo.Add(tempListing);
             }
         }
         _myFriends = friendsCache;
