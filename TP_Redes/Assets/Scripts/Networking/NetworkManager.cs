@@ -96,7 +96,7 @@ public class NetworkManager : MonoBehaviourPunCallbacks
         {
             _view.RPC("OnConnection", RpcTarget.MasterClient, PhotonNetwork.LocalPlayer);
             readyButtonObject.SetActive(true);
-            TryActivateFriendsPanel();
+            TryActivateFriendsPanel(true);
         }
 
         ActiveChat(true);
@@ -142,7 +142,7 @@ public class NetworkManager : MonoBehaviourPunCallbacks
     {
         PhotonNetwork.CurrentRoom.IsVisible = false;
         PhotonNetwork.CurrentRoom.IsOpen = false;
-        _view.RPC("ActivateFriendsPanel", RpcTarget.AllBuffered);
+        _view.RPC("ActivateFriendsPanel", RpcTarget.AllBuffered, false);
         _view.RPC("ActiveChat", RpcTarget.AllBuffered, false);
         _view.RPC("LoadGameScene", RpcTarget.AllBuffered);
     }
@@ -309,7 +309,6 @@ public class NetworkManager : MonoBehaviourPunCallbacks
         healPowerUpObjects = healPowerUps;
         speedPowerUpObjects = speedPowerUps;
         invulnerabilityPowerUpObjects = invulnerabilityPowerUps;
-        _playFabController.OpenCloseFriends();
         
         if (PhotonNetwork.IsMasterClient)
             CreateLevelManager();
@@ -404,7 +403,7 @@ public class NetworkManager : MonoBehaviourPunCallbacks
         
         StartCoroutine(FinishGameSceneLoaded(winner));
 
-        ActivateFriendsPanel();
+        ActivateFriendsPanel(true);
         ActiveChat(true);
     }
 
@@ -477,24 +476,26 @@ public class NetworkManager : MonoBehaviourPunCallbacks
             _playFabController.SubmitFriendRequest();
     }
 
-    private void TryActivateFriendsPanel()
+    private void TryActivateFriendsPanel(bool active)
     {
-        _view.RPC("RequestActivateFriendsPanel", PhotonNetwork.MasterClient, PhotonNetwork.LocalPlayer);
+        _view.RPC("RequestActivateFriendsPanel", PhotonNetwork.MasterClient, PhotonNetwork.LocalPlayer, active);
     }
     
     [PunRPC]
-    public void RequestActivateFriendsPanel(Player p)
+    public void RequestActivateFriendsPanel(Player p, bool active)
     {
-        _view.RPC("ActivateFriendsPanel", p);
+        _view.RPC("ActivateFriendsPanel", p, active);
     }
     
     [PunRPC]
-    private void ActivateFriendsPanel()
+    private void ActivateFriendsPanel(bool active)
     {
         if (!PhotonNetwork.IsMasterClient)
         {
-            _playFabController.OpenCloseFriends();
-            _playFabController.GetFriends();
+            _playFabController.OpenCloseFriends(active);
+            
+            if (active)
+                _playFabController.GetFriends();
         }
     }
 

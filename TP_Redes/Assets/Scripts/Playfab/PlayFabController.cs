@@ -112,14 +112,15 @@ public class PlayFabController : MonoBehaviour
         _networkManager.UpdateInputField(addFriendInput);
     }
 
-    public void OpenCloseFriends()
+    public void OpenCloseFriends(bool active)
     {
-        friendPanel.SetActive(!friendPanel.activeInHierarchy);
+        friendPanel.SetActive(active);
     }
 
     private void DisplayPlayFabError(PlayFabError error)
     {
-        GenerateResultMessage(false, "", error.GenerateErrorReport());
+        var messageWithoutPath = error.GenerateErrorReport().Substring(error.GenerateErrorReport().IndexOf(' '));
+        GenerateResultMessage(false, "", messageWithoutPath);
     }
     
     private void GenerateResultMessage(bool success, string successMessage, string message = "")

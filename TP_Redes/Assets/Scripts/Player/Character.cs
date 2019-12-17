@@ -135,8 +135,8 @@ public class Character : MonoBehaviourPun
     private IEnumerator Dead()
     {
         yield return new WaitForSeconds(1);
-        LevelManager.Instance.PlayerDead(owner);
         gameObject.SetActive(false);
+        LevelManager.Instance.PlayerDead(owner);
     }
 
     public void LifeChange(float amount)
