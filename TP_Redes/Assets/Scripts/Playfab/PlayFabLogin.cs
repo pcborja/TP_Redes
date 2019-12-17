@@ -34,6 +34,8 @@ public class PlayFabLogin : MonoBehaviour
     {
         if (Input.GetKeyDown(KeyCode.Tab) && SceneManager.GetActiveScene().name.Equals("IntroMenu"))
             SwitchSelection();
+        if (Input.GetKeyDown(KeyCode.Return) && SceneManager.GetActiveScene().name.Equals("IntroMenu"))
+            OnStartLogin(false);
     }
 
     private void OnLoginSuccess(LoginResult result)

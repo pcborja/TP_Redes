@@ -13,6 +13,7 @@ public class PowerUp : MonoBehaviourPun
     public float speedValue;
     
     private PhotonView _view;
+    private bool _used;
 
     private void Awake()
     {
@@ -27,8 +28,10 @@ public class PowerUp : MonoBehaviourPun
 
     private void OnTriggerEnter(Collider other)
     {
-        if (other.gameObject.GetComponent<Character>())
+        if (other.gameObject.GetComponent<Character>() && !_used)
         {
+            _used = true;
+        
             if (healPowerUp)
                 LevelManager.Instance.HealPowerUp(other.gameObject.GetComponent<Character>(), healAmount);
             else if (speedPowerUp)
@@ -36,7 +39,7 @@ public class PowerUp : MonoBehaviourPun
             else if (invulnerabilityPowerUp)
                 LevelManager.Instance.InvulnerabilityPowerUp(other.gameObject.GetComponent<Character>(), invulnerabilityTime);
             
-            DestroyImmediate(gameObject);
+            Destroy(gameObject);
         }            
     }
 }

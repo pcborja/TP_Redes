@@ -55,7 +55,11 @@ public class PlayFabController : MonoBehaviour
             default:
                 throw new ArgumentOutOfRangeException(nameof(idType), idType, null);
         }
-        PlayFabClientAPI.AddFriend(request, result => { GenerateResultMessage(true, "Successfully added new friend"); }, DisplayPlayFabError);
+        PlayFabClientAPI.AddFriend(request, result => 
+        { 
+            GenerateResultMessage(true, "Successfully added new friend");
+            GetFriends();
+        }, DisplayPlayFabError);
     }
     
     public void DisplayFriends(List<FriendInfo> friendsCache)
@@ -122,6 +126,7 @@ public class PlayFabController : MonoBehaviour
             result =>
             {
                 _myFriends.Remove(friendInfo); 
+                GetFriends();
                 GenerateResultMessage(true, "Successfully removed friend");
             }, 
             DisplayPlayFabError);

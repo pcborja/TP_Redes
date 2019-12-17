@@ -6,4 +6,5 @@ public class PlayerMenuData : MonoBehaviour
     public bool isReady;
     public GameObject readyObj;
     public GameObject colorImg;
+    public GameObject currentPlayerImg;
 }

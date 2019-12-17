@@ -185,13 +185,19 @@ public class NetworkManager : MonoBehaviourPunCallbacks
         if (PhotonNetwork.LocalPlayer.IsMasterClient)
         {
             _view.RPC("DisconnectAll", RpcTarget.OthersBuffered);
-            customAction?.Invoke();
+            StartCoroutine(DisconnectAction(customAction));
         }
         else
         {
             _view.RPC("NotifyDisconnection", RpcTarget.MasterClient, PhotonNetwork.LocalPlayer);
-            customAction?.Invoke();
+            StartCoroutine(DisconnectAction(customAction));
         }
+    }
+
+    private IEnumerator DisconnectAction(Action customAction)
+    {
+        yield return new WaitForSeconds(1);
+        customAction?.Invoke();
     }
 
     [PunRPC]
@@ -247,7 +253,13 @@ public class NetworkManager : MonoBehaviourPunCallbacks
     private void ActivePlayerMenuObject(int index, bool active, Player p)
     {
         if (Equals(PhotonNetwork.LocalPlayer, p))
+        {
             _localPlayerData = playersObjects[index].GetComponent<PlayerMenuData>();
+            _localPlayerData.currentPlayerImg.SetActive(active);
+            
+            var imageColor = _localPlayerData.colorImg.GetComponent<Image>().color;
+            _localPlayerData.currentPlayerImg.GetComponent<Image>().color = new Color(imageColor.r, imageColor.g, imageColor.b, 141);
+        }
         
         playersObjects[index].SetActive(active);
         playersObjects[index].GetComponent<PlayerMenuData>().isTaken = active;
@@ -375,7 +387,10 @@ public class NetworkManager : MonoBehaviourPunCallbacks
         PhotonNetwork.LoadLevel(Constants.FINISH_GAME_SCENE);
         
         StartCoroutine(FinishGameSceneLoaded(winner));
-        _playFabController.OpenCloseFriends();
+        
+        if (!p.IsMasterClient)
+            _playFabController.OpenCloseFriends();
+        
         ActiveChat(true);
     }
 
