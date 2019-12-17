@@ -5,12 +5,14 @@ using System.Linq;
 using PlayFab;
 using PlayFab.ClientModels;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class PlayFabController : MonoBehaviour
 {
     public Transform friendsScrollView;
     public enum FriendIdType { PlayFabId, Username, Email, DisplayName }
     public GameObject listingPrefab;
+    public InputField addFriendInput;
     
     private List<FriendInfo> _myFriends;
     private string _friendSearch;
@@ -83,9 +85,13 @@ public class PlayFabController : MonoBehaviour
                 var tempListing = listing.GetComponent<ListingPrefab>();
                 var currentTime = DateTime.UtcNow;
                 var breakDuration = TimeSpan.FromMinutes(5);
-                
+
+                tempListing.friendId = f.FriendPlayFabId;
                 tempListing.playerNameText.text = f.Username;
-                tempListing.SetPlayerStatus(!(currentTime - f.Profile.LastLogin > breakDuration));
+                
+                if (f.Profile != null)
+                    tempListing.SetPlayerStatus(!(currentTime - f.Profile.LastLogin > breakDuration));
+                
                 tempListing.removeButton.onClick.AddListener(() => RemoveFriend(f));
                 
                 _instantiatedFriendsInfo.Add(tempListing);
@@ -102,6 +108,7 @@ public class PlayFabController : MonoBehaviour
     public void SubmitFriendRequest()
     {
         AddFriend(FriendIdType.Username, _friendSearch);
+        _networkManager.UpdateInputField(addFriendInput);
     }
 
     public void OpenCloseFriends()
@@ -128,10 +135,22 @@ public class PlayFabController : MonoBehaviour
         { FriendPlayFabId = friendInfo.FriendPlayFabId },
             result =>
             {
-                _myFriends.Remove(friendInfo); 
+                ClearFriend(friendInfo);
                 GetFriends();
                 GenerateResultMessage(true, "Successfully removed friend");
             }, 
             DisplayPlayFabError);
+    }
+
+    private void ClearFriend(FriendInfo friendInfo)
+    {
+        _myFriends.Remove(friendInfo);
+        var friendToRemove = _instantiatedFriendsInfo.FirstOrDefault(x => x.friendId == friendInfo.FriendPlayFabId);
+
+        if (friendToRemove != default)
+        {
+            _instantiatedFriendsInfo.Remove(friendToRemove);
+            Destroy(friendToRemove.gameObject);
+        }
     }
 }

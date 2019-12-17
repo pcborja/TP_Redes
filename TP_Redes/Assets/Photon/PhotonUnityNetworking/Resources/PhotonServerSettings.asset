@@ -32,6 +32,7 @@ MonoBehaviour:
   - ActiveChat
   - ActivePlayerMenuObject
   - AddPlayer
+  - CheckActions
   - ClickRpc
   - DestroyRpc
   - DestroySpaceship
@@ -43,11 +44,10 @@ MonoBehaviour:
   - NotifyDisconnection
   - OnConnection
   - OnDisconnectPlayer
+  - OnInvulnerability
   - OnLifeChange
   - PlayerReadyVisuals
   - RemoveCharacter
-  - RequestMove
-  - RequestRotation
   - RespawnSpaceship
   - SendChatMessage
   - ServerDestroy
@@ -55,10 +55,6 @@ MonoBehaviour:
   - SetMyCamera
   - SetPlayerIsReady
   - SetReference
-  - Shoot
   - UpdatePlayersChat
-  - CheckActions
-  - Move
-  - OnInvulnerability
   DisableAutoOpenWizard: 1
   ShowSettings: 1

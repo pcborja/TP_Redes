@@ -52,18 +52,8 @@ public class LocalSceneManger : MonoBehaviour
         if (Input.GetKeyDown(KeyCode.Return) && _networkManager.chatObject.activeInHierarchy)
         {
             _networkManager.RequestSendMessage(PhotonNetwork.LocalPlayer, _inputField.text);
-
-            UpdateChatText();
+            _networkManager.UpdateInputField(_inputField);
         }
-    }
-
-    private void UpdateChatText()
-    {
-        _inputField.text = "";
-
-        EventSystem current;
-        (current = EventSystem.current).SetSelectedGameObject(_inputField.gameObject, null);
-        _inputField.OnPointerClick(new PointerEventData(current));
     }
 
     public void NetExitGame()

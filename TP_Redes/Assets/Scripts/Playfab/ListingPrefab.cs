@@ -3,6 +3,7 @@ using UnityEngine.UI;
 
 public class ListingPrefab : MonoBehaviour
 {
+    public string friendId;
     public Text playerNameText;
     public Image playerStatus;
     public Button removeButton;

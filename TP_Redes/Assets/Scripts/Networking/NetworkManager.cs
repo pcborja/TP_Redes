@@ -5,6 +5,7 @@ using System.Linq;
 using Photon.Pun;
 using Photon.Realtime;
 using UnityEngine;
+using UnityEngine.EventSystems;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
@@ -434,6 +435,15 @@ public class NetworkManager : MonoBehaviourPunCallbacks
         newMessage.textObject.text = newMessage.text;
         
         _messagesList.Add(newMessage);
+    }
+    
+    public void UpdateInputField(InputField inputField)
+    {
+        inputField.text = "";
+
+        EventSystem current;
+        (current = EventSystem.current).SetSelectedGameObject(inputField.gameObject, null);
+        inputField.OnPointerClick(new PointerEventData(current));
     }
 }
 
