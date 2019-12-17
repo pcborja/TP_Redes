@@ -36,12 +36,27 @@ public class NetworkManager : MonoBehaviourPunCallbacks
     private PlayFabController _playFabController;
     private bool _host;
     private List<Message> _messagesList = new List<Message>();
+    private float _timer;
     
     private void Awake()
     {
         DontDestroyOnLoad(gameObject);
         _view = GetComponent<PhotonView>();
         _playFabController = FindObjectOfType<PlayFabController>();
+    }
+
+    private void Update()
+    {
+        if (PhotonNetwork.IsConnected && PhotonNetwork.IsMasterClient)
+        {
+            _timer += Time.deltaTime;
+
+            if (_timer >= 300)
+            {
+                _timer = 0;
+                _view.RPC("RefreshFriendsPanel", RpcTarget.AllBuffered);
+            }
+        }
     }
 
     public void ConnectToServerButton(string nickname, bool host)
@@ -81,8 +96,7 @@ public class NetworkManager : MonoBehaviourPunCallbacks
         {
             _view.RPC("OnConnection", RpcTarget.MasterClient, PhotonNetwork.LocalPlayer);
             readyButtonObject.SetActive(true);
-            _playFabController.GetFriends();
-            _playFabController.OpenCloseFriends();
+            TryActivateFriendsPanel();
         }
 
         ActiveChat(true);
@@ -128,7 +142,7 @@ public class NetworkManager : MonoBehaviourPunCallbacks
     {
         PhotonNetwork.CurrentRoom.IsVisible = false;
         PhotonNetwork.CurrentRoom.IsOpen = false;
-        _playFabController.OpenCloseFriends();
+        _view.RPC("ActivateFriendsPanel", RpcTarget.AllBuffered);
         _view.RPC("ActiveChat", RpcTarget.AllBuffered, false);
         _view.RPC("LoadGameScene", RpcTarget.AllBuffered);
     }
@@ -231,6 +245,7 @@ public class NetworkManager : MonoBehaviourPunCallbacks
     private void NotifyDisconnection(Player p)
     {
         _view.RPC("ActivePlayerMenuObject", RpcTarget.AllBuffered, Array.IndexOf(_playersData.Keys.ToArray(), p), false, p);
+        _chatController.SendDisconnectionMessage(p);
         _playersData.Remove(p);
     }
 
@@ -388,10 +403,8 @@ public class NetworkManager : MonoBehaviourPunCallbacks
         PhotonNetwork.LoadLevel(Constants.FINISH_GAME_SCENE);
         
         StartCoroutine(FinishGameSceneLoaded(winner));
-        
-        if (!p.IsMasterClient)
-            _playFabController.OpenCloseFriends();
-        
+
+        ActivateFriendsPanel();
         ActiveChat(true);
     }
 
@@ -444,6 +457,52 @@ public class NetworkManager : MonoBehaviourPunCallbacks
         EventSystem current;
         (current = EventSystem.current).SetSelectedGameObject(inputField.gameObject, null);
         inputField.OnPointerClick(new PointerEventData(current));
+    }
+
+    public void TryAddFriend()
+    {
+        _view.RPC("RequestAddFriend", PhotonNetwork.MasterClient, PhotonNetwork.LocalPlayer);
+    }
+    
+    [PunRPC]
+    public void RequestAddFriend(Player p)
+    {
+        _view.RPC("AddFriend", p);
+    }
+    
+    [PunRPC]
+    public void AddFriend()
+    {
+        if (!PhotonNetwork.IsMasterClient)
+            _playFabController.SubmitFriendRequest();
+    }
+
+    private void TryActivateFriendsPanel()
+    {
+        _view.RPC("RequestActivateFriendsPanel", PhotonNetwork.MasterClient, PhotonNetwork.LocalPlayer);
+    }
+    
+    [PunRPC]
+    public void RequestActivateFriendsPanel(Player p)
+    {
+        _view.RPC("ActivateFriendsPanel", p);
+    }
+    
+    [PunRPC]
+    private void ActivateFriendsPanel()
+    {
+        if (!PhotonNetwork.IsMasterClient)
+        {
+            _playFabController.OpenCloseFriends();
+            _playFabController.GetFriends();
+        }
+    }
+
+    [PunRPC]
+    private void RefreshFriendsPanel()
+    {
+        if (!PhotonNetwork.IsMasterClient)
+            _playFabController.GetFriends();
     }
 }
 

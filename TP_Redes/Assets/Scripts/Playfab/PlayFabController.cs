@@ -30,7 +30,8 @@ public class PlayFabController : MonoBehaviour
         PlayFabClientAPI.GetFriendsList(new GetFriendsListRequest
         {
             IncludeSteamFriends = false,
-            IncludeFacebookFriends = false
+            IncludeFacebookFriends = false,
+            ProfileConstraints = new PlayerProfileViewConstraints {ShowStatistics = true, ShowLastLogin = true}
         }, result =>
         {
             _myFriends = result.Friends;
@@ -69,17 +70,17 @@ public class PlayFabController : MonoBehaviour
     {
         foreach (var f in friendsCache)
         {
-            var isFound = false;
+            var found = false;
             if (_myFriends != null)
             {
                 foreach (var g in _instantiatedFriendsInfo)
                 {
                     if (f.Username == g.playerNameText.text)
-                        isFound = true;
+                        found = true;
                 }
             }
             
-            if (!isFound)
+            if (!found)
             {
                 var listing = Instantiate(listingPrefab, friendsScrollView);
                 var tempListing = listing.GetComponent<ListingPrefab>();
@@ -131,8 +132,10 @@ public class PlayFabController : MonoBehaviour
 
     private void RemoveFriend(FriendInfo friendInfo) 
     {
-        PlayFabClientAPI.RemoveFriend(new RemoveFriendRequest 
-        { FriendPlayFabId = friendInfo.FriendPlayFabId },
+        PlayFabClientAPI.RemoveFriend(new RemoveFriendRequest
+            {
+                FriendPlayFabId = friendInfo.FriendPlayFabId
+            },
             result =>
             {
                 ClearFriend(friendInfo);
@@ -152,5 +155,10 @@ public class PlayFabController : MonoBehaviour
             _instantiatedFriendsInfo.Remove(friendToRemove);
             Destroy(friendToRemove.gameObject);
         }
+    }
+
+    public bool FriendPanelActive()
+    {
+        return friendPanel.activeInHierarchy;
     }
 }

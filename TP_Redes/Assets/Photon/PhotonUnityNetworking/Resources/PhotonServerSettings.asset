@@ -29,8 +29,10 @@ MonoBehaviour:
   RunInBackground: 1
   StartInOfflineMode: 0
   RpcList:
+  - ActivateFriendsPanel
   - ActiveChat
   - ActivePlayerMenuObject
+  - AddFriend
   - AddPlayer
   - CheckActions
   - ClickRpc
@@ -47,7 +49,10 @@ MonoBehaviour:
   - OnInvulnerability
   - OnLifeChange
   - PlayerReadyVisuals
+  - RefreshFriendsPanel
   - RemoveCharacter
+  - RequestActivateFriendsPanel
+  - RequestAddFriend
   - RespawnSpaceship
   - SendChatMessage
   - ServerDestroy

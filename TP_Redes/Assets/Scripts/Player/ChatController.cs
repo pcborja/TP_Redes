@@ -44,6 +44,11 @@ public class ChatController : MonoBehaviourPun, IChatClientListener
         _chatClient.PublishMessage("channelA", p.NickName + " has joined the game.");
     }
 
+    public void SendDisconnectionMessage(Player p)
+    {
+        _chatClient.PublishMessage("channelA", p.NickName + " has left the game.");
+    }
+
     public void SendPublicMessage(Player p, string text)
     {
         var userColor = "<color=" + _networkManager.GetPlayerColor(p) + ">" + p.NickName + "</color>";
