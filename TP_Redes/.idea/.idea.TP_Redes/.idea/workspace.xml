@@ -1,20 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="35ef4053-20b7-4ad0-9c98-69a90a7dc8f5" name="Default Changelist" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/.idea.TP_Redes/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.TP_Redes/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Photon/PhotonUnityNetworking/Resources.meta" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Photon/PhotonUnityNetworking/Resources.meta" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Photon/PhotonUnityNetworking/Resources/PhotonServerSettings.asset" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Photon/PhotonUnityNetworking/Resources/PhotonServerSettings.asset" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Photon/PhotonUnityNetworking/Resources/PhotonServerSettings.asset.meta" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Photon/PhotonUnityNetworking/Resources/PhotonServerSettings.asset.meta" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Resources/ChatController.prefab" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Resources/ChatController.prefab" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Resources/prefabListing.prefab" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Resources/prefabListing.prefab" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Scenes/IntroMenu.unity" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scenes/IntroMenu.unity" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Scripts/Level/LocalSceneManger.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scripts/Level/LocalSceneManger.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Scripts/Networking/NetworkManager.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scripts/Networking/NetworkManager.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Scripts/Playfab/ListingPrefab.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scripts/Playfab/ListingPrefab.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Scripts/Playfab/PlayFabController.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scripts/Playfab/PlayFabController.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Logs/Packages-Update.log" beforeDir="false" afterPath="$PROJECT_DIR$/Logs/Packages-Update.log" afterDir="false" />
-    </list>
+    <list default="true" id="35ef4053-20b7-4ad0-9c98-69a90a7dc8f5" name="Default Changelist" comment="" />
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -26,8 +13,8 @@
       <file pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/Assets/Scripts/Playfab/PlayFabController.cs">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="187">
-              <caret line="101" column="4" lean-forward="true" selection-start-line="101" selection-start-column="4" selection-end-line="101" selection-end-column="4" />
+            <state relative-caret-position="612">
+              <caret line="126" column="32" lean-forward="true" selection-start-line="126" selection-start-column="32" selection-end-line="126" selection-end-column="32" />
               <folding>
                 <marker date="1576581754451" expanded="false" signature="6:154" ph="..." />
                 <marker date="1576581754451" expanded="true" signature="224:4965" ph="{...}" />
@@ -559,6 +546,11 @@
       </file>
     </leaf>
   </component>
+  <component name="FindInProjectRecents">
+    <findStrings>
+      <find>message</find>
+    </findStrings>
+  </component>
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$/.." />
   </component>
@@ -655,12 +647,12 @@
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
       <updated>1576580506126</updated>
-      <workItem from="1576580511509" duration="1241000" />
+      <workItem from="1576580511509" duration="1307000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="1241000" />
+    <option name="totallyTimeSpent" value="1307000" />
   </component>
   <component name="TodoView">
     <todo-panel id="selected-file">
@@ -692,7 +684,7 @@
       <window_info anchor="bottom" id="Message" order="0" />
       <window_info anchor="bottom" id="Find" order="1" />
       <window_info anchor="bottom" id="Run" order="2" />
-      <window_info active="true" anchor="bottom" id="Debug" order="3" visible="true" weight="0.24003795" />
+      <window_info anchor="bottom" id="Debug" order="3" weight="0.24003795" />
       <window_info anchor="bottom" id="Cvs" order="4" weight="0.25" />
       <window_info anchor="bottom" id="Inspection" order="5" weight="0.4" />
       <window_info anchor="bottom" id="TODO" order="6" />
@@ -1207,8 +1199,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/Assets/Scripts/Playfab/PlayFabController.cs">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="187">
-          <caret line="101" column="4" lean-forward="true" selection-start-line="101" selection-start-column="4" selection-end-line="101" selection-end-column="4" />
+        <state relative-caret-position="612">
+          <caret line="126" column="32" lean-forward="true" selection-start-line="126" selection-start-column="32" selection-end-line="126" selection-end-column="32" />
           <folding>
             <marker date="1576581754451" expanded="false" signature="6:154" ph="..." />
             <marker date="1576581754451" expanded="true" signature="224:4965" ph="{...}" />
