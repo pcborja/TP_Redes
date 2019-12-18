@@ -247,6 +247,9 @@ public class NetworkManager : MonoBehaviourPunCallbacks
         _view.RPC("ActivePlayerMenuObject", RpcTarget.AllBuffered, Array.IndexOf(_playersData.Keys.ToArray(), p), false, p);
         _chatController.SendDisconnectionMessage(p);
         _playersData.Remove(p);
+
+        if (SceneManager.GetActiveScene().name == "GameLevel" && _playersData.Count == 0)
+            OnDisconnectPlayer();
     }
 
     [PunRPC]

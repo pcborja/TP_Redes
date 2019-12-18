@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using System.Numerics;
 using Photon.Pun;
 using Photon.Realtime;
@@ -34,6 +35,7 @@ public class Character : MonoBehaviourPun
     private float _invulnerabilityTime;
     private float _speedValue;
     private bool _invulnerabilityActive;
+    private Node[] _pathFindingNodes;
     
     private void Awake()
     {
@@ -45,6 +47,7 @@ public class Character : MonoBehaviourPun
     {
         _view = GetComponent<PhotonView>();
         _hp = maxHp;
+        _pathFindingNodes = FindObjectsOfType<Node>().ToArray();
     }
 
     private void Update()

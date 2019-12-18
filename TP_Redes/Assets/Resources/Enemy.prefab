@@ -183,15 +183,16 @@ MonoBehaviour:
   damage: 5
   hp: 30
   timeToAttack: 1
-  shootObject: {fileID: 0}
   currentTarget: {fileID: 0}
-  bulletPrefab: {fileID: 7070746876623456565, guid: 8d34ace36fdd40f488932a5f45ce3678,
-    type: 3}
   players: []
-  visionRange: 10
-  shootEnemy: 0
-  meleeEnemy: 1
-  speed: 5
+  range: 12
+  angle: 90
+  waitTime: 3
+  speed: 3
+  attackRange: 2
+  speedIncrementer: 1
+  maxPatrolActions: 5
+  patrolNodes: []
 --- !u!1 &71805533971149176
 GameObject:
   m_ObjectHideFlags: 0
