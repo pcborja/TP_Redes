@@ -102,10 +102,7 @@ public class LevelManager : MonoBehaviourPun
     public void DisconnectRPC(Player p)
     {
         if (players.ContainsKey(p))
-        {
-            PhotonNetwork.Destroy(players[p].gameObject);
-            players.Remove(p);
-        }
+            StartCoroutine(players[p].Dead());
         
         _networkManager.DisconnectPlayer(p);
     }

@@ -49,12 +49,6 @@ public class Bullet : MonoBehaviourPun
     
     private void Destroy()
     {
-        _view.RPC("ServerDestroy", RpcTarget.MasterClient);
-    }
-
-    [PunRPC]
-    private void ServerDestroy()
-    {
         PhotonNetwork.Destroy(gameObject);
     }
 }

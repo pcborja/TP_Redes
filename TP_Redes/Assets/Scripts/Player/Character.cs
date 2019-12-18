@@ -7,6 +7,7 @@ using Photon.Pun;
 using Photon.Realtime;
 using UnityEngine;
 using UnityEngine.UI;
+using Quaternion = UnityEngine.Quaternion;
 using Vector3 = UnityEngine.Vector3;
 
 public class Character : MonoBehaviourPun
@@ -19,10 +20,11 @@ public class Character : MonoBehaviourPun
     public float damage;
     public bool isShooting;
     public float shootTimer;
-    public Vector3 positionToMove;
     public Text hpText;
     public float maxHp;
     public Player owner;
+    public float range;
+    public float angle;
     
     [HideInInspector] public bool isDead;
     
@@ -35,7 +37,10 @@ public class Character : MonoBehaviourPun
     private float _invulnerabilityTime;
     private float _speedValue;
     private bool _invulnerabilityActive;
+    private List<Transform> _nodePath;
     private Node[] _pathFindingNodes;
+    private int _currentWp;
+    private GameObject _posToMove;
     
     private void Awake()
     {
@@ -48,6 +53,7 @@ public class Character : MonoBehaviourPun
         _view = GetComponent<PhotonView>();
         _hp = maxHp;
         _pathFindingNodes = FindObjectsOfType<Node>().ToArray();
+        _posToMove = new GameObject();
     }
 
     private void Update()
@@ -55,6 +61,7 @@ public class Character : MonoBehaviourPun
         if (!_view.IsMine) return;
         
         Timers();
+        TryToMove();
         
         if (!isDead && _hp <= 0)
         {
@@ -67,38 +74,52 @@ public class Character : MonoBehaviourPun
         }
     }
 
-    private void FixedUpdate()
-    {
-        if (!_view.IsMine)
-            return;
-
-        TryToMove(positionToMove);
-    }
-
-    private void TryToMove(Vector3 posToMove)
+    private void TryToMove()
     {
         if (canMove)
-            Move(posToMove);
-
-        if (Vector3.Distance(transform.position, posToMove) < 0.1f)
-            SetCanMove(false, Vector3.zero);
+            Move();
 
         SetIsMoving(Math.Abs(rb.velocity.magnitude) > 0.01f);
     }
 
-    public void Move(Vector3 position)
+    private void Move()
     {
-       if (isShooting) return;
-            Arrive.D_Arrive(gameObject, position, rb, speed, 0.5f);
+       if (Vector3.Distance(transform.position, _posToMove.transform.position) < 0.3f || !canMove)
+            SetCanMove(false, Vector3.zero);
+            
+       if (TargetSpoted())
+           Arrive.D_Arrive(gameObject, _posToMove.transform.position, rb, speed, 0.2f);
+       else
+       {
+           if (isShooting || _nodePath.ElementAtOrDefault(_currentWp) == null)
+               return;
+           
+           var distance = _nodePath[_currentWp].position - transform.position;
+
+           if (distance.magnitude > speed * Time.deltaTime)
+           {
+               Arrive.D_Arrive(gameObject, _nodePath[_currentWp].position, rb, speed, 0.2f);
+               transform.forward = Vector3.Lerp(transform.forward, distance.normalized, 0.5f);
+           }
+           else
+           {
+               transform.position = _nodePath[_currentWp].position;
+           }
+       }
     }
     
     public void SetCanMove(bool v, Vector3 posToMove)
     {
         if (!_view.IsMine)
             return;
-
-        positionToMove = posToMove;
+        
         canMove = v;
+        
+        if (v)
+        {
+            CalculePath(posToMove);
+            _posToMove.transform.position = posToMove;
+        }
     }
 
     public void Shoot(Vector3 position)
@@ -135,7 +156,7 @@ public class Character : MonoBehaviourPun
         SetIsShooting(false);
     }
 
-    private IEnumerator Dead()
+    public IEnumerator Dead()
     {
         yield return new WaitForSeconds(1);
         gameObject.SetActive(false);
@@ -233,5 +254,57 @@ public class Character : MonoBehaviourPun
 
         if (active)
             _invulnerabilityTime = time;
+    }
+
+    private void CalculePath(Vector3 position)
+    {
+        _currentWp = 0;
+        _nodePath = new List<Transform>();
+            
+        var currentNode = GetClosestNodeTo(gameObject.transform.position);
+        var finalNode = GetClosestNodeTo(position);
+        
+        var nodes = AStar.AStarNodes(currentNode,finalNode, Heuristic);
+
+        foreach (var node in nodes)
+        {
+            _nodePath.Add(node.transform); 
+        }
+        Debug.Log("Path Calculed: " + _nodePath.Count);
+    }
+    
+    private float Heuristic(Node a, Node b)
+    {
+        return Vector3.Distance(a.transform.position, b.transform.position);
+    }
+    
+    private Node GetClosestNodeTo(Vector3 position)
+    {
+        var closestNode = _pathFindingNodes[0];
+        foreach (var node in _pathFindingNodes)
+        {
+            if (Vector3.Distance(closestNode.transform.position, position) >
+                Vector3.Distance(node.transform.position, position))
+                closestNode = node;
+        }
+
+        return closestNode;
+    }
+    
+    private bool TargetSpoted()
+    {
+        return BasicBehaviours.TargetIsInSight(gameObject.transform, _posToMove.transform, range, angle);
+    }
+    
+    private void OnDrawGizmos()
+    {
+        var position = transform.position;
+
+        Gizmos.color = Color.white;
+        Gizmos.DrawWireSphere(position, range);
+
+        Gizmos.color = Color.yellow;
+        Gizmos.DrawLine(position, position + Quaternion.Euler(0, angle / 2, 0) * transform.forward * range);
+        Gizmos.DrawLine(position, position + Quaternion.Euler(0, -angle / 2, 0) * transform.forward * range);
     }
 }

@@ -89,12 +89,15 @@ public class Enemy : MonoBehaviourPun
 
     private void Update()
     {
-        if (players.Length > 0)
-            CheckForPlayers();
-        
-        fsm.Update();
-        
-        CheckVitals();
+        if (PhotonNetwork.IsMasterClient)
+        {
+            if (players.Length > 0)
+                CheckForPlayers();
+            
+            fsm.Update();
+            
+            CheckVitals();
+        }
     }
 
     private void EnterPatrol()
@@ -116,6 +119,7 @@ public class Enemy : MonoBehaviourPun
     private void EnterWait()
     {
         _waitTimer = 0;
+        _anim.SetBool("IsMoving", false);
     }
     
     private void Wait()
@@ -203,6 +207,7 @@ public class Enemy : MonoBehaviourPun
                 currentTarget.gameObject.GetComponent<Character>().LifeChange(-damage);
         
         _isAttacking = false;
+        _anim.SetBool("IsAttacking", false);
         
         if (!PlayerSpoted())
             fsm.Feed(Input.Search);
@@ -266,6 +271,9 @@ public class Enemy : MonoBehaviourPun
     
     private void MoveBeetweenWaypoints(List<Transform> waypoints, bool searching = false, bool retreat = false)
     {
+        if (waypoints.ElementAtOrDefault(_currentWp) == null)
+            return;
+            
         var distance = waypoints[_currentWp].position - transform.position;
 
         if (distance.magnitude > speed * Time.deltaTime)
