@@ -186,7 +186,7 @@ MonoBehaviour:
   currentTarget: {fileID: 0}
   players: []
   range: 10
-  angle: 90
+  angle: 150
   waitTime: 3
   speed: 3
   attackRange: 2

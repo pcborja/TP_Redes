@@ -49,7 +49,7 @@ MonoBehaviour:
   characterObjects: []
   enemiesObjects: []
   healPowerUpObjects: []
-  speedPowerUpObjects: []
+  armorPowerUpObjects: []
   invulnerabilityPowerUpObjects: []
   winObject: {fileID: 0}
 --- !u!114 &932639183159466275

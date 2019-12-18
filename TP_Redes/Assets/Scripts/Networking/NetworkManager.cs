@@ -25,7 +25,7 @@ public class NetworkManager : MonoBehaviourPunCallbacks
     [HideInInspector] public GameObject[] playerPositions;
     [HideInInspector] public GameObject[] enemiesPositions;
     [HideInInspector] public GameObject[] healPowerUpObjects;
-    [HideInInspector] public GameObject[] speedPowerUpObjects;
+    [HideInInspector] public GameObject[] armorPowerUpObjects;
     [HideInInspector] public GameObject[] invulnerabilityPowerUpObjects;
     [HideInInspector] public GameObject winObject;
     
@@ -195,7 +195,7 @@ public class NetworkManager : MonoBehaviourPunCallbacks
         DisconnectBehaviour(OnDisconnectPlayer);
     }
 
-    private void DisconnectBehaviour(Action customAction = null)
+    public void DisconnectBehaviour(Action customAction = null)
     {
         if (PhotonNetwork.LocalPlayer.IsMasterClient)
         {
@@ -221,13 +221,7 @@ public class NetworkManager : MonoBehaviourPunCallbacks
         OnDisconnectPlayer();
     }
     
-    public void DisconnectPlayer(Player p)
-    {
-        _view.RPC("OnDisconnectPlayer", p);
-    }
-    
-    [PunRPC]
-    private void OnDisconnectPlayer()
+    public void OnDisconnectPlayer()
     {
         if (PhotonNetwork.InRoom)
             PhotonNetwork.LeaveRoom();
@@ -301,13 +295,13 @@ public class NetworkManager : MonoBehaviourPunCallbacks
     }
 
     public void GameStarted(GameObject[] playerPos, GameObject[] enemiesPos, GameObject winObjectPos, 
-        GameObject[] healPowerUps, GameObject[] speedPowerUps, GameObject[] invulnerabilityPowerUps)
+        GameObject[] healPowerUps, GameObject[] armorPowerUps, GameObject[] invulnerabilityPowerUps)
     {
         playerPositions = playerPos;
         enemiesPositions = enemiesPos;
         winObject = winObjectPos;
         healPowerUpObjects = healPowerUps;
-        speedPowerUpObjects = speedPowerUps;
+        armorPowerUpObjects = armorPowerUps;
         invulnerabilityPowerUpObjects = invulnerabilityPowerUps;
         
         if (PhotonNetwork.IsMasterClient)

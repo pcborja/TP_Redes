@@ -20,26 +20,28 @@ public class Character : MonoBehaviourPun
     public float damage;
     public bool isShooting;
     public float shootTimer;
-    public Text hpText;
     public float maxHp;
+    public float maxArmor;
     public Player owner;
     public float range;
     public float angle;
+    public Image healthBar;
+    public Image armorBar;
     
     [HideInInspector] public bool isDead;
     
     private float _hp;
+    private float _armor;
     private Animator _anim;
     private PhotonView _view;
     private float _speedTimer;
     private float _invulnerabilityTimer;
-    private float _speedTime;
     private float _invulnerabilityTime;
-    private float _speedValue;
     private bool _invulnerabilityActive;
     private List<Transform> _nodePath;
     private Node[] _pathFindingNodes;
     private int _currentWp;
+    private bool _alreadySpotted;
     private GameObject _posToMove;
     
     private void Awake()
@@ -54,42 +56,36 @@ public class Character : MonoBehaviourPun
         _hp = maxHp;
         _pathFindingNodes = FindObjectsOfType<Node>().ToArray();
         _posToMove = new GameObject();
+        _posToMove.AddComponent<SphereCollider>().isTrigger = true;
     }
 
     private void Update()
     {    
-        if (!_view.IsMine) return;
+        if (!_view.IsMine || isDead) return;
         
         Timers();
         TryToMove();
-        
-        if (!isDead && _hp <= 0)
-        {
-            isDead = true;
-            
-            if (_anim)
-                _anim.SetBool("IsDead", true);
-            
-            StartCoroutine(Dead());
-        }
     }
 
     private void TryToMove()
     {
         if (canMove)
             Move();
-
-        SetIsMoving(Math.Abs(rb.velocity.magnitude) > 0.01f);
     }
 
     private void Move()
     {
-       if (Vector3.Distance(transform.position, _posToMove.transform.position) < 0.3f || !canMove)
+       if (Vector3.Distance(transform.position, _posToMove.transform.position) < 1f || !canMove)
             SetCanMove(false, Vector3.zero);
-            
+
        if (TargetSpoted())
-           Arrive.D_Arrive(gameObject, _posToMove.transform.position, rb, speed, 0.2f);
-       else
+       {
+           _alreadySpotted = true;
+           var step = speed * Time.deltaTime;
+           transform.position = Vector3.MoveTowards(transform.position, _posToMove.transform.position, step);
+           transform.LookAt(_posToMove.transform);
+       }
+       else if (!_alreadySpotted)
        {
            if (isShooting || _nodePath.ElementAtOrDefault(_currentWp) == null)
                return;
@@ -98,20 +94,23 @@ public class Character : MonoBehaviourPun
 
            if (distance.magnitude > speed * Time.deltaTime)
            {
-               Arrive.D_Arrive(gameObject, _nodePath[_currentWp].position, rb, speed, 0.2f);
+               transform.position += distance.normalized * speed * Time.deltaTime;
                transform.forward = Vector3.Lerp(transform.forward, distance.normalized, 0.5f);
            }
            else
            {
                transform.position = _nodePath[_currentWp].position;
+               _currentWp++;
            }
        }
     }
     
     public void SetCanMove(bool v, Vector3 posToMove)
     {
-        if (!_view.IsMine)
+        if (!_view.IsMine || posToMove.y >= transform.position.y)
             return;
+        
+        SetIsMoving(v);
         
         canMove = v;
         
@@ -149,6 +148,7 @@ public class Character : MonoBehaviourPun
         var bullet = PhotonNetwork.Instantiate("Bullet", spawnPos, transform.rotation).GetComponent<Bullet>();
         
         bullet.shootBy = Bullet.ShootBy.Player;
+        bullet.owner = this;
         bullet.damage = damage;
         
         yield return new WaitForSeconds(1);
@@ -159,30 +159,82 @@ public class Character : MonoBehaviourPun
     public IEnumerator Dead()
     {
         yield return new WaitForSeconds(1);
-        gameObject.SetActive(false);
+        _view.RPC("TurnColliderOff", RpcTarget.AllBuffered);
         LevelManager.Instance.PlayerDead(owner);
     }
 
+    [PunRPC]
+    public void TurnColliderOff()
+    {
+        GetComponent<CapsuleCollider>().isTrigger = true;
+    }
+
+    public void TakeDamage(float amount)
+    {
+        ArmorChange(amount);
+    }
+    
+    public void ArmorChange(float amount)
+    {
+        if (amount < 0 && _invulnerabilityActive) return;
+        
+        _armor += amount;
+        
+        if (_armor >= maxArmor)
+            _armor = maxArmor;
+        else if (_armor < 0)
+        {
+            LifeChange(_armor);
+            _armor = 0;
+        }
+        
+        _view.RPC("SetArmorImage", owner, _armor);
+    }
+    
     public void LifeChange(float amount)
     {
         if (amount < 0 && _invulnerabilityActive) return;
         
         _hp += amount;
-        _view.RPC("OnLifeChange", owner, _hp);
+
+        if (_hp >= maxHp)
+            _hp = maxHp;
+
+        _view.RPC("SetLifeImage", owner, _hp);
+        
+        if (_hp <= 0)
+        {
+            isDead = true;
+            
+            if (_anim)
+                _anim.SetBool("IsDead", true);
+            
+            StartCoroutine(Dead());
+        }
     }
     
     [PunRPC] 
-    private void OnLifeChange(float hp)
+    private void SetArmorImage(float armor)
     {
-        if (hpText)
-            hpText.text = "HP: " + hp;
+        if (armorBar)
+            armorBar.fillAmount = armor / 100;
+    }
+    
+    [PunRPC] 
+    private void SetLifeImage(float hp)
+    {
+        if (healthBar)
+            healthBar.fillAmount = hp / 100;
     }
 
     [PunRPC]
     private void OnInvulnerability(bool active)
     {
-        if (hpText)
-            hpText.color = active ? Color.magenta : Color.green;
+        if (armorBar)
+            armorBar.color = active ? Color.magenta : Color.green;
+        
+        if (healthBar)
+            healthBar.color = active ? Color.magenta : Color.red;
     }
 
     private void InstantRotation(Vector3 position)
@@ -198,9 +250,6 @@ public class Character : MonoBehaviourPun
         shootTimer += Time.deltaTime;
         _speedTimer += Time.deltaTime;
         _invulnerabilityTimer += Time.deltaTime;
-        
-        if (_speedTimer >= _speedTime)
-            ChangeSpeed(false, -_speedValue);
         
         if (_invulnerabilityTimer >= _invulnerabilityTime)
             ChangeInvulnerability(false);
@@ -225,26 +274,24 @@ public class Character : MonoBehaviourPun
     public void SetOwner(Player p)
     {
         owner = p;
-        photonView.RPC("SetLocalSettings", owner);
+        photonView.RPC("SetLocalSettings", owner, _hp, _armor);
     }
     
     [PunRPC]
-    private void SetLocalSettings()
+    private void SetLocalSettings(float hp, float armor)
     {
-        hpText = FindObjectOfType<Text>();
-        hpText.text = "HP: " + maxHp;
-    }
-
-    public void ChangeSpeed(bool active, float value, float time = 0)
-    {
-        speed += value;
-
-        if (active)
-        {
-            _speedTimer = 0;
-            _speedTime = time;
-            _speedValue = value;
-        }
+        var canvas = FindObjectOfType<Canvas>();
+        healthBar = canvas.transform.Find("HealthBar").GetComponent<Image>();
+        armorBar = canvas.transform.Find("ArmorBar").GetComponent<Image>();
+        
+        canvas.transform.SetParent(transform);
+        canvas.transform.position = Vector3.zero;
+        
+        if (armorBar)
+            armorBar.fillAmount = armor / 100;
+        
+        if (healthBar)
+            healthBar.fillAmount = hp / 100;
     }
 
     public void ChangeInvulnerability(bool active, float time = 0)
@@ -259,6 +306,7 @@ public class Character : MonoBehaviourPun
     private void CalculePath(Vector3 position)
     {
         _currentWp = 0;
+        _alreadySpotted = false;
         _nodePath = new List<Transform>();
             
         var currentNode = GetClosestNodeTo(gameObject.transform.position);
@@ -270,7 +318,6 @@ public class Character : MonoBehaviourPun
         {
             _nodePath.Add(node.transform); 
         }
-        Debug.Log("Path Calculed: " + _nodePath.Count);
     }
     
     private float Heuristic(Node a, Node b)

@@ -107,12 +107,11 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   healPowerUp: 1
-  speedPowerUp: 0
+  armorPowerUp: 0
   invulnerabilityPowerUp: 0
   healAmount: 20
-  speedTime: 0
+  armorAmount: 0
   invulnerabilityTime: 0
-  speedValue: 0
 --- !u!114 &3872527994663211543
 MonoBehaviour:
   m_ObjectHideFlags: 0

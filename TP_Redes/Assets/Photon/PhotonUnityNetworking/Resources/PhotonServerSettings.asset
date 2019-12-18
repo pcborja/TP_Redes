@@ -39,15 +39,14 @@ MonoBehaviour:
   - DestroyRpc
   - DestroySpaceship
   - DisconnectAll
+  - DisconnectPlayer
   - DisconnectRPC
   - Fire
   - LoadFinishGame
   - LoadGameScene
   - NotifyDisconnection
   - OnConnection
-  - OnDisconnectPlayer
   - OnInvulnerability
-  - OnLifeChange
   - PlayerReadyVisuals
   - RefreshFriendsPanel
   - RemoveCharacter
@@ -55,10 +54,13 @@ MonoBehaviour:
   - RequestAddFriend
   - RespawnSpaceship
   - SendChatMessage
+  - SetArmorImage
+  - SetLifeImage
   - SetLocalSettings
   - SetMyCamera
   - SetPlayerIsReady
   - SetReference
+  - TurnColliderOff
   - UpdatePlayersChat
   DisableAutoOpenWizard: 1
   ShowSettings: 1

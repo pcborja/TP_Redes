@@ -2,22 +2,27 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using System.Numerics;
 using Photon.Pun;
 using Photon.Realtime;
 using UnityEngine;
+using Quaternion = UnityEngine.Quaternion;
+using Vector3 = UnityEngine.Vector3;
 
 public class LevelManager : MonoBehaviourPun
 {
     public GameObject[] characterObjects;
     public GameObject[] enemiesObjects;
     public GameObject[] healPowerUpObjects;
-    public GameObject[] speedPowerUpObjects;
+    public GameObject[] armorPowerUpObjects;
     public GameObject[] invulnerabilityPowerUpObjects;
     public GameObject winObject;
     public Dictionary<Player, Character> players = new Dictionary<Player, Character>();
     public static LevelManager Instance { get; private set; }
+    
     private NetworkManager _networkManager;
     private PhotonView _view;
+    private AudioSource _audioSource;
 
     private void Awake()
     {
@@ -25,6 +30,7 @@ public class LevelManager : MonoBehaviourPun
         if (!_view.IsMine) return;
         
         _networkManager = FindObjectOfType<NetworkManager>();
+        _audioSource = GetComponent<AudioSource>();
 
         GetObjectPositions();
         
@@ -42,7 +48,7 @@ public class LevelManager : MonoBehaviourPun
     private void StartPowerUps()
     {
         InstantiatePrefabs(healPowerUpObjects, "HealPowerUp");
-        InstantiatePrefabs(speedPowerUpObjects, "SpeedPowerUp");
+        InstantiatePrefabs(armorPowerUpObjects, "ArmorPowerUp");
         InstantiatePrefabs(invulnerabilityPowerUpObjects, "InvulnerabilityPowerUp");
     }
 
@@ -104,7 +110,13 @@ public class LevelManager : MonoBehaviourPun
         if (players.ContainsKey(p))
             StartCoroutine(players[p].Dead());
         
-        _networkManager.DisconnectPlayer(p);
+        _view.RPC("DisconnectPlayer", p);
+    }
+
+    [PunRPC]
+    private void DisconnectPlayer()
+    {
+        _networkManager.DisconnectBehaviour(_networkManager.OnDisconnectPlayer);
     }
 
     [PunRPC]
@@ -156,7 +168,7 @@ public class LevelManager : MonoBehaviourPun
         characterObjects = _networkManager.playerPositions;
         enemiesObjects = _networkManager.enemiesPositions;
         healPowerUpObjects = _networkManager.healPowerUpObjects;
-        speedPowerUpObjects = _networkManager.speedPowerUpObjects;
+        armorPowerUpObjects = _networkManager.armorPowerUpObjects;
         invulnerabilityPowerUpObjects = _networkManager.invulnerabilityPowerUpObjects;
         winObject = _networkManager.winObject;
     }
@@ -166,9 +178,9 @@ public class LevelManager : MonoBehaviourPun
         character.LifeChange(amount);
     }
     
-    public void SpeedPowerUp(Character character, float value, float time)
+    public void ArmorPowerUp(Character character, float amount)
     {
-        character.ChangeSpeed(true, value, time);
+        character.ArmorChange(amount);
     }
     
     public void InvulnerabilityPowerUp(Character character, float time)
@@ -182,5 +194,22 @@ public class LevelManager : MonoBehaviourPun
         {
             PhotonNetwork.Instantiate(prefabName, place.transform.position, Quaternion.identity);
         }
+    }
+
+    public void TryToPlaySound(string soundName, Player p)
+    {
+        _view.RPC("PlaySound", RpcTarget.MasterClient, soundName, p);
+    }
+
+    [PunRPC]
+    private void PlaySound(string soundName, Player p)
+    {
+        _view.RPC("PlaySoundAtLocation", RpcTarget.AllBuffered, soundName, players[p].transform.position);
+    }
+    
+    [PunRPC]
+    private void PlaySoundAtLocation(string soundName, Vector3 location)
+    {
+        AudioSource.PlayClipAtPoint(Resources.Load<AudioClip>(soundName), location);
     }
 }

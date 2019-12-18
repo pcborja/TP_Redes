@@ -4,13 +4,12 @@ using UnityEngine;
 public class PowerUp : MonoBehaviourPun
 {
     public bool healPowerUp;
-    public bool speedPowerUp;
+    public bool armorPowerUp;
     public bool invulnerabilityPowerUp;
 
     public float healAmount;
-    public float speedTime;
+    public float armorAmount;
     public float invulnerabilityTime;
-    public float speedValue;
     
     private PhotonView _view;
     private bool _used;
@@ -34,8 +33,8 @@ public class PowerUp : MonoBehaviourPun
         
             if (healPowerUp)
                 LevelManager.Instance.HealPowerUp(other.gameObject.GetComponent<Character>(), healAmount);
-            else if (speedPowerUp)
-                LevelManager.Instance.SpeedPowerUp(other.gameObject.GetComponent<Character>(), speedValue, speedTime);
+            else if (armorPowerUp)
+                LevelManager.Instance.ArmorPowerUp(other.gameObject.GetComponent<Character>(), armorAmount);
             else if (invulnerabilityPowerUp)
                 LevelManager.Instance.InvulnerabilityPowerUp(other.gameObject.GetComponent<Character>(), invulnerabilityTime);
             

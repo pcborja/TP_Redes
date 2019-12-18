@@ -9,7 +9,7 @@ public class LocalSceneManger : MonoBehaviour
     public GameObject[] playerPositions;
     public GameObject[] enemiesPositions;
     public GameObject[] healPowerUpObjects;
-    public GameObject[] speedPowerUpObjects;
+    public GameObject[] armorPowerUpObjects;
     public GameObject[] invulnerabilityPowerUpObjects;
     public GameObject winObject;
     public GameObject winCanvas;
@@ -24,7 +24,7 @@ public class LocalSceneManger : MonoBehaviour
  
         if (SceneManager.GetActiveScene().name == Constants.GAME_LEVEL)
             _networkManager.GameStarted(playerPositions, enemiesPositions, winObject, 
-                healPowerUpObjects, speedPowerUpObjects, invulnerabilityPowerUpObjects);
+                healPowerUpObjects, armorPowerUpObjects, invulnerabilityPowerUpObjects);
     }
 
     private void Start()
@@ -39,13 +39,9 @@ public class LocalSceneManger : MonoBehaviour
         {
             var currentSceneName = SceneManager.GetActiveScene().name;
             
-            if (currentSceneName == Constants.LOBBY_SCENE || currentSceneName == Constants.FINISH_GAME_SCENE || currentSceneName == Constants.GAME_LEVEL && PhotonNetwork.LocalPlayer.IsMasterClient)
+            if (currentSceneName == Constants.LOBBY_SCENE || currentSceneName == Constants.FINISH_GAME_SCENE || currentSceneName == Constants.GAME_LEVEL && PhotonNetwork.IsMasterClient)
             {
                 NetBackButton();    
-            }
-            else
-            {
-                SimpleBackButton();
             }
         }
         

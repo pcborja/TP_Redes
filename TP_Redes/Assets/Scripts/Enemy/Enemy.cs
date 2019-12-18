@@ -204,7 +204,7 @@ public class Enemy : MonoBehaviourPun
         yield return new WaitForSeconds(timeToAttack);
 
         if (currentTarget && Vector3.Distance(transform.position, currentTarget.position) <= 2)
-                currentTarget.gameObject.GetComponent<Character>().LifeChange(-damage);
+                currentTarget.gameObject.GetComponent<Character>().TakeDamage(-damage);
         
         _isAttacking = false;
         _anim.SetBool("IsAttacking", false);
@@ -244,9 +244,10 @@ public class Enemy : MonoBehaviourPun
             PhotonNetwork.Destroy(gameObject);
     }
 
-    public void TakeDamage(float dmg)
+    public void TakeDamage(float dmg, Character character)
     {
         hp -= dmg;
+        transform.LookAt(character.transform.position);
     }
     
     private void SetIsMoving(bool v)

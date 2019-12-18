@@ -6,6 +6,7 @@ public class Bullet : MonoBehaviourPun
     public enum ShootBy {Player, Enemy}
     [HideInInspector] public ShootBy shootBy;
     [HideInInspector] public float damage;
+    [HideInInspector] public Character owner;
     public float bulletLife;
     public float bulletSpeed;
     
@@ -35,12 +36,12 @@ public class Bullet : MonoBehaviourPun
     {
         if (other.gameObject.GetComponent<Character>() && shootBy == ShootBy.Enemy)
         {
-            other.gameObject.GetComponent<Character>().LifeChange(-damage);
+            other.gameObject.GetComponent<Character>().TakeDamage(-damage);
             Destroy();
         }
 
         if (other.gameObject.GetComponent<Enemy>() && shootBy == ShootBy.Player)
-            other.gameObject.GetComponent<Enemy>().TakeDamage(damage);
+            other.gameObject.GetComponent<Enemy>().TakeDamage(damage, owner);
         
         if (!other.gameObject.GetComponent<Character>())
             Destroy();
