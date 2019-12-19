@@ -248,7 +248,7 @@ public class Enemy : MonoBehaviourPun
 
     private IEnumerator FindPlayers()
     {
-        yield return new WaitForSeconds(2);
+        yield return new WaitForSeconds(4);
         players = FindObjectsOfType<Character>();
     }
     

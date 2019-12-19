@@ -60,7 +60,7 @@ public class Character : MonoBehaviourPun
 
     private void Update()
     {    
-        if (!_view.IsMine || isDead) return;
+        if (!_view.IsMine || isDead || !PhotonNetwork.IsMasterClient) return;
         
         Timers();
         TryToMove();
@@ -252,7 +252,7 @@ public class Character : MonoBehaviourPun
         shootTimer += Time.deltaTime;
         _invulnerabilityTimer += Time.deltaTime;
         
-        if (_invulnerabilityTimer >= _invulnerabilityTime)
+        if (_invulnerabilityTimer >= _invulnerabilityTime && _invulnerabilityActive)
             ChangeInvulnerability(false);
     }
 
