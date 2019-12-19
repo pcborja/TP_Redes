@@ -14,6 +14,7 @@ public class LocalSceneManger : MonoBehaviour
     public GameObject winObject;
     public GameObject winCanvas;
     public GameObject loseCanvas;
+    public Canvas localCanvas;
     private InputField _inputField;
     
     private NetworkManager _networkManager;

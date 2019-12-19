@@ -13,7 +13,6 @@ using Vector3 = UnityEngine.Vector3;
 public class Character : MonoBehaviourPun
 {
     public float speed;
-    public Rigidbody rb;
     public bool canMove;
     public float timeToShoot = 1;
     public Transform shootObject;
@@ -34,7 +33,6 @@ public class Character : MonoBehaviourPun
     private float _armor;
     private Animator _anim;
     private PhotonView _view;
-    private float _speedTimer;
     private float _invulnerabilityTimer;
     private float _invulnerabilityTime;
     private bool _invulnerabilityActive;
@@ -43,11 +41,11 @@ public class Character : MonoBehaviourPun
     private int _currentWp;
     private bool _alreadySpotted;
     private GameObject _posToMove;
+    private Vector3 UIPos = new Vector3(0f, 0.424f, 0.86f);
     
     private void Awake()
     {
         _anim = GetComponent<Animator>();
-        rb = GetComponent<Rigidbody>();
     }
     
     private void Start()
@@ -148,7 +146,7 @@ public class Character : MonoBehaviourPun
         var bullet = PhotonNetwork.Instantiate("Bullet", spawnPos, transform.rotation).GetComponent<Bullet>();
         
         bullet.shootBy = Bullet.ShootBy.Player;
-        bullet.owner = this;
+        bullet.startPos = transform.position;
         bullet.damage = damage;
         
         yield return new WaitForSeconds(1);
@@ -158,9 +156,16 @@ public class Character : MonoBehaviourPun
 
     public IEnumerator Dead()
     {
+        isDead = true;
+            
+        if (_anim)
+            _anim.SetBool("IsDead", true);
+        
         yield return new WaitForSeconds(1);
+
         _view.RPC("TurnColliderOff", RpcTarget.AllBuffered);
         LevelManager.Instance.PlayerDead(owner);
+        
     }
 
     [PunRPC]
@@ -203,14 +208,7 @@ public class Character : MonoBehaviourPun
         _view.RPC("SetLifeImage", owner, _hp);
         
         if (_hp <= 0)
-        {
-            isDead = true;
-            
-            if (_anim)
-                _anim.SetBool("IsDead", true);
-            
             StartCoroutine(Dead());
-        }
     }
     
     [PunRPC] 
@@ -248,7 +246,6 @@ public class Character : MonoBehaviourPun
     private void Timers()
     {
         shootTimer += Time.deltaTime;
-        _speedTimer += Time.deltaTime;
         _invulnerabilityTimer += Time.deltaTime;
         
         if (_invulnerabilityTimer >= _invulnerabilityTime)
@@ -274,24 +271,19 @@ public class Character : MonoBehaviourPun
     public void SetOwner(Player p)
     {
         owner = p;
-        photonView.RPC("SetLocalSettings", owner, _hp, _armor);
+        photonView.RPC("SetLocalData", owner);
     }
     
     [PunRPC]
-    private void SetLocalSettings(float hp, float armor)
+    private void SetLocalData()
     {
-        var canvas = FindObjectOfType<Canvas>();
-        healthBar = canvas.transform.Find("HealthBar").GetComponent<Image>();
-        armorBar = canvas.transform.Find("ArmorBar").GetComponent<Image>();
-        
-        canvas.transform.SetParent(transform);
-        canvas.transform.position = Vector3.zero;
+        SetCanvasPos();
         
         if (armorBar)
-            armorBar.fillAmount = armor / 100;
+            armorBar.fillAmount = 0;
         
         if (healthBar)
-            healthBar.fillAmount = hp / 100;
+            healthBar.fillAmount = maxHp;
     }
 
     public void ChangeInvulnerability(bool active, float time = 0)
@@ -353,5 +345,23 @@ public class Character : MonoBehaviourPun
         Gizmos.color = Color.yellow;
         Gizmos.DrawLine(position, position + Quaternion.Euler(0, angle / 2, 0) * transform.forward * range);
         Gizmos.DrawLine(position, position + Quaternion.Euler(0, -angle / 2, 0) * transform.forward * range);
+    }
+    
+    private void SetCanvasPos()
+    {
+        var canvas = FindObjectOfType<LocalSceneManger>().localCanvas;
+        healthBar = canvas.transform.GetChild(0).GetChild(0).GetComponent<Image>();
+        armorBar = canvas.transform.GetChild(1).GetChild(0).GetComponent<Image>();
+        var rect = canvas.GetComponent<RectTransform>();
+        StartCoroutine(SetUIPos(rect));
+    }
+
+    private IEnumerator SetUIPos(RectTransform canvasRect)
+    {
+        while (true)
+        {
+            yield return new WaitForEndOfFrame();
+            canvasRect.localPosition = transform.position + UIPos;
+        }
     }
 }

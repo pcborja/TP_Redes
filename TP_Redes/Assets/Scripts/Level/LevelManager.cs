@@ -109,14 +109,6 @@ public class LevelManager : MonoBehaviourPun
     {
         if (players.ContainsKey(p))
             StartCoroutine(players[p].Dead());
-        
-        _view.RPC("DisconnectPlayer", p);
-    }
-
-    [PunRPC]
-    private void DisconnectPlayer()
-    {
-        _networkManager.DisconnectBehaviour(_networkManager.OnDisconnectPlayer);
     }
 
     [PunRPC]

@@ -203,7 +203,7 @@ public class Enemy : MonoBehaviourPun
         
         yield return new WaitForSeconds(timeToAttack);
 
-        if (currentTarget && Vector3.Distance(transform.position, currentTarget.position) <= 2)
+        if (currentTarget && Vector3.Distance(transform.position, currentTarget.position) <= 3)
                 currentTarget.gameObject.GetComponent<Character>().TakeDamage(-damage);
         
         _isAttacking = false;
@@ -232,36 +232,16 @@ public class Enemy : MonoBehaviourPun
         }
     }
 
-    private void GoToTarget(Vector3 position)
-    {
-        transform.LookAt(position);
-        _rb.AddForce((position - transform.position) * speed);
-    }
-
     private void CheckVitals()
     {
         if (hp <= 0)
             PhotonNetwork.Destroy(gameObject);
     }
 
-    public void TakeDamage(float dmg, Character character)
+    public void TakeDamage(float dmg, Vector3 startPos)
     {
         hp -= dmg;
-        transform.LookAt(character.transform.position);
-    }
-    
-    private void SetIsMoving(bool v)
-    {
-        if (_anim)
-            _anim.SetBool("IsMoving", v);
-    }
-
-    private void LookToTarget(Transform target)
-    {
-        var targetDir = target.position - transform.position;
-        var step = speed * Time.deltaTime;
-        var newDir = Vector3.RotateTowards(transform.forward, targetDir, step, 0.0f);
-        transform.rotation = Quaternion.LookRotation(newDir);
+        transform.LookAt(startPos);
     }
 
     private IEnumerator FindPlayers()
