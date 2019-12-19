@@ -173,7 +173,6 @@ public class Character : MonoBehaviourPun
 
         _view.RPC("TurnColliderOff", RpcTarget.AllBuffered);
         LevelManager.Instance.PlayerDead(owner);
-        
     }
 
     [PunRPC]

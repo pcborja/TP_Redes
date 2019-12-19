@@ -14,6 +14,6 @@ public class TextFadeInOut : MonoBehaviour
     private void Update()
     {
         counter += 0.01f;
-        textToUse.color = new Color(1f, 0f, 0f, Mathf.PingPong(counter * 3, 2));
+        textToUse.color = new Color(0f, 1f, 1f, Mathf.PingPong(counter * 3, 2));
     }
 }

@@ -122,13 +122,13 @@ public class LevelManager : MonoBehaviourPun
             characters[0].gameObject.SetActive(false);
     }
 
-    public void OnClicked(Vector3 hitPoint, Player p, bool isMovement)
+    public void OnClicked(Vector3 hitPoint, Player p, bool isMovement, bool isPowerUp)
     {
-        _view.RPC("CheckActions", RpcTarget.MasterClient, hitPoint, p, isMovement);
+        _view.RPC("CheckActions", RpcTarget.MasterClient, hitPoint, p, isMovement, isPowerUp);
     }
 
     [PunRPC]
-    private void CheckActions(Vector3 hitPoint, Player p, bool isMovement)
+    private void CheckActions(Vector3 hitPoint, Player p, bool isMovement, bool isPowerUp)
     {
         if (players.ContainsKey(p))
         {
@@ -139,6 +139,9 @@ public class LevelManager : MonoBehaviourPun
             }
             else if (isMovement)
             {
+                if (isPowerUp)
+                    hitPoint = new Vector3(hitPoint.x, players[p].transform.position.y - 0.5f, hitPoint.z);
+                
                 players[p].SetCanMove(true, hitPoint);
             }
         }
@@ -240,6 +243,6 @@ public class LevelManager : MonoBehaviourPun
         if (!_loadedSounds.ContainsKey(soundName))
             _loadedSounds.Add(soundName, Resources.Load<AudioClip>(soundName));
             
-        AudioSource.PlayClipAtPoint(_loadedSounds[soundName], location);
+        AudioSource.PlayClipAtPoint(_loadedSounds[soundName], location, 1);
     }
 }

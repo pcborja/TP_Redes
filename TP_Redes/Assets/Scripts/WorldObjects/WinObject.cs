@@ -8,19 +8,20 @@ public class WinObject : MonoBehaviourPun
 
     private void Awake()
     {
-        _view = GetComponent<PhotonView>();
+        if (PhotonNetwork.IsMasterClient)
+            _view = GetComponent<PhotonView>();
     }
 
     private void Start()
     {
-        if (!_view.IsMine)
-            DestroyImmediate(gameObject);
-        else
+        if (PhotonNetwork.IsMasterClient)
             _canBeTriggered = true;
     }
 
     private void OnTriggerEnter(Collider other)
     {
+        if (!PhotonNetwork.IsMasterClient) return;
+        
         if (other.gameObject.GetComponent<Character>() && _canBeTriggered)
         {
             _canBeTriggered = false;

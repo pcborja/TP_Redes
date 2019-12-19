@@ -17,4 +17,5 @@
     public static string LOBBY_MUSIC = "LobbyMusic";
     public static string GAME_MUSIC = "GameMusic";
     public static string PICKUP_SOUND = "PickupSound";
+    public static string PICKUP_EFFECT = "PickupEffect";
 }

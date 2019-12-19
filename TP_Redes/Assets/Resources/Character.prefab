@@ -92,7 +92,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   speed: 5
   canMove: 0
-  timeToShoot: 1
+  timeToShoot: 0.5
   shootObject: {fileID: 8801413083213108032}
   damage: 10
   isShooting: 0

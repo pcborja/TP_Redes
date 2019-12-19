@@ -27,6 +27,9 @@ public class PowerUp : MonoBehaviourPun
         if (other.gameObject.GetComponent<Character>() && !_used)
         {
             _used = true;
+
+            LevelManager.Instance.TryToPlaySound(Constants.PICKUP_SOUND, transform.position);
+            LevelManager.Instance.TryToPlayEffect(Constants.PICKUP_EFFECT, transform.position, transform.forward);
         
             if (healPowerUp)
                 LevelManager.Instance.HealPowerUp(other.gameObject.GetComponent<Character>(), healAmount);
@@ -34,8 +37,6 @@ public class PowerUp : MonoBehaviourPun
                 LevelManager.Instance.ArmorPowerUp(other.gameObject.GetComponent<Character>(), armorAmount);
             else if (invulnerabilityPowerUp)
                 LevelManager.Instance.InvulnerabilityPowerUp(other.gameObject.GetComponent<Character>(), invulnerabilityTime);
-            
-            LevelManager.Instance.PlaySoundForPlayer(Constants.PICKUP_SOUND, transform.position, other.gameObject.GetComponent<Character>());
             
             PhotonNetwork.Destroy(gameObject);
         }            

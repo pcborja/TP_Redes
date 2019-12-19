@@ -48,7 +48,8 @@ public class Controller : MonoBehaviourPun
         //Andrea me dijo que haga aca el raycast aunque "no respete" FA porque no se pudo de otra forma
         if (Physics.Raycast(Camera.main.ScreenPointToRay(Input.mousePosition), out var hit, 100))
         {
-            LevelManager.Instance.OnClicked(hit.point, PhotonNetwork.LocalPlayer, isMovement);
+            var isPowerUp = hit.transform.GetComponent<PowerUp>();
+            LevelManager.Instance.OnClicked(hit.point, PhotonNetwork.LocalPlayer, isMovement, isPowerUp);
         }
     }
     

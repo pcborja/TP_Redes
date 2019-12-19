@@ -203,10 +203,10 @@ public class Enemy : MonoBehaviourPun
         
         yield return new WaitForSeconds(timeToAttack);
 
-        if (currentTarget && Vector3.Distance(transform.position, currentTarget.position) <= 3)
+        if (currentTarget && Vector3.Distance(transform.position, currentTarget.position) <= attackRange)
                 currentTarget.gameObject.GetComponent<Character>().TakeDamage(-damage);
         
-        _anim.SetBool("IsMoving", true);
+        _anim.SetBool("IsAttacking", false);
         _isAttacking = false;
         
         if (!PlayerSpoted())
@@ -313,7 +313,17 @@ public class Enemy : MonoBehaviourPun
     
     private bool PlayerSpoted()
     {
-        return currentTarget && BasicBehaviours.TargetIsInSight(gameObject.transform, currentTarget.transform, range, angle);
+        return currentTarget && BasicBehaviours.TargetIsInSight(gameObject.transform, currentTarget.transform, range, angle) || currentTarget && IsClose(currentTarget);
+    }
+
+    private bool IsClose(Transform player)
+    {
+        var isClose = Vector3.Distance(transform.position, player.position) < 5;
+        
+        if (isClose)
+            transform.LookAt(currentTarget.transform);
+
+        return isClose;
     }
 
     private bool PlayerInRange()
