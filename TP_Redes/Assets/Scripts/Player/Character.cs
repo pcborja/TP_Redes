@@ -26,6 +26,7 @@ public class Character : MonoBehaviourPun
     public float angle;
     public Image healthBar;
     public Image armorBar;
+    public int pathfindingMaxNodes;
     
     [HideInInspector] public bool isDead;
     
@@ -154,7 +155,13 @@ public class Character : MonoBehaviourPun
         SetIsShooting(false);
     }
 
-    public IEnumerator Dead()
+    public void TryToDie()
+    {
+        if (!isDead)
+            StartCoroutine(Dead());
+    }
+
+    private IEnumerator Dead()
     {
         isDead = true;
             
@@ -206,9 +213,9 @@ public class Character : MonoBehaviourPun
             _hp = maxHp;
 
         _view.RPC("SetLifeImage", owner, _hp);
-        
+
         if (_hp <= 0)
-            StartCoroutine(Dead());
+            TryToDie();
     }
     
     [PunRPC] 
@@ -306,6 +313,9 @@ public class Character : MonoBehaviourPun
         
         var nodes = AStar.AStarNodes(currentNode,finalNode, Heuristic);
 
+        if (nodes.Count > pathfindingMaxNodes)
+            nodes = nodes.Take(pathfindingMaxNodes).ToList();
+        
         foreach (var node in nodes)
         {
             _nodePath.Add(node.transform); 

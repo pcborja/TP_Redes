@@ -39,7 +39,6 @@ MonoBehaviour:
   - DestroyRpc
   - DestroySpaceship
   - DisconnectAll
-  - DisconnectPlayer
   - DisconnectRPC
   - Fire
   - LoadFinishGame
@@ -48,6 +47,8 @@ MonoBehaviour:
   - OnConnection
   - OnInvulnerability
   - PlayerReadyVisuals
+  - PlaySound
+  - PlaySoundAtLocation
   - RefreshFriendsPanel
   - RemoveCharacter
   - RequestActivateFriendsPanel
@@ -56,14 +57,13 @@ MonoBehaviour:
   - SendChatMessage
   - SetArmorImage
   - SetLifeImage
-  - SetLocalSettings
+  - SetLocalData
   - SetMyCamera
   - SetPlayerIsReady
   - SetReference
   - TurnColliderOff
   - UpdatePlayersChat
-  - PlaySound
-  - PlaySoundAtLocation
-  - SetLocalData
+  - ActivePlayerStatus
+  - UpdatePlayerStatusInfo
   DisableAutoOpenWizard: 1
   ShowSettings: 1

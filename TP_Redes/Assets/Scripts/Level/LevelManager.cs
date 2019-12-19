@@ -108,7 +108,7 @@ public class LevelManager : MonoBehaviourPun
     public void DisconnectRPC(Player p)
     {
         if (players.ContainsKey(p))
-            StartCoroutine(players[p].Dead());
+            players[p].TryToDie();
     }
 
     [PunRPC]
@@ -149,6 +149,8 @@ public class LevelManager : MonoBehaviourPun
 
     public void PlayerDead(Player p)
     {
+        _networkManager.OnPlayerDeadStatus(p);
+        
         if (players.All(x => x.Value.isDead))
             _networkManager.FinishGame(null);
         else

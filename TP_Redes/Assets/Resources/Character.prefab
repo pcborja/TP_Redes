@@ -102,6 +102,7 @@ MonoBehaviour:
   angle: 150
   healthBar: {fileID: 0}
   armorBar: {fileID: 0}
+  pathfindingMaxNodes: 5
   isDead: 0
 --- !u!114 &1726287689614538615
 MonoBehaviour:
@@ -271,10 +272,6 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 1726287689614538616}
     m_Modifications:
-    - target: {fileID: 1088446404920904, guid: 4de534fd36773e04db77497c7cb89e55, type: 3}
-      propertyPath: m_Name
-      value: SciFiWarriorPBR
-      objectReference: {fileID: 0}
     - target: {fileID: 4461509016300196, guid: 4de534fd36773e04db77497c7cb89e55, type: 3}
       propertyPath: m_LocalPosition.x
       value: 0
@@ -318,6 +315,10 @@ PrefabInstance:
     - target: {fileID: 4461509016300196, guid: 4de534fd36773e04db77497c7cb89e55, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1088446404920904, guid: 4de534fd36773e04db77497c7cb89e55, type: 3}
+      propertyPath: m_Name
+      value: SciFiWarriorPBR
       objectReference: {fileID: 0}
     - target: {fileID: 4006512851812304, guid: 4de534fd36773e04db77497c7cb89e55, type: 3}
       propertyPath: m_LocalRotation.x

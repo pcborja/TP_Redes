@@ -21,6 +21,9 @@ public class NetworkManager : MonoBehaviourPunCallbacks
     public Text connectingText;
     public GameObject textObject;
     public GameObject chatScroll;
+    public GameObject playerStatusPanel;
+    public Text[] playerStatusNames;
+    public Text[] playerStatusStatus;
     
     [HideInInspector] public GameObject[] playerPositions;
     [HideInInspector] public GameObject[] enemiesPositions;
@@ -145,8 +148,52 @@ public class NetworkManager : MonoBehaviourPunCallbacks
         _view.RPC("ActivateFriendsPanel", RpcTarget.AllBuffered, false);
         _view.RPC("ActiveChat", RpcTarget.AllBuffered, false);
         _view.RPC("LoadGameScene", RpcTarget.AllBuffered);
+
+        StartPlayerStatus();
     }
 
+    private void StartPlayerStatus()
+    {
+        _view.RPC("ActivePlayerStatus", RpcTarget.AllBuffered, true);
+
+        var players = PhotonNetwork.PlayerListOthers;
+        for (var i = 0; i < players.Length; i++)
+        {
+            _view.RPC("UpdatePlayerStatusInfo", RpcTarget.AllBuffered, i, players[i].NickName, GetPlayerColor(players[i]), Constants.ALIVE);
+        }
+    }
+
+    public void OnPlayerDeadStatus(Player p)
+    {
+        _view.RPC("UpdatePlayerStatusInfo", RpcTarget.AllBuffered, GetPlayerIndex(p), p.NickName, "", Constants.DEAD);
+    }
+
+    [PunRPC]
+    private void ActivePlayerStatus(bool active)
+    {
+        playerStatusPanel.SetActive(active);
+
+        foreach (var statusName in playerStatusNames)
+        {
+            statusName.text = "";
+        }
+        
+        foreach (var status in playerStatusStatus)
+        {
+            status.text = "";
+        }
+    }
+
+    [PunRPC]
+    private void UpdatePlayerStatusInfo(int index, string playerName, string playerColor, string playerStatus)
+    {
+        playerStatusNames[index].text = playerName;
+        playerStatusStatus[index].text = playerStatus;
+        playerStatusStatus[index].color = playerStatusStatus[index].text == Constants.ALIVE ? Color.green : Color.red;
+        if (ColorUtility.TryParseHtmlString(playerColor, out var color))
+            playerStatusNames[index].color = color;
+    }
+    
     [PunRPC]
     private void LoadGameScene()
     {
@@ -365,7 +412,7 @@ public class NetworkManager : MonoBehaviourPunCallbacks
 
     public void PlayerLose(Player p)
     {
-        _view.RPC("LoadFinishGame", p, p, false);
+        _view.RPC("LoadFinishGame", p, false);
     }
     
     public void FinishGame(Player p)
@@ -373,7 +420,7 @@ public class NetworkManager : MonoBehaviourPunCallbacks
         foreach (var player in PhotonNetwork.PlayerList)
         {
             if (!Equals(player, PhotonNetwork.MasterClient))
-                _view.RPC("LoadFinishGame", player, player, player.Equals(p));
+                _view.RPC("LoadFinishGame", player, player.Equals(p));
         }
 
         StartCoroutine(MasterFinishGame());
@@ -382,16 +429,16 @@ public class NetworkManager : MonoBehaviourPunCallbacks
     private IEnumerator MasterFinishGame()
     {
         yield return new WaitForSeconds(0.5f);
-        LoadFinishGame(PhotonNetwork.LocalPlayer, true);
+        LoadFinishGame(false);
     }
 
     [PunRPC]
-    private void LoadFinishGame(Player p, bool winner)
+    private void LoadFinishGame(bool winner)
     {
-        FinishGameScene(p, winner);
+        FinishGameScene(winner);
     }
     
-    private void FinishGameScene(Player p, bool winner)
+    private void FinishGameScene(bool winner)
     {
         PhotonNetwork.LoadLevel(Constants.FINISH_GAME_SCENE);
         
@@ -399,6 +446,7 @@ public class NetworkManager : MonoBehaviourPunCallbacks
 
         ActivateFriendsPanel(true);
         ActiveChat(true);
+        ActivePlayerStatus(false);
     }
 
     public void RequestSendMessage(Player p, string text)
@@ -498,6 +546,21 @@ public class NetworkManager : MonoBehaviourPunCallbacks
     {
         if (!PhotonNetwork.IsMasterClient)
             _playFabController.GetFriends();
+    }
+    
+    private int GetPlayerIndex(Player player)
+    {
+        var desiredIndex = 0;
+        
+        for (var i = 0; i < PhotonNetwork.PlayerListOthers.Length; i++)
+        {
+            if (Equals(PhotonNetwork.PlayerListOthers[i], player))
+            {
+                desiredIndex = i;
+                break;
+            }
+        }
+        return desiredIndex;
     }
 }
 

@@ -7,4 +7,6 @@
     public static string LOBBY_SCENE = "Lobby";
     public static string HOW_TO_PLAY_SCENE = "HowToPlayScene";
     public static string GAME_LEVEL = "GameLevel";
+    public static string ALIVE = "Alive";
+    public static string DEAD = "Dead";
 }
