@@ -40,12 +40,15 @@ public class NetworkManager : MonoBehaviourPunCallbacks
     private bool _host;
     private List<Message> _messagesList = new List<Message>();
     private float _timer;
+    private AudioSource _audioSource;
+    private Dictionary<string, AudioClip> _musicsLoaded = new Dictionary<string, AudioClip>();
     
     private void Awake()
     {
         DontDestroyOnLoad(gameObject);
         _view = GetComponent<PhotonView>();
         _playFabController = FindObjectOfType<PlayFabController>();
+        _audioSource = GetComponent<AudioSource>();
     }
 
     private void Update()
@@ -100,6 +103,7 @@ public class NetworkManager : MonoBehaviourPunCallbacks
             _view.RPC("OnConnection", RpcTarget.MasterClient, PhotonNetwork.LocalPlayer);
             readyButtonObject.SetActive(true);
             TryActivateFriendsPanel(true);
+            TryPlayMusic(Constants.LOBBY_MUSIC);
         }
 
         ActiveChat(true);
@@ -350,13 +354,15 @@ public class NetworkManager : MonoBehaviourPunCallbacks
         healPowerUpObjects = healPowerUps;
         armorPowerUpObjects = armorPowerUps;
         invulnerabilityPowerUpObjects = invulnerabilityPowerUps;
+
+        PlayMusicForAll(Constants.GAME_MUSIC);
         
         if (PhotonNetwork.IsMasterClient)
             CreateLevelManager();
         else
             CreateController();
     }
-    
+
     private void CreateLevelManager()
     {
         PhotonNetwork.Instantiate("LevelManager", Vector3.zero, Quaternion.identity);
@@ -435,11 +441,6 @@ public class NetworkManager : MonoBehaviourPunCallbacks
     [PunRPC]
     private void LoadFinishGame(bool winner)
     {
-        FinishGameScene(winner);
-    }
-    
-    private void FinishGameScene(bool winner)
-    {
         PhotonNetwork.LoadLevel(Constants.FINISH_GAME_SCENE);
         
         StartCoroutine(FinishGameSceneLoaded(winner));
@@ -447,6 +448,7 @@ public class NetworkManager : MonoBehaviourPunCallbacks
         ActivateFriendsPanel(true);
         ActiveChat(true);
         ActivePlayerStatus(false);
+        TryPlayMusic(winner ? Constants.WIN_GAME_MUSIC : Constants.LOSE_GAME_MUSIC);
     }
 
     public void RequestSendMessage(Player p, string text)
@@ -561,6 +563,33 @@ public class NetworkManager : MonoBehaviourPunCallbacks
             }
         }
         return desiredIndex;
+    }
+    
+    private void PlayMusicForAll(string musicName)
+    {
+        _view.RPC("PlayRequestedMusic", RpcTarget.AllBuffered, musicName);
+    }
+
+    private void TryPlayMusic(string musicName)
+    {
+        _view.RPC("PlayMusic", PhotonNetwork.MasterClient,PhotonNetwork.LocalPlayer, musicName);
+    }
+
+    [PunRPC]
+    private void PlayMusic(Player p, string musicName)
+    {
+        _view.RPC("PlayRequestedMusic", p, musicName);
+    }
+    
+    [PunRPC]
+    private void PlayRequestedMusic(string musicName)
+    {
+        if (!_musicsLoaded.ContainsKey(musicName))
+            _musicsLoaded.Add(musicName, Resources.Load<AudioClip>(musicName));
+
+        _audioSource.Stop();
+        _audioSource.clip = _musicsLoaded[musicName];
+        _audioSource.Play();
     }
 }
 

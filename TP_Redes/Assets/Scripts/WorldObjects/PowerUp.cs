@@ -35,6 +35,8 @@ public class PowerUp : MonoBehaviourPun
             else if (invulnerabilityPowerUp)
                 LevelManager.Instance.InvulnerabilityPowerUp(other.gameObject.GetComponent<Character>(), invulnerabilityTime);
             
+            LevelManager.Instance.PlaySoundForPlayer(Constants.PICKUP_SOUND, transform.position, other.gameObject.GetComponent<Character>());
+            
             PhotonNetwork.Destroy(gameObject);
         }            
     }

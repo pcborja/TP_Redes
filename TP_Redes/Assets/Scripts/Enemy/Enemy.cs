@@ -242,6 +242,8 @@ public class Enemy : MonoBehaviourPun
     {
         hp -= dmg;
         transform.LookAt(startPos);
+        
+        LevelManager.Instance.TryToPlaySound(Constants.ENEMY_HIT_SOUND, transform.position);
     }
 
     private IEnumerator FindPlayers()

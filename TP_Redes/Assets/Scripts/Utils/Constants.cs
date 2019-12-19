@@ -11,4 +11,10 @@
     public static string DEAD = "Dead";
     public static string SHOOT_SOUND = "ShootSound";
     public static string SHOOT_EFFECT = "ShootEffect";
+    public static string ENEMY_HIT_SOUND = "EnemySoundDamage";
+    public static string LOSE_GAME_MUSIC = "LoseMusic";
+    public static string WIN_GAME_MUSIC = "WinMusic";
+    public static string LOBBY_MUSIC = "LobbyMusic";
+    public static string GAME_MUSIC = "GameMusic";
+    public static string PICKUP_SOUND = "PickupSound";
 }

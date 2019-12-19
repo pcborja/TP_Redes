@@ -224,6 +224,15 @@ public class LevelManager : MonoBehaviourPun
     {
         _view.RPC("PlaySoundAtLocation", RpcTarget.AllBuffered, soundName, location);
     }
+
+    public void PlaySoundForPlayer(string soundName, Vector3 location, Character character)
+    {
+        if (players.ContainsValue(character))
+        {
+            var player = players.FirstOrDefault(x => x.Value == character).Key;
+            _view.RPC("PlaySoundAtLocation", player, soundName, location);
+        }
+    }
     
     [PunRPC]
     private void PlaySoundAtLocation(string soundName, Vector3 location)
