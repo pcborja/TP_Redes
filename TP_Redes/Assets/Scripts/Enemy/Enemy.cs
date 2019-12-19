@@ -206,8 +206,8 @@ public class Enemy : MonoBehaviourPun
         if (currentTarget && Vector3.Distance(transform.position, currentTarget.position) <= 3)
                 currentTarget.gameObject.GetComponent<Character>().TakeDamage(-damage);
         
+        _anim.SetBool("IsMoving", true);
         _isAttacking = false;
-        _anim.SetBool("IsAttacking", false);
         
         if (!PlayerSpoted())
             fsm.Feed(Input.Search);
@@ -325,17 +325,5 @@ public class Enemy : MonoBehaviourPun
         {
             patrolNodes.Add(GetClosestNodeTo(transform.position, patrolNodes).transform);  
         }
-    }
-    
-    private void OnDrawGizmos()
-    {
-        var position = transform.position;
-
-        Gizmos.color = Color.white;
-        Gizmos.DrawWireSphere(position, range);
-
-        Gizmos.color = Color.yellow;
-        Gizmos.DrawLine(position, position + Quaternion.Euler(0, angle / 2, 0) * transform.forward * range);
-        Gizmos.DrawLine(position, position + Quaternion.Euler(0, -angle / 2, 0) * transform.forward * range);
     }
 }

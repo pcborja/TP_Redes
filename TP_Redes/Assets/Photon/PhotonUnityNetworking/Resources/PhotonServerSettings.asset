@@ -65,5 +65,7 @@ MonoBehaviour:
   - UpdatePlayersChat
   - ActivePlayerStatus
   - UpdatePlayerStatusInfo
+  - PlayEffect
+  - PlayEffectAtLocation
   DisableAutoOpenWizard: 1
   ShowSettings: 1

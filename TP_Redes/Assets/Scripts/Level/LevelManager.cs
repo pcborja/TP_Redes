@@ -23,7 +23,9 @@ public class LevelManager : MonoBehaviourPun
     private NetworkManager _networkManager;
     private PhotonView _view;
     private AudioSource _audioSource;
-
+    private Dictionary<string, AudioClip> _loadedSounds = new Dictionary<string, AudioClip>();
+    private Dictionary<string, GameObject> _loadedEffects = new Dictionary<string, GameObject>();
+    
     private void Awake()
     {
         _view = GetComponent<PhotonView>();
@@ -190,20 +192,45 @@ public class LevelManager : MonoBehaviourPun
         }
     }
 
-    public void TryToPlaySound(string soundName, Player p)
+    public void TryToPlayEffect(string effectName, Vector3 location, Vector3 forward)
     {
-        _view.RPC("PlaySound", RpcTarget.MasterClient, soundName, p);
+        _view.RPC("PlayEffect", RpcTarget.MasterClient, effectName, location, forward);
+    }
+    
+    [PunRPC]
+    private void PlayEffect(string effectName, Vector3 location, Vector3 forward)
+    {
+        _view.RPC("PlayEffectAtLocation", RpcTarget.AllBuffered, effectName, location, forward);
+    }
+    
+    [PunRPC]
+    private void PlayEffectAtLocation(string effectName, Vector3 location, Vector3 forward)
+    {
+        if (!_loadedEffects.ContainsKey(effectName))
+            _loadedEffects.Add(effectName, Instantiate(Resources.Load<GameObject>(effectName)));
+
+        _loadedEffects[effectName].transform.position = location;
+        _loadedEffects[effectName].transform.forward = forward;
+        _loadedEffects[effectName].GetComponent<ParticleSystem>().Play();
+    }
+    
+    public void TryToPlaySound(string soundName, Vector3 location)
+    {
+        _view.RPC("PlaySound", RpcTarget.MasterClient, soundName, location);
     }
 
     [PunRPC]
-    private void PlaySound(string soundName, Player p)
+    private void PlaySound(string soundName, Vector3 location)
     {
-        _view.RPC("PlaySoundAtLocation", RpcTarget.AllBuffered, soundName, players[p].transform.position);
+        _view.RPC("PlaySoundAtLocation", RpcTarget.AllBuffered, soundName, location);
     }
     
     [PunRPC]
     private void PlaySoundAtLocation(string soundName, Vector3 location)
     {
-        AudioSource.PlayClipAtPoint(Resources.Load<AudioClip>(soundName), location);
+        if (!_loadedSounds.ContainsKey(soundName))
+            _loadedSounds.Add(soundName, Resources.Load<AudioClip>(soundName));
+            
+        AudioSource.PlayClipAtPoint(_loadedSounds[soundName], location);
     }
 }

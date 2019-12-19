@@ -180,7 +180,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ade95c9d7589f46e5b7e4c3a3dd02a30, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  damage: 5
+  damage: 10
   hp: 30
   timeToAttack: 1
   currentTarget: {fileID: 0}

@@ -18,6 +18,7 @@ GameObject:
   - component: {fileID: 8486816865196023546}
   - component: {fileID: 6573503177308316856}
   - component: {fileID: 7927622152853422591}
+  - component: {fileID: 8797713059860431354}
   m_Layer: 0
   m_Name: Character
   m_TagString: Untagged
@@ -91,7 +92,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   speed: 5
   canMove: 0
-  timeToShoot: 0
+  timeToShoot: 1
   shootObject: {fileID: 8801413083213108032}
   damage: 10
   isShooting: 0
@@ -99,7 +100,7 @@ MonoBehaviour:
   maxHp: 100
   maxArmor: 100
   range: 10
-  angle: 150
+  angle: 360
   healthBar: {fileID: 0}
   armorBar: {fileID: 0}
   pathfindingMaxNodes: 5
@@ -235,6 +236,14 @@ MonoBehaviour:
   m_SynchronizeLayers:
   - SynchronizeType: 0
     LayerIndex: 0
+--- !u!81 &8797713059860431354
+AudioListener:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1726287689614538617}
+  m_Enabled: 1
 --- !u!1 &8145665523580918605
 GameObject:
   m_ObjectHideFlags: 0
@@ -258,13 +267,13 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 8145665523580918605}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalRotation: {x: 0, y: 0.953717, z: 0.30070576, w: 0}
+  m_LocalPosition: {x: 0, y: 0.8772, z: -0.5721}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 8605558106953665176}
   m_RootOrder: 0
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_LocalEulerAnglesHint: {x: -35, y: 180, z: 0}
 --- !u!1001 &8610147378783788410
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -272,6 +281,10 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 1726287689614538616}
     m_Modifications:
+    - target: {fileID: 1088446404920904, guid: 4de534fd36773e04db77497c7cb89e55, type: 3}
+      propertyPath: m_Name
+      value: SciFiWarriorPBR
+      objectReference: {fileID: 0}
     - target: {fileID: 4461509016300196, guid: 4de534fd36773e04db77497c7cb89e55, type: 3}
       propertyPath: m_LocalPosition.x
       value: 0
@@ -315,10 +328,6 @@ PrefabInstance:
     - target: {fileID: 4461509016300196, guid: 4de534fd36773e04db77497c7cb89e55, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 1088446404920904, guid: 4de534fd36773e04db77497c7cb89e55, type: 3}
-      propertyPath: m_Name
-      value: SciFiWarriorPBR
       objectReference: {fileID: 0}
     - target: {fileID: 4006512851812304, guid: 4de534fd36773e04db77497c7cb89e55, type: 3}
       propertyPath: m_LocalRotation.x

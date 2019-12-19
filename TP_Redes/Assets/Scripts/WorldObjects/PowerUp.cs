@@ -18,15 +18,12 @@ public class PowerUp : MonoBehaviourPun
     {
         _view = GetComponent<PhotonView>();
     }
-    
-    private void Start()
-    {
-        if (!_view.IsMine)
-            DestroyImmediate(gameObject);
-    }
 
     private void OnTriggerEnter(Collider other)
     {
+        if (!PhotonNetwork.IsMasterClient)
+            return;
+        
         if (other.gameObject.GetComponent<Character>() && !_used)
         {
             _used = true;
@@ -38,7 +35,7 @@ public class PowerUp : MonoBehaviourPun
             else if (invulnerabilityPowerUp)
                 LevelManager.Instance.InvulnerabilityPowerUp(other.gameObject.GetComponent<Character>(), invulnerabilityTime);
             
-            Destroy(gameObject);
+            PhotonNetwork.Destroy(gameObject);
         }            
     }
 }

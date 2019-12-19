@@ -9,4 +9,6 @@
     public static string GAME_LEVEL = "GameLevel";
     public static string ALIVE = "Alive";
     public static string DEAD = "Dead";
+    public static string SHOOT_SOUND = "ShootSound";
+    public static string SHOOT_EFFECT = "ShootEffect";
 }

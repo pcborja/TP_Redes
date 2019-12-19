@@ -142,15 +142,16 @@ public class Character : MonoBehaviourPun
     
     private IEnumerator Shooting()
     {
+        yield return new WaitForSeconds(0.5f);
+        
         var position = shootObject.position;
-        var spawnPos = new Vector3(position.x, position.y + 1, position.z);
-        var bullet = PhotonNetwork.Instantiate("Bullet", spawnPos, transform.rotation).GetComponent<Bullet>();
+        var bullet = PhotonNetwork.Instantiate("Bullet", position, transform.rotation).GetComponent<Bullet>();
+        LevelManager.Instance.TryToPlaySound(Constants.SHOOT_SOUND, position);
+        LevelManager.Instance.TryToPlayEffect(Constants.SHOOT_EFFECT, position, shootObject.forward);
         
         bullet.shootBy = Bullet.ShootBy.Player;
         bullet.startPos = transform.position;
         bullet.damage = damage;
-        
-        yield return new WaitForSeconds(1);
         
         SetIsShooting(false);
     }
@@ -183,13 +184,12 @@ public class Character : MonoBehaviourPun
 
     public void TakeDamage(float amount)
     {
-        ArmorChange(amount);
+        if (!_invulnerabilityActive)
+            ArmorChange(amount);
     }
     
     public void ArmorChange(float amount)
     {
-        if (amount < 0 && _invulnerabilityActive) return;
-        
         _armor += amount;
         
         if (_armor >= maxArmor)
@@ -205,8 +205,6 @@ public class Character : MonoBehaviourPun
     
     public void LifeChange(float amount)
     {
-        if (amount < 0 && _invulnerabilityActive) return;
-        
         _hp += amount;
 
         if (_hp >= maxHp)
@@ -296,6 +294,7 @@ public class Character : MonoBehaviourPun
     public void ChangeInvulnerability(bool active, float time = 0)
     {
         _invulnerabilityActive = active;
+        _invulnerabilityTimer = 0;
         _view.RPC("OnInvulnerability", owner, active);
 
         if (active)
