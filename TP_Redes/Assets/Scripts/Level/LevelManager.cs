@@ -214,7 +214,17 @@ public class LevelManager : MonoBehaviourPun
 
         _loadedEffects[effectName].transform.position = location;
         _loadedEffects[effectName].transform.forward = forward;
-        _loadedEffects[effectName].GetComponent<ParticleSystem>().Play();
+
+        if (!_loadedEffects[effectName].GetComponent<ParticleSystem>())
+        {
+            var particleSystems = _loadedEffects[effectName].GetComponentsInChildren<ParticleSystem>();
+            foreach (var ps in particleSystems)
+            {
+                ps.Play();
+            }
+        }
+        else
+            _loadedEffects[effectName].GetComponent<ParticleSystem>().Play();
     }
     
     public void TryToPlaySound(string soundName, Vector3 location)

@@ -202,7 +202,7 @@ public class Enemy : MonoBehaviourPun
         _anim.SetBool("IsAttacking", true);
         
         yield return new WaitForSeconds(timeToAttack);
-
+        
         if (currentTarget && Vector3.Distance(transform.position, currentTarget.position) <= attackRange)
                 currentTarget.gameObject.GetComponent<Character>().TakeDamage(-damage);
         

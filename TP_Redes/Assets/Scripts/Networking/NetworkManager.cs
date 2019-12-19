@@ -380,6 +380,7 @@ public class NetworkManager : MonoBehaviourPunCallbacks
 
     public void OnReady()
     {
+        EventSystem.current.SetSelectedGameObject(null, null);
         _view.RPC("SetPlayerIsReady", RpcTarget.MasterClient, PhotonNetwork.LocalPlayer);
     }
 
