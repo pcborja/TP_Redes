@@ -31,9 +31,9 @@ public class Controller : MonoBehaviourPun
         {
             yield return new WaitForSeconds(1 / _packagePerSecond);
 
-            if (Input.GetMouseButtonDown(0))
-                CheckClickActions(true);
             if (Input.GetMouseButtonDown(1))
+                CheckClickActions(true);
+            if (Input.GetMouseButtonDown(0))
                 CheckClickActions(false);
 
             if (Input.GetKeyDown(KeyCode.Escape))
