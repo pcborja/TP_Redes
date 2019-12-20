@@ -106,7 +106,7 @@ public class Character : MonoBehaviourPun
     
     public void SetCanMove(bool v, Vector3 posToMove)
     {
-        if (!_view.IsMine || posToMove.y >= transform.position.y)
+        if (!_view.IsMine || posToMove.y >= transform.parent.transform.position.y)
             return;
         
         SetIsMoving(v);
@@ -116,7 +116,7 @@ public class Character : MonoBehaviourPun
         if (v)
         {
             CalculePath(posToMove);
-            _posToMove.transform.position = posToMove;
+            _posToMove.transform.parent.transform.position = posToMove;
         }
     }
 
@@ -306,7 +306,7 @@ public class Character : MonoBehaviourPun
         _alreadySpotted = false;
         _nodePath = new List<Transform>();
             
-        var currentNode = GetClosestNodeTo(gameObject.transform.position);
+        var currentNode = GetClosestNodeTo(transform.parent.transform.position);
         var finalNode = GetClosestNodeTo(position);
         
         var nodes = AStar.AStarNodes(currentNode,finalNode, Heuristic);

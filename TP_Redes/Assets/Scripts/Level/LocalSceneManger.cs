@@ -79,5 +79,8 @@ public class LocalSceneManger : MonoBehaviour
             winCanvas.SetActive(true);
         else
             loseCanvas.SetActive(true);
+
+        if (winner)
+            _networkManager.NotiftWinner(PhotonNetwork.LocalPlayer);
     }
 }

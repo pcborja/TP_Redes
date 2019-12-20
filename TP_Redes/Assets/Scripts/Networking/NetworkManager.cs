@@ -19,6 +19,7 @@ public class NetworkManager : MonoBehaviourPunCallbacks
     public int pps;
     public int maxMessages;
     public Text connectingText;
+    public Text winnerText;
     public GameObject textObject;
     public GameObject chatScroll;
     public GameObject playerStatusPanel;
@@ -596,6 +597,24 @@ public class NetworkManager : MonoBehaviourPunCallbacks
         _audioSource.Stop();
         _audioSource.clip = _soundsLoaded[musicName];
         _audioSource.Play();
+    }
+    
+    public void NotiftWinner(Player p)
+    {
+        _view.RPC("InformWinner", PhotonNetwork.MasterClient, p);
+    }
+
+    [PunRPC]
+    private void InformWinner(Player p)
+    {
+        _view.RPC("SetWinnerObject", RpcTarget.AllBuffered, p, GetPlayerColor(p));
+    }
+
+    [PunRPC]
+    private void SetWinnerObject(Player p, string color)
+    {
+        winnerText.gameObject.SetActive(true);
+        winnerText.text = "The winner is: " + "<color=" + color + ">" + p.NickName + "</color>" + " !";
     }
 }
 
