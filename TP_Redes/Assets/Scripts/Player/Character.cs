@@ -74,14 +74,14 @@ public class Character : MonoBehaviourPun
 
     private void Move()
     {
-       if (Vector3.Distance(transform.position, _posToMove.transform.position) < 1f || !canMove)
+       if (Vector3.Distance(transform.parent.position, _posToMove.transform.position) < 1f || !canMove)
             SetCanMove(false, Vector3.zero);
 
        if (TargetSpoted())
        {
            _alreadySpotted = true;
            var step = speed * Time.deltaTime;
-           transform.position = Vector3.MoveTowards(transform.position, _posToMove.transform.position, step);
+           transform.parent.position = Vector3.MoveTowards(transform.parent.position, _posToMove.transform.position, step);
            transform.LookAt(_posToMove.transform);
        }
        else if (!_alreadySpotted)
@@ -89,16 +89,16 @@ public class Character : MonoBehaviourPun
            if (isShooting || _nodePath.ElementAtOrDefault(_currentWp) == null)
                return;
            
-           var distance = _nodePath[_currentWp].position - transform.position;
+           var distance = _nodePath[_currentWp].position - transform.parent.position;
 
            if (distance.magnitude > speed * Time.deltaTime)
            {
-               transform.position += distance.normalized * speed * Time.deltaTime;
+               transform.parent.position += distance.normalized * speed * Time.deltaTime;
                transform.forward = Vector3.Lerp(transform.forward, distance.normalized, 0.5f);
            }
            else
            {
-               transform.position = _nodePath[_currentWp].position;
+               transform.parent.position = _nodePath[_currentWp].position;
                _currentWp++;
            }
        }
@@ -306,7 +306,7 @@ public class Character : MonoBehaviourPun
         _alreadySpotted = false;
         _nodePath = new List<Transform>();
             
-        var currentNode = GetClosestNodeTo(gameObject.transform.position);
+        var currentNode = GetClosestNodeTo(transform.position);
         var finalNode = GetClosestNodeTo(position);
         
         var nodes = AStar.AStarNodes(currentNode,finalNode, Heuristic);

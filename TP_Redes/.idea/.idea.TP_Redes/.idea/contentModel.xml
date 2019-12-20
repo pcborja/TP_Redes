@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ContentModelStore">
-    <e p="C:\Users\pablo\.Rider2018.3\system\extResources" t="IncludeRecursive" />
-    <e p="C:\Users\pablo\.Rider2018.3\system\resharper-host\local\Transient\ReSharperHost\v183\SolutionCaches\_TP_Redes.-1688192058.00" t="ExcludeRecursive" />
-    <e p="E:\DV\Cursadas\5to cuatrimestre\Redes\TP_Redes\TP_Redes" t="IncludeRecursive">
+    <e p="$USER_HOME$/Library/Caches/Rider2018.3/extResources" t="IncludeRecursive" />
+    <e p="$USER_HOME$/Library/Caches/Rider2018.3/resharper-host/local/Transient/ReSharperHost/v183/SolutionCaches/_TP_Redes.-1959197821.00" t="ExcludeRecursive" />
+    <e p="$PROJECT_DIR$" t="IncludeRecursive">
       <e p="Assembly-CSharp-Editor.csproj" t="IncludeRecursive" />
       <e p="Assembly-CSharp.csproj" t="IncludeRecursive" />
       <e p="Assets" t="Include">
@@ -610,6 +610,7 @@
           </e>
           <e p="UI" t="Include">
             <e p="ButtonFeedback.cs" t="Include" />
+            <e p="PlayerName.cs" t="Include" />
             <e p="TextFadeInOut.cs" t="Include" />
           </e>
           <e p="Utils" t="Include">

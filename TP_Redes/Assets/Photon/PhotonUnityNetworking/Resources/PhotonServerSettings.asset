@@ -42,6 +42,7 @@ MonoBehaviour:
   - DisconnectAll
   - DisconnectRPC
   - Fire
+  - InformWinner
   - LoadFinishGame
   - LoadGameScene
   - NotifyDisconnection
@@ -64,8 +65,10 @@ MonoBehaviour:
   - SetLifeImage
   - SetLocalData
   - SetMyCamera
+  - SetMyText
   - SetPlayerIsReady
   - SetReference
+  - SetWinnerObject
   - TurnColliderOff
   - UpdatePlayersChat
   - UpdatePlayerStatusInfo
