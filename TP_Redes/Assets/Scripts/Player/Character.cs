@@ -116,7 +116,7 @@ public class Character : MonoBehaviourPun
         if (v)
         {
             CalculePath(posToMove);
-            _posToMove.transform.parent.transform.position = posToMove;
+            _posToMove.transform.position = posToMove;
         }
     }
 
