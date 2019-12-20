@@ -41,7 +41,7 @@ public class NetworkManager : MonoBehaviourPunCallbacks
     private List<Message> _messagesList = new List<Message>();
     private float _timer;
     private AudioSource _audioSource;
-    private Dictionary<string, AudioClip> _musicsLoaded = new Dictionary<string, AudioClip>();
+    private Dictionary<string, AudioClip> _soundsLoaded = new Dictionary<string, AudioClip>();
     
     private void Awake()
     {
@@ -492,6 +492,11 @@ public class NetworkManager : MonoBehaviourPunCallbacks
         newMessage.textObject.text = newMessage.text;
         
         _messagesList.Add(newMessage);
+            
+        if (!_soundsLoaded.ContainsKey(Constants.CHAT_SOUND))
+            _soundsLoaded.Add(Constants.CHAT_SOUND, Resources.Load<AudioClip>(Constants.CHAT_SOUND));
+        
+        chatObject.GetComponent<AudioSource>().PlayOneShot(_soundsLoaded[Constants.CHAT_SOUND]);
     }
     
     public void UpdateInputField(InputField inputField)
@@ -585,11 +590,11 @@ public class NetworkManager : MonoBehaviourPunCallbacks
     [PunRPC]
     private void PlayRequestedMusic(string musicName)
     {
-        if (!_musicsLoaded.ContainsKey(musicName))
-            _musicsLoaded.Add(musicName, Resources.Load<AudioClip>(musicName));
+        if (!_soundsLoaded.ContainsKey(musicName))
+            _soundsLoaded.Add(musicName, Resources.Load<AudioClip>(musicName));
 
         _audioSource.Stop();
-        _audioSource.clip = _musicsLoaded[musicName];
+        _audioSource.clip = _soundsLoaded[musicName];
         _audioSource.Play();
     }
 }

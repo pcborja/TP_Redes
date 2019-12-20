@@ -18,4 +18,7 @@
     public static string GAME_MUSIC = "GameMusic";
     public static string PICKUP_SOUND = "PickupSound";
     public static string PICKUP_EFFECT = "PickupEffect";
+    public static string HOVER_SOUND = "HoverSound";
+    public static string CLICK_SOUND = "ClickSound";
+    public static string CHAT_SOUND = "ChatSound";
 }
