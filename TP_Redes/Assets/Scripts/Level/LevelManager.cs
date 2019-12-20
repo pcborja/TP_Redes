@@ -22,7 +22,6 @@ public class LevelManager : MonoBehaviourPun
     
     private NetworkManager _networkManager;
     private PhotonView _view;
-    private AudioSource _audioSource;
     private Dictionary<string, AudioClip> _loadedSounds = new Dictionary<string, AudioClip>();
     private Dictionary<string, GameObject> _loadedEffects = new Dictionary<string, GameObject>();
     
@@ -32,7 +31,6 @@ public class LevelManager : MonoBehaviourPun
         if (!_view.IsMine) return;
         
         _networkManager = FindObjectOfType<NetworkManager>();
-        _audioSource = GetComponent<AudioSource>();
 
         GetObjectPositions();
         
@@ -84,8 +82,9 @@ public class LevelManager : MonoBehaviourPun
     private void CreatePlayer(Player p)
     {
         var characterObject = GetCharacterObject();
-        var instantiatedChar = PhotonNetwork.Instantiate("Character", characterObject.transform.position, Quaternion.identity);
-        var character = instantiatedChar.GetComponent<Character>();
+        var instantiatedChar = PhotonNetwork.Instantiate("StatedCharacter", characterObject.transform.position, Quaternion.identity);
+        var instantiatedName = instantiatedChar.GetComponentInChildren<PlayerName>();
+        var character = instantiatedChar.GetComponentInChildren<Character>();
        
         players.Add(p, character);
         
@@ -94,6 +93,9 @@ public class LevelManager : MonoBehaviourPun
         character.SetView();
         character.SetCamera(p);
         character.SetOwner(p);
+
+        instantiatedName.SetView();
+        instantiatedName.SetText(p.NickName, _networkManager.GetPlayerColor(p));
     }
 
     private GameObject GetCharacterObject()

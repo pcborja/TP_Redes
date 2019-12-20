@@ -81,7 +81,7 @@ public class Character : MonoBehaviourPun
        {
            _alreadySpotted = true;
            var step = speed * Time.deltaTime;
-           transform.position = Vector3.MoveTowards(transform.position, _posToMove.transform.position, step);
+           transform.parent.transform.position = Vector3.MoveTowards(transform.position, _posToMove.transform.position, step);
            transform.LookAt(_posToMove.transform);
        }
        else if (!_alreadySpotted)
@@ -93,12 +93,12 @@ public class Character : MonoBehaviourPun
 
            if (distance.magnitude > speed * Time.deltaTime)
            {
-               transform.position += distance.normalized * speed * Time.deltaTime;
+               transform.parent.transform.position += distance.normalized * speed * Time.deltaTime;
                transform.forward = Vector3.Lerp(transform.forward, distance.normalized, 0.5f);
            }
            else
            {
-               transform.position = _nodePath[_currentWp].position;
+               transform.parent.transform.position = _nodePath[_currentWp].position;
                _currentWp++;
            }
        }

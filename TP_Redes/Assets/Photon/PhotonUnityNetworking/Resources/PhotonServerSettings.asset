@@ -69,5 +69,6 @@ MonoBehaviour:
   - TurnColliderOff
   - UpdatePlayersChat
   - UpdatePlayerStatusInfo
+  - SetMyText
   DisableAutoOpenWizard: 1
   ShowSettings: 1
